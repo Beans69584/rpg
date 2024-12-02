@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <data name="MainMenu_Title" xml:space="preserve">
+        <value>Juego RPG Demo {0}</value>
+    </data>
+    <data name="MainMenu_Start" xml:space="preserve">
+        <value>Iniciar Nuevo Juego</value>
+    </data>
+    <data name="MainMenu_Load" xml:space="preserve">
+        <value>Cargar Juego</value>
+    </data>
+    <data name="MainMenu_Options" xml:space="preserve">
+        <value>Opciones</value>
+    </data>
+    <data name="MainMenu_Credits" xml:space="preserve">
+        <value>Créditos</value>
+    </data>
+    <data name="MainMenu_Exit" xml:space="preserve">
+        <value>Salir del Juego</value>
+    </data>
+    <data name="Welcome_Message" xml:space="preserve">
+        <value>¡Bienvenido al Juego RPG Demo!</value>
+    </data>
+    <data name="Help_Hint" xml:space="preserve">
+        <value>Escribe 'ayuda' para ver la lista de comandos.</value>
+    </data>
+    <data name="MainMenu_NavigationHint" xml:space="preserve">
+        <value>Usa las flechas para navegar y Enter para seleccionar</value>
+    </data>
+    <data name="MainMenu_Copyright" xml:space="preserve">
+        <value>© {0} Demo RPG Game - Todos los derechos reservados</value>
+    </data>
+    <data name="MainMenu_CreatedFor" xml:space="preserve">
+        <value>Creado con fines educativos</value>
+    </data>
+    <data name="Options_Title" xml:space="preserve">
+        <value>Opciones</value>
+    </data>
+    <data name="Options_Instructions" xml:space="preserve">
+        <value>Usa las flechas Izquierda/Derecha para cambiar el idioma, Arriba/Abajo para navegar</value>
+    </data>
+    <data name="Options_Language" xml:space="preserve">
+        <value>Idioma</value>
+    </data>
+    <data name="Options_Back" xml:space="preserve">
+        <value>Volver</value>
+    </data>
+    <!-- Add more translated strings -->
+    <data name="Error_Title" xml:space="preserve">
+        <value>Error</value>
+    </data>
+    <data name="Error_WindowTooSmall" xml:space="preserve">
+        <value>ERROR: ¡La ventana de la consola es demasiado pequeña!</value>
+    </data>
+    <data name="Error_MinimumSize" xml:space="preserve">
+        <value>Tamaño mínimo requerido: {0}x{1}</value>
+    </data>
+    <data name="Error_CurrentSize" xml:space="preserve">
+        <value>Tamaño actual: {0}x{1}</value>
+    </data>
+    <data name="Error_ResizePrompt" xml:space="preserve">
+        <value>Por favor, redimensione la ventana de la consola y presione Enter para continuar</value>
+    </data>
+    <data name="Error_ExitPrompt" xml:space="preserve">
+        <value>o presione Escape para salir.</value>
+    </data>
+    <data name="Error_ResizeTip" xml:space="preserve">
+        <value>Consejo: Intente maximizar la ventana de la consola.</value>
+    </data>
+</root>

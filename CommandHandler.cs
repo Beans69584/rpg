@@ -9,6 +9,12 @@ namespace RPG
         public void RegisterCommand(ICommand command)
         {
             _commands[command.Name.ToLower()] = command;
+            
+            // Register aliases
+            foreach (var alias in command.Aliases)
+            {
+                _commands[alias.ToLower()] = command;
+            }
         }
 
         public bool ExecuteCommand(string input, GameState state)
@@ -28,8 +34,10 @@ namespace RPG
 
         public IEnumerable<ICommand> GetCommands()
         {
-            // filter out any commands with no names
-            return _commands.Values.Where(c => !string.IsNullOrEmpty(c.Name));
+            // create set of unique commands
+            IEnumerable<ICommand> commands = _commands.Values.Distinct();
+
+            return commands.Where(c => !string.IsNullOrEmpty(c.Name));
         }
     }
 }

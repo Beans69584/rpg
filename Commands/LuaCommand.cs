@@ -24,7 +24,7 @@ namespace RPG.Commands
 
         public override string Name => _name;
         public override string Description => _description;
-        public string[] Aliases => _aliases;
+        public override string[] Aliases => _aliases;
         public string Usage => _usage;
         public string Category => _category;
 

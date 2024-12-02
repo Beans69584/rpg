@@ -38,7 +38,6 @@ namespace RPG.Commands
             // TODO: Implement proper input handling
             return "";
         }
-
         // Combat helper methods
         public bool RollDice(int sides) => Random.Shared.Next(1, sides + 1) == sides;
         public int GetRandomNumber(int min, int max) => Random.Shared.Next(min, max + 1);

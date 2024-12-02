@@ -4,6 +4,7 @@ namespace RPG.Commands
     {
         string Name { get; }
         string Description { get; }
+        string[] Aliases { get; }
         void Execute(string args, GameState state);
     }
 }

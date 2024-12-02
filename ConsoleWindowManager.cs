@@ -19,10 +19,10 @@ namespace RPG
 
         public Rectangle Bounds => new(X, Y, Width, Height);
         public Rectangle ContentBounds => new(
-            X + Padding + 1,
-            Y + Padding + (string.IsNullOrEmpty(Name) ? 1 : 2),
-            Width - (2 * Padding) - 2,
-            Height - (2 * Padding) - (string.IsNullOrEmpty(Name) ? 1 : 2)
+            X + 1,
+            Y + (string.IsNullOrEmpty(Name) ? 0 : 1),  // Reduced top padding
+            Width - 2,
+            Height - (string.IsNullOrEmpty(Name) ? 1 : 2)  // Ensure content stays within borders
         );
     }
 
@@ -70,10 +70,10 @@ namespace RPG
 
         private static readonly Dictionary<string, char> BoxChars = new()
         {
-            ["topLeft"] = '╭',
-            ["topRight"] = '╮',
-            ["bottomLeft"] = '╰',
-            ["bottomRight"] = '╯',
+            ["topLeft"] = '┌',
+            ["topRight"] = '┐',
+            ["bottomLeft"] = '└',
+            ["bottomRight"] = '┘',
             ["horizontal"] = '─',
             ["vertical"] = '│'
         };
@@ -281,18 +281,31 @@ namespace RPG
         public void RenderWrappedText(Region region, IEnumerable<string> lines, ConsoleColor color)
         {
             var bounds = region.ContentBounds;
-            int currentY = bounds.Y;
-
+            
+            // Convert lines to wrapped lines first to determine total height
+            var allWrappedLines = new List<string>();
             foreach (var line in lines)
             {
-                if (currentY >= bounds.Y + bounds.Height) break;
+                // Ensure each line doesn't exceed the width
+                allWrappedLines.AddRange(WrapText(line, bounds.Width));
+            }
 
-                foreach (var wrappedLine in WrapText(line, bounds.Width))
+            // Calculate start position to show the last lines that fit
+            int totalLines = allWrappedLines.Count;
+            int startLine = Math.Max(0, totalLines - bounds.Height);
+            int currentY = bounds.Y;
+
+            // Render only the visible portion of text, starting from startLine
+            for (int i = startLine; i < totalLines && currentY < bounds.Y + bounds.Height; i++)
+            {
+                var line = allWrappedLines[i];
+                // Ensure line doesn't exceed the width by truncating if necessary
+                if (line.Length > bounds.Width)
                 {
-                    if (currentY >= bounds.Y + bounds.Height) break;
-                    buffer.WriteString(bounds.X, currentY, wrappedLine.PadRight(bounds.Width), color);
-                    currentY++;
+                    line = line.Substring(0, bounds.Width);
                 }
+                buffer.WriteString(bounds.X, currentY, line.PadRight(bounds.Width), color);
+                currentY++;
             }
         }
 
@@ -387,7 +400,7 @@ namespace RPG
             int cursorX = x + prompt.Length + displayText.Length;
             if (cursorX < x + inputRegion.Width - 1)
             {
-                buffer.SetChar(cursorX, y, cursorVisible ? '█' : ' ', currentInputColor);
+                buffer.SetChar(cursorX, y, cursorVisible ? '▌' : ' ', currentInputColor);
             }
         }
 

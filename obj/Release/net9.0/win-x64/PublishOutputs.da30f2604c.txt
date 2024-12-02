@@ -1,0 +1,8 @@
+F:\RPG\bin\Release\net9.0\win-x64\publish\RPG.exe
+F:\RPG\bin\Release\net9.0\win-x64\publish\RPG.dll
+F:\RPG\bin\Release\net9.0\win-x64\publish\RPG.deps.json
+F:\RPG\bin\Release\net9.0\win-x64\publish\RPG.runtimeconfig.json
+F:\RPG\bin\Release\net9.0\win-x64\publish\RPG.pdb
+F:\RPG\bin\Release\net9.0\win-x64\publish\KeraLua.dll
+F:\RPG\bin\Release\net9.0\win-x64\publish\NLua.dll
+F:\RPG\bin\Release\net9.0\win-x64\publish\lua54.dll

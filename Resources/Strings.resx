@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Your existing string entries here -->
+    <data name="MainMenu_Title" xml:space="preserve">
+        <value>Demo RPG Game {0}</value>
+    </data>
+    <data name="MainMenu_Start" xml:space="preserve">
+        <value>Start New Game</value>
+    </data>
+    <data name="MainMenu_Load" xml:space="preserve">
+        <value>Load Game</value>
+    </data>
+    <data name="MainMenu_Options" xml:space="preserve">
+        <value>Options</value>
+    </data>
+    <data name="MainMenu_Credits" xml:space="preserve">
+        <value>Credits</value>
+    </data>
+    <data name="MainMenu_Exit" xml:space="preserve">
+        <value>Exit Game</value>
+    </data>
+    <data name="Welcome_Message" xml:space="preserve">
+        <value>Welcome to the Demo RPG Game!</value>
+    </data>
+    <data name="Help_Hint" xml:space="preserve">
+        <value>Type 'help' for a list of commands.</value>
+    </data>
+    <data name="MainMenu_NavigationHint" xml:space="preserve">
+        <value>Use arrow keys to navigate and Enter to select</value>
+    </data>
+    <data name="MainMenu_Copyright" xml:space="preserve">
+        <value>© {0} Demo RPG Game - All rights reserved</value>
+    </data>
+    <data name="MainMenu_CreatedFor" xml:space="preserve">
+        <value>Created for educational purposes</value>
+    </data>
+    <data name="Options_Title" xml:space="preserve">
+        <value>Options</value>
+    </data>
+    <data name="Options_Instructions" xml:space="preserve">
+        <value>Use Left/Right arrows to change language, Up/Down to navigate</value>
+    </data>
+    <data name="Options_Language" xml:space="preserve">
+        <value>Language</value>
+    </data>
+    <data name="Options_Back" xml:space="preserve">
+        <value>Back</value>
+    </data>
+    <data name="Error_Title" xml:space="preserve">
+        <value>Error</value>
+    </data>
+    <data name="Error_WindowTooSmall" xml:space="preserve">
+        <value>ERROR: Console window is too small!</value>
+    </data>
+    <data name="Error_MinimumSize" xml:space="preserve">
+        <value>Minimum size required: {0}x{1}</value>
+    </data>
+    <data name="Error_CurrentSize" xml:space="preserve">
+        <value>Current size: {0}x{1}</value>
+    </data>
+    <data name="Error_ResizePrompt" xml:space="preserve">
+        <value>Please resize your console window and press Enter to continue</value>
+    </data>
+    <data name="Error_ExitPrompt" xml:space="preserve">
+        <value>or press Escape to exit.</value>
+    </data>
+    <data name="Error_ResizeTip" xml:space="preserve">
+        <value>Tip: Try maximizing your console window.</value>
+    </data>
+</root>
