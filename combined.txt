@@ -1,0 +1,4616 @@
+File: .\CommandHandler.cs
+using RPG.Commands;
+
+namespace RPG
+{
+    public class CommandHandler
+    {
+        private readonly Dictionary<string, ICommand> _commands = new();
+
+        public void RegisterCommand(ICommand command)
+        {
+            _commands[command.Name.ToLower()] = command;
+            
+            // Register aliases
+            foreach (var alias in command.Aliases)
+            {
+                _commands[alias.ToLower()] = command;
+            }
+        }
+
+        public bool ExecuteCommand(string input, GameState state)
+        {
+            var parts = input.Split(' ', 2);
+            var commandName = parts[0].ToLower();
+            var args = parts.Length > 1 ? parts[1] : string.Empty;
+
+            if (_commands.TryGetValue(commandName, out var command))
+            {
+                command.Execute(args, state);
+                return true;
+            }
+
+            return false;
+        }
+
+        public IEnumerable<ICommand> GetCommands()
+        {
+            // create set of unique commands
+            IEnumerable<ICommand> commands = _commands.Values.Distinct();
+
+            return commands.Where(c => !string.IsNullOrEmpty(c.Name));
+        }
+    }
+}
+
+
+File: .\ConsoleWindowManager.cs
+using System.Collections.Concurrent;
+using System.Text;
+
+namespace RPG
+{
+    public class Region
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public int Padding { get; set; } = 1;
+        public int ZIndex { get; set; } = 0;
+        public string? Name { get; set; }
+        public ConsoleColor BorderColor { get; set; } = ConsoleColor.Gray;
+        public ConsoleColor TitleColor { get; set; } = ConsoleColor.White;
+        public bool IsVisible { get; set; } = true;
+        public Action<Region>? RenderContent { get; set; }
+
+        public Rectangle Bounds => new(X, Y, Width, Height);
+        public Rectangle ContentBounds => new(
+            X + 1,
+            Y + (string.IsNullOrEmpty(Name) ? 0 : 1),  // Reduced top padding
+            Width - 2,
+            Height - (string.IsNullOrEmpty(Name) ? 1 : 2)  // Ensure content stays within borders
+        );
+    }
+
+    public readonly struct Rectangle
+    {
+        public int X { get; }
+        public int Y { get; }
+        public int Width { get; }
+        public int Height { get; }
+
+        public Rectangle(int x, int y, int width, int height)
+        {
+            X = x;
+            Y = y;
+            Width = Math.Max(width, 0);
+            Height = Math.Max(height, 0);
+        }
+
+        public bool Intersects(Rectangle other) =>
+            X < other.X + other.Width &&
+            X + Width > other.X &&
+            Y < other.Y + other.Height &&
+            Y + Height > other.Y;
+    }
+
+    public class ConsoleWindowManager : IDisposable
+    {
+        private readonly Dictionary<string, Region> regions = new();
+        private readonly object renderLock = new();
+        private ConsoleBuffer buffer;
+        private bool isDisposed;
+        private readonly CancellationTokenSource cancellationSource = new();
+        private readonly Task renderTask;
+        private string currentInputText = "";
+        private ConsoleColor currentInputColor = ConsoleColor.White;
+        private bool isDirty = true;
+        private bool cursorVisible = true;
+        private DateTime lastCursorBlink = DateTime.Now;
+        private const int CURSOR_BLINK_MS = 530;
+        private int lastConsoleWidth;
+        private int lastConsoleHeight;
+        private DateTime lastResize = DateTime.Now;
+        private const int RESIZE_DEBOUNCE_MS = 100;
+        private bool isResizing = false;
+
+        private static readonly Dictionary<string, char> BoxChars = new()
+        {
+            ["topLeft"] = '┌',
+            ["topRight"] = '┐',
+            ["bottomLeft"] = '└',
+            ["bottomRight"] = '┘',
+            ["horizontal"] = '─',
+            ["vertical"] = '│'
+        };
+
+        public ConsoleWindowManager()
+        {
+            Console.CursorVisible = false;
+            lastConsoleWidth = Console.WindowWidth;
+            lastConsoleHeight = Console.WindowHeight;
+            buffer = new ConsoleBuffer(Console.WindowWidth, Console.WindowHeight);
+            renderTask = Task.Run(RenderLoop);
+        }
+
+        public void AddRegion(string name, Region region)
+        {
+            lock (renderLock)
+            {
+                ValidateAndAdjustRegion(region);
+                regions[name] = region;
+            }
+        }
+
+        public void UpdateRegion(string name, Action<Region> updateAction)
+        {
+            lock (renderLock)
+            {
+                if (regions.TryGetValue(name, out var region))
+                {
+                    updateAction(region);
+                    ValidateAndAdjustRegion(region);
+                }
+            }
+        }
+
+        private void RenderLoop()
+        {
+            while (!cancellationSource.Token.IsCancellationRequested)
+            {
+                try
+                {
+
+                    if (isDirty || (DateTime.Now - lastCursorBlink).TotalMilliseconds >= CURSOR_BLINK_MS)
+                    {
+                        Render();
+                        isDirty = false;
+                    }
+                    Thread.Sleep(16);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+            }
+        }
+
+        public bool CheckResize()
+        {
+            var now = DateTime.Now;
+            if (!isResizing && (Console.WindowWidth != lastConsoleWidth || Console.WindowHeight != lastConsoleHeight))
+            {
+                isResizing = true;
+                if ((now - lastResize).TotalMilliseconds > RESIZE_DEBOUNCE_MS)
+                {
+                    lock (renderLock)
+                    {
+                        try
+                        {
+                            lastConsoleWidth = Console.WindowWidth;
+                            lastConsoleHeight = Console.WindowHeight;
+
+                            // Create entirely new buffer
+                            buffer = new ConsoleBuffer(lastConsoleWidth, lastConsoleHeight);
+
+                            // Clear console completely
+                            Console.Clear();
+
+                            lastResize = now;
+                            isDirty = true;
+                            return true;
+                        }
+                        finally
+                        {
+                            isResizing = false;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+
+        private void ValidateAndAdjustRegion(Region region)
+        {
+            // Keep region within bounds
+            region.X = Math.Min(region.X, buffer.Width - 4);
+            region.Y = Math.Min(region.Y, buffer.Height - 3);
+
+            // Maintain minimum size
+            region.Width = Math.Max(region.Width, 4);
+            region.Height = Math.Max(region.Height, 3);
+
+            if (!string.IsNullOrEmpty(region.Name))
+            {
+                region.Width = Math.Max(region.Width, region.Name.Length + 4);
+            }
+
+            // Ensure region fits within new console bounds
+            region.Width = Math.Min(region.Width, buffer.Width - region.X);
+            region.Height = Math.Min(region.Height, buffer.Height - region.Y);
+
+            // If region would be completely off screen, move it
+            if (region.X >= buffer.Width)
+            {
+                region.X = Math.Max(0, buffer.Width - region.Width);
+            }
+            if (region.Y >= buffer.Height)
+            {
+                region.Y = Math.Max(0, buffer.Height - region.Height);
+            }
+        }
+
+        private void Render()
+        {
+            buffer.Clear();
+
+            foreach (var region in regions.Values.Where(r => r.IsVisible).OrderBy(r => r.ZIndex))
+            {
+                RenderRegion(region);
+
+                // After rendering the region, if it's the input region, render the current input
+                if (region.Name == "Input")
+                {
+                    RenderInput(region);
+                }
+            }
+
+            buffer.Flush();
+        }
+
+
+        private void RenderRegion(Region region)
+        {
+            // First clear the entire region (inside the borders)
+            for (int y = region.Y + 1; y < region.Y + region.Height - 1; y++)
+            {
+                for (int x = region.X + 1; x < region.X + region.Width - 1; x++)
+                {
+                    buffer.SetChar(x, y, ' ', region.BorderColor);
+                }
+            }
+
+            // Draw border
+            DrawBox(region);
+
+            // If it's the input region, render input
+            if (region.Name == "Input")
+            {
+                RenderInput(region);
+            }
+            // Otherwise render normal content
+            else if (region.RenderContent != null)
+            {
+                var contentBounds = region.ContentBounds;
+                region.RenderContent(new Region
+                {
+                    X = contentBounds.X,
+                    Y = contentBounds.Y,
+                    Width = contentBounds.Width,
+                    Height = contentBounds.Height
+                });
+            }
+        }
+
+        private void DrawBox(Region region)
+        {
+            // Draw corners
+            buffer.SetChar(region.X, region.Y, BoxChars["topLeft"], region.BorderColor);
+            buffer.SetChar(region.X + region.Width - 1, region.Y, BoxChars["topRight"], region.BorderColor);
+            buffer.SetChar(region.X, region.Y + region.Height - 1, BoxChars["bottomLeft"], region.BorderColor);
+            buffer.SetChar(region.X + region.Width - 1, region.Y + region.Height - 1, BoxChars["bottomRight"], region.BorderColor);
+
+            // Draw horizontal borders
+            for (int x = region.X + 1; x < region.X + region.Width - 1; x++)
+            {
+                buffer.SetChar(x, region.Y, BoxChars["horizontal"], region.BorderColor);
+                buffer.SetChar(x, region.Y + region.Height - 1, BoxChars["horizontal"], region.BorderColor);
+            }
+
+            // Draw vertical borders
+            for (int y = region.Y + 1; y < region.Y + region.Height - 1; y++)
+            {
+                buffer.SetChar(region.X, y, BoxChars["vertical"], region.BorderColor);
+                buffer.SetChar(region.X + region.Width - 1, y, BoxChars["vertical"], region.BorderColor);
+            }
+
+            // Draw title if present
+            if (!string.IsNullOrEmpty(region.Name))
+            {
+                var title = $" {region.Name} ";
+                int titleX = region.X + (region.Width - title.Length) / 2;
+                buffer.WriteString(titleX, region.Y, title, region.TitleColor);
+            }
+        }
+
+        public static bool IsDoubleWidth(char c)
+        {
+            // Check for CJK character ranges
+            return (c >= 0x1100 && c <= 0x11FF) ||   // Hangul Jamo
+                   (c >= 0x2E80 && c <= 0x9FFF) ||   // CJK Radicals through CJK Unified Ideographs
+                   (c >= 0xAC00 && c <= 0xD7AF) ||   // Hangul Syllables
+                   (c >= 0xF900 && c <= 0xFAFF) ||   // CJK Compatibility Ideographs
+                   (c >= 0xFE30 && c <= 0xFE4F) ||   // CJK Compatibility Forms
+                   (c >= 0xFF00 && c <= 0xFFEF);      // Halfwidth and Fullwidth Forms
+        }
+
+        public void RenderWrappedText(Region region, IEnumerable<string> lines, ConsoleColor color)
+        {
+            var bounds = region.ContentBounds;
+            var allWrappedLines = new List<string>();
+            
+            foreach (var line in lines)
+            {
+                allWrappedLines.AddRange(WrapText(line, bounds.Width));
+            }
+
+            int totalLines = allWrappedLines.Count;
+            int startLine = Math.Max(0, totalLines - bounds.Height);
+            int currentY = bounds.Y;
+
+            for (int i = startLine; i < totalLines && currentY < bounds.Y + bounds.Height; i++)
+            {
+                var line = allWrappedLines[i];
+                int lineWidth = 0;
+                var visibleLine = new StringBuilder();
+
+                // Calculate visible portion considering double-width characters
+                foreach (char c in line)
+                {
+                    int charWidth = IsDoubleWidth(c) ? 2 : 1;
+                    if (lineWidth + charWidth > bounds.Width)
+                        break;
+                        
+                    visibleLine.Append(c);
+                    lineWidth += charWidth;
+                }
+
+                // Pad with spaces to fill the width
+                while (lineWidth < bounds.Width)
+                {
+                    visibleLine.Append(' ');
+                    lineWidth++;
+                }
+
+                buffer.WriteString(bounds.X, currentY, visibleLine.ToString(), color);
+                currentY++;
+            }
+        }
+
+        private IEnumerable<string> WrapText(string text, int width)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                yield return string.Empty;
+                yield break;
+            }
+
+            var currentLine = new StringBuilder();
+            int currentWidth = 0;
+            
+            foreach (var word in text.Split(' '))
+            {
+                int wordWidth = word.Sum(c => IsDoubleWidth(c) ? 2 : 1);
+                
+                if (currentWidth + wordWidth + (currentWidth > 0 ? 1 : 0) > width)
+                {
+                    if (currentLine.Length > 0)
+                    {
+                        yield return currentLine.ToString();
+                        currentLine.Clear();
+                        currentWidth = 0;
+                    }
+                    
+                    // Handle words that are longer than the width
+                    if (wordWidth > width)
+                    {
+                        var temp = new StringBuilder();
+                        int tempWidth = 0;
+                        
+                        foreach (char c in word)
+                        {
+                            int charWidth = IsDoubleWidth(c) ? 2 : 1;
+                            if (tempWidth + charWidth > width)
+                            {
+                                yield return temp.ToString();
+                                temp.Clear();
+                                tempWidth = 0;
+                            }
+                            temp.Append(c);
+                            tempWidth += charWidth;
+                        }
+                        
+                        if (temp.Length > 0)
+                        {
+                            currentLine.Append(temp);
+                            currentWidth = tempWidth;
+                        }
+                        continue;
+                    }
+                }
+
+                if (currentWidth > 0)
+                {
+                    currentLine.Append(' ');
+                    currentWidth++;
+                }
+
+                currentLine.Append(word);
+                currentWidth += wordWidth;
+            }
+
+            if (currentLine.Length > 0)
+                yield return currentLine.ToString();
+        }
+
+        public void Dispose()
+        {
+            if (isDisposed) return;
+
+            isDisposed = true;
+            cancellationSource.Cancel();
+            renderTask.Wait();
+            cancellationSource.Dispose();
+            Console.CursorVisible = true;
+        }
+
+        public void QueueRender()
+        {
+            lock (renderLock)
+            {
+                isDirty = true;
+            }
+        }
+        private void RenderInput(Region inputRegion)
+        {
+            int x = inputRegion.X + 1;
+            int y = inputRegion.Y + 1;
+            string prompt = "> ";
+            int maxInputLength = inputRegion.Width - 2 - prompt.Length;
+
+            // Clear the input line
+            for (int i = 0; i < inputRegion.Width - 2; i++)
+            {
+                buffer.SetChar(x + i, y, ' ', currentInputColor);
+            }
+
+            // Write prompt
+            buffer.WriteString(x, y, prompt, currentInputColor);
+
+            // Calculate visible portion of input text
+            string displayText;
+            if (currentInputText.Length > maxInputLength)
+            {
+                displayText = currentInputText.Substring(currentInputText.Length - maxInputLength);
+            }
+            else
+            {
+                displayText = currentInputText;
+            }
+
+            // Write input text
+            if (!string.IsNullOrEmpty(displayText))
+            {
+                buffer.WriteString(x + prompt.Length, y, displayText, currentInputColor);
+            }
+
+            // Handle cursor blinking
+            if ((DateTime.Now - lastCursorBlink).TotalMilliseconds >= CURSOR_BLINK_MS)
+            {
+                cursorVisible = !cursorVisible;
+                lastCursorBlink = DateTime.Now;
+            }
+
+            // Draw cursor at correct position
+            int cursorX = x + prompt.Length + displayText.Length;
+            if (cursorX < x + inputRegion.Width - 1)
+            {
+                buffer.SetChar(cursorX, y, cursorVisible ? '▌' : ' ', currentInputColor);
+            }
+        }
+
+        public void UpdateInputText(string text, ConsoleColor color)
+        {
+            lock (renderLock)
+            {
+                currentInputText = text;
+                currentInputColor = color;
+                QueueRender();
+            }
+        }
+    }
+
+    public class ConsoleBuffer
+    {
+        private char[] chars;
+        private char[] previousChars;
+        private ConsoleColor[] colors;
+        private ConsoleColor[] previousColors;
+        private int width;
+        private int height;
+        private int contentWidth;  // Track the actual content width
+        private int contentHeight; // Track the actual content height
+
+        public int Width => width;
+        public int Height => height;
+
+        public ConsoleBuffer(int width, int height)
+        {
+            this.width = width;
+            this.height = height;
+            this.contentWidth = width;
+            this.contentHeight = height;
+
+            ResizeBuffers(width, height);
+        }
+
+        private void ResizeBuffers(int newWidth, int newHeight)
+        {
+            var newSize = newWidth * newHeight;
+            chars = new char[newSize];
+            colors = new ConsoleColor[newSize];
+            previousChars = new char[newSize];
+            previousColors = new ConsoleColor[newSize];
+
+            Array.Fill(chars, ' ');
+            Array.Fill(colors, ConsoleColor.Gray);
+            Array.Fill(previousChars, ' ');
+            Array.Fill(previousColors, ConsoleColor.Gray);
+        }
+
+        public void Resize(int newWidth, int newHeight)
+        {
+            // If new size is larger in either dimension, preserve old content
+            if (newWidth >= width || newHeight >= height)
+            {
+                var oldChars = chars;
+                var oldColors = colors;
+                var oldWidth = width;
+                var oldHeight = height;
+
+                ResizeBuffers(newWidth, newHeight);
+
+                // Copy old content
+                for (int y = 0; y < Math.Min(oldHeight, newHeight); y++)
+                {
+                    for (int x = 0; x < Math.Min(oldWidth, newWidth); x++)
+                    {
+                        int oldIndex = y * oldWidth + x;
+                        int newIndex = y * newWidth + x;
+                        chars[newIndex] = oldChars[oldIndex];
+                        colors[newIndex] = oldColors[oldIndex];
+                    }
+                }
+            }
+            else
+            {
+                // If new size is smaller, create new buffer and copy visible portion
+                var newChars = new char[newWidth * newHeight];
+                var newColors = new ConsoleColor[newWidth * newHeight];
+                var newPreviousChars = new char[newWidth * newHeight];
+                var newPreviousColors = new ConsoleColor[newWidth * newHeight];
+
+                Array.Fill(newChars, ' ');
+                Array.Fill(newColors, ConsoleColor.Gray);
+                Array.Fill(newPreviousChars, ' ');
+                Array.Fill(newPreviousColors, ConsoleColor.Gray);
+
+                for (int y = 0; y < newHeight; y++)
+                {
+                    for (int x = 0; x < newWidth; x++)
+                    {
+                        int oldIndex = y * width + x;
+                        int newIndex = y * newWidth + x;
+                        newChars[newIndex] = chars[oldIndex];
+                        newColors[newIndex] = colors[oldIndex];
+                    }
+                }
+
+                chars = newChars;
+                colors = newColors;
+                previousChars = newPreviousChars;
+                previousColors = newPreviousColors;
+            }
+
+            width = newWidth;
+            height = newHeight;
+            contentWidth = Math.Max(contentWidth, newWidth);
+            contentHeight = Math.Max(contentHeight, newHeight);
+        }
+
+        public void Clear()
+        {
+            Array.Fill(chars, ' ');
+            Array.Fill(colors, ConsoleColor.Gray);
+        }
+
+        public void SetChar(int x, int y, char c, ConsoleColor color)
+        {
+            if (x >= 0 && x < width && y >= 0 && y < height)
+            {
+                int index = y * width + x;
+                chars[index] = c;
+                colors[index] = color;
+            }
+        }
+
+        public void WriteString(int x, int y, string text, ConsoleColor color)
+        {
+            int currentX = x;
+            foreach (char c in text)
+            {
+                if (currentX >= width) break;
+                
+                SetChar(currentX, y, c, color);
+                currentX += IsDoubleWidth(c) ? 2 : 1;
+
+                // Add a placeholder space for double-width characters
+                if (IsDoubleWidth(c) && currentX < width)
+                {
+                    SetChar(currentX - 1, y, '\0', color); // Use null character as placeholder
+                }
+            }
+        }
+
+        private bool IsDoubleWidth(char c) => ConsoleWindowManager.IsDoubleWidth(c);
+
+        public void Flush()
+        {
+            Console.SetCursorPosition(0, 0);
+            var sb = new StringBuilder(chars.Length);
+            ConsoleColor currentColor = colors[0];
+            Console.ForegroundColor = currentColor;
+
+            for (int i = 0; i < chars.Length; i++)
+            {
+                if (colors[i] != currentColor)
+                {
+                    // Flush current buffer
+                    Console.Write(sb.ToString());
+                    sb.Clear();
+
+                    // Change color
+                    currentColor = colors[i];
+                    Console.ForegroundColor = currentColor;
+                }
+                sb.Append(chars[i]);
+            }
+
+            // Flush remaining buffer
+            Console.Write(sb.ToString());
+        }
+    }
+}
+
+File: .\GameSettings.cs
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace RPG
+{
+    public class GameSettings
+    {
+        private static readonly string AppDataPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "DemoRPG"
+        );
+        private static readonly string SettingsPath = Path.Combine(AppDataPath, "settings.json");
+        private static GameSettings? _instance;
+
+        // Settings properties
+        public string Language { get; set; } = "en";
+        public int WindowWidth { get; set; } = 80;
+        public int WindowHeight { get; set; } = 24;
+        public bool FullScreen { get; set; } = false;
+
+        // Default constructor for JSON deserialization
+        [JsonConstructor]
+        public GameSettings() { }
+
+        // Singleton access
+        public static GameSettings Instance
+        {
+            get
+            {
+                _instance ??= Load();
+                return _instance;
+            }
+        }
+
+        public void Save()
+        {
+            try
+            {
+                // Ensure directory exists
+                Directory.CreateDirectory(AppDataPath);
+
+                // Serialize settings
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                string jsonString = JsonSerializer.Serialize(this, options);
+                File.WriteAllText(SettingsPath, jsonString);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to save settings: {ex.Message}");
+            }
+        }
+
+        private static GameSettings Load()
+        {
+            try
+            {
+                if (File.Exists(SettingsPath))
+                {
+                    string jsonString = File.ReadAllText(SettingsPath);
+                    var settings = JsonSerializer.Deserialize<GameSettings>(jsonString);
+                    if (settings != null)
+                    {
+                        return settings;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to load settings: {ex.Message}");
+            }
+
+            // Return default settings if loading fails
+            return new GameSettings();
+        }
+
+        // Compatibility property for existing code
+        public static string CurrentLanguage
+        {
+            get => Instance.Language;
+            set
+            {
+                Instance.Language = value;
+                Instance.Save();
+            }
+        }
+    }
+}
+
+
+File: .\GameState.cs
+namespace RPG
+{
+    public class GameState
+    {
+        public List<string> GameLog { get; } = new();
+        public ConsoleWindowManager WindowManager { get; }
+        public string PlayerName { get; set; } = "Hero";
+        public int Level { get; set; } = 1;
+        public int HP { get; set; } = 100;
+        public int MaxHP { get; set; } = 100;
+        public int Gold { get; set; } = 100;
+        public Dictionary<string, int> Stats { get; } = new();
+        public List<string> Inventory { get; } = new();
+        public Dictionary<string, bool> GameFlags { get; } = new();
+        public CommandHandler CommandHandler { get; }
+        public bool Running { get; set; } = true;
+        public LocalizationManager Localization { get; }
+        public WorldLoader? World { get; private set; }
+        public WorldRegion? CurrentRegion { get; set; }
+        public string CurrentWorldPath { get; private set; } = "";
+        public Location? CurrentLocation { get; set; }
+
+        public GameState(ConsoleWindowManager manager)
+        {
+            WindowManager = manager;
+            Localization = new LocalizationManager();
+            Localization.SetLanguage(GameSettings.CurrentLanguage);
+            CommandHandler = new CommandHandler();
+            GameLog.Add(Localization.GetString("Welcome_Message"));
+            GameLog.Add(Localization.GetString("Help_Hint"));
+        }
+
+        public void SaveGame(string slot)
+        {
+            var saveData = new SaveData
+            {
+                PlayerName = PlayerName,
+                Level = Level,
+                HP = HP,
+                MaxHP = MaxHP,
+                CurrentRegionId = World?.GetString(CurrentRegion?.NameId ?? 0) ?? "",
+                SaveTime = DateTime.Now,
+                WorldPath = CurrentWorldPath,
+                Gold = Gold,
+                Stats = new Dictionary<string, int>(Stats),
+                Inventory = new List<string>(Inventory),
+                GameFlags = new Dictionary<string, bool>(GameFlags)
+            };
+
+            SaveManager.Save(saveData, slot);
+            GameLog.Add($"Game saved to slot {slot}");
+        }
+
+        public bool LoadGame(string slot)
+        {
+            var (metadata, saveData) = SaveManager.Load(slot);
+            if (metadata == null || saveData == null) return false;
+
+            // Load world first without setting starting region
+            if (!string.IsNullOrEmpty(saveData.WorldPath))
+            {
+                try
+                {
+                    LoadWorld(saveData.WorldPath, false);
+                }
+                catch (Exception ex)
+                {
+                    GameLog.Add($"Failed to load world: {ex.Message}");
+                    return false;
+                }
+            }
+
+            // Restore player state
+            PlayerName = saveData.PlayerName;
+            Level = saveData.Level;
+            HP = saveData.HP;
+            MaxHP = saveData.MaxHP;
+            Gold = saveData.Gold;
+            Stats.Clear();
+            foreach (var stat in saveData.Stats)
+                Stats[stat.Key] = stat.Value;
+            Inventory.Clear();
+            Inventory.AddRange(saveData.Inventory);
+            GameFlags.Clear();
+            foreach (var flag in saveData.GameFlags)
+                GameFlags[flag.Key] = flag.Value;
+
+            // Restore location with fallback to default
+            if (World != null)
+            {
+                if (!string.IsNullOrEmpty(saveData.CurrentRegionId))
+                {
+                    CurrentRegion = World.GetRegionByName(saveData.CurrentRegionId);
+                }
+
+                // If region is null or invalid, move to default location
+                if (CurrentRegion == null)
+                {
+                    CurrentRegion = FindDefaultLocation();
+                    if (CurrentRegion != null)
+                    {
+                        GameLog.Add("Your previous location was not found. Moving to a safe location...");
+                    }
+                }
+
+                if (CurrentRegion != null)
+                {
+                    GameLog.Add($"You are in: {World.GetString(CurrentRegion.NameId)}");
+                    DescribeCurrentRegion();
+                }
+                else
+                {
+                    GameLog.Add("ERROR: Could not find any valid location in the world!");
+                }
+            }
+
+            GameLog.Add($"Game loaded from slot {slot}");
+            return true;
+        }
+
+        private WorldRegion? FindDefaultLocation()
+        {
+            if (World == null) return null;
+
+            // Try to find locations in this priority order:
+            return World.GetRegionByName("Riverdale Village")  // Try main village first
+                ?? World.GetRegionByName("Village")           // Try generic village
+                ?? World.GetRegionByName("Town")              // Try town
+                ?? World.GetStartingRegion()                  // Try configured starting region
+                ?? World.GetWorldData().Regions.FirstOrDefault(); // Take first region as last resort
+        }
+
+        public void LoadWorld(string worldPath, bool isNewGame = false)
+        {
+            World = new WorldLoader(worldPath);
+            CurrentWorldPath = worldPath;
+
+            GameLog.Add($"Loaded world: {World.GetWorldData().Header.Name}");
+
+            if (isNewGame)
+            {
+                // Only set starting region for new games
+                CurrentRegion = World.GetStartingRegion();
+                GameLog.Add($"You are in: {World.GetString(CurrentRegion?.NameId ?? 0)}");
+                if (CurrentRegion != null)
+                {
+                    DescribeCurrentRegion();
+                }
+            }
+        }
+
+        private void DescribeCurrentRegion()
+        {
+            if (World == null || CurrentRegion == null) return;
+
+            GameLog.Add("");
+            GameLog.Add(World.GetString(CurrentRegion.DescriptionId));
+            
+            // List locations in region
+            if (CurrentRegion.Locations.Any())
+            {
+                GameLog.Add("");
+                GameLog.Add("Locations in this area:");
+                foreach (var location in CurrentRegion.Locations)
+                {
+                    GameLog.Add($"  - {World.GetString(location.NameId)}");
+                }
+            }
+
+            // List NPCs in region or current location
+            var npcs = CurrentLocation != null ? 
+                      CurrentLocation.NPCs : 
+                      CurrentRegion.NPCs;
+            
+            if (npcs.Any())
+            {
+                GameLog.Add("");
+                GameLog.Add("You see:");
+                foreach (var npcIndex in npcs)
+                {
+                    var npc = World.GetWorldData().NPCs[npcIndex];
+                    GameLog.Add($"  - {World.GetString(npc.NameId)}");
+                }
+            }
+        }
+
+        public void NavigateToLocation(Location location)
+        {
+            CurrentLocation = location;
+            GameLog.Add($"You are now at: {World?.GetString(location.NameId)}");
+            GameLog.Add(World?.GetString(location.DescriptionId) ?? "");
+            DescribeCurrentLocation();
+        }
+
+        private void DescribeCurrentLocation()
+        {
+            if (World == null || CurrentLocation == null) return;
+
+            // List NPCs in location
+            if (CurrentLocation.NPCs.Any())
+            {
+                GameLog.Add("");
+                GameLog.Add("People here:");
+                foreach (var npcIndex in CurrentLocation.NPCs)
+                {
+                    var npc = World.GetWorldData().NPCs[npcIndex];
+                    GameLog.Add($"  - {World.GetString(npc.NameId)}");
+                }
+            }
+
+            // List items in location
+            if (CurrentLocation.Items.Any())
+            {
+                GameLog.Add("");
+                GameLog.Add("Items:");
+                foreach (var itemIndex in CurrentLocation.Items)
+                {
+                    var item = World.GetWorldData().Items[itemIndex];
+                    GameLog.Add($"  - {World.GetString(item.NameId)}");
+                }
+            }
+        }
+    }
+}
+
+
+File: .\Localization.cs
+
+
+File: .\LocalizationManager.cs
+using System.Resources;
+using System.Globalization;
+
+namespace RPG
+{
+    public class LocalizationManager
+    {
+        public event Action<string> LanguageChanged;
+        private readonly ResourceManager resourceManager;
+        private CultureInfo currentCulture;
+
+        public LocalizationManager()
+        {
+            try
+            {
+                resourceManager = new ResourceManager(
+                    "RPG.Resources.Strings",
+                    typeof(LocalizationManager).Assembly);
+                    
+                // Use settings instance
+                currentCulture = CultureInfo.GetCultureInfo(GameSettings.Instance.Language);
+                
+                // Debug info
+                Console.WriteLine($"Assembly: {typeof(LocalizationManager).Assembly.FullName}");
+                Console.WriteLine($"Resource: {resourceManager.BaseName}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to initialize ResourceManager: {ex}");
+                // Fallback to prevent crashes
+                resourceManager = new ResourceManager(typeof(LocalizationManager));
+            }
+        }
+
+        public string GetString(string key, params object[] args)
+        {
+            try
+            {
+                var value = resourceManager.GetString(key, currentCulture);
+                if (value == null)
+                {
+                    Console.WriteLine($"Missing resource string: {key}");
+                    return key;
+                }
+                return args.Length > 0 ? string.Format(value, args) : value;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to get string {key}: {ex.Message}");
+                return key;
+            }
+        }
+
+        public void SetLanguage(string cultureName)
+        {
+            currentCulture = CultureInfo.GetCultureInfo(cultureName);
+            LanguageChanged?.Invoke(cultureName);
+        }
+
+        public static IEnumerable<CultureInfo> GetAvailableLanguages()
+        {
+            return new[]
+            {
+                CultureInfo.GetCultureInfo("en"), // English
+                CultureInfo.GetCultureInfo("es"), // Spanish
+                CultureInfo.GetCultureInfo("fr"), // French
+                CultureInfo.GetCultureInfo("de"), // German
+                CultureInfo.GetCultureInfo("it"), // Italian
+                CultureInfo.GetCultureInfo("ja"), // Japanese
+                CultureInfo.GetCultureInfo("ko"), // Korean
+                CultureInfo.GetCultureInfo("ru"), // Russian
+                CultureInfo.GetCultureInfo("zh"), // Chinese
+            };
+        }
+    }
+}
+
+
+File: .\ProceduralWorldGenerator.cs
+using System.Text;
+using System.Text.Json;
+
+namespace RPG
+{
+    public class OptimizedWorldBuilder
+    {
+        private readonly string _outputPath;
+        private readonly WorldConfig _sourceConfig;
+        private readonly WorldData _data;
+
+        public OptimizedWorldBuilder(string outputPath, WorldConfig sourceConfig)
+        {
+            _outputPath = outputPath;
+            _sourceConfig = sourceConfig;
+            _data = new WorldData();
+        }
+
+        public void Build()
+        {
+            // Initialize header
+            _data.Header = new Header
+            {
+                Name = _sourceConfig.Name,
+                Description = _sourceConfig.Description,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            // Build string pool and resource tables
+            BuildResourceTables();
+
+            // Convert regions
+            foreach (var regionConfig in _sourceConfig.Regions)
+            {
+                var region = new WorldRegion
+                {
+                    NameId = GetOrAddString(regionConfig.Name),
+                    DescriptionId = GetOrAddString(regionConfig.Description),
+                    Position = new Vector2 { X = Random.Shared.Next(-100, 100), Y = Random.Shared.Next(-100, 100) }
+                };
+
+                // Convert locations
+                foreach (var locationConfig in regionConfig.Locations)
+                {
+                    var location = new Location
+                    {
+                        NameId = GetOrAddString(locationConfig.Name),
+                        TypeId = GetOrAddString(locationConfig.Type),
+                        DescriptionId = GetOrAddString(locationConfig.Description),
+                        NPCs = locationConfig.NPCs
+                            .Select(npc => _sourceConfig.NPCs.IndexOf(npc))
+                            .Where(idx => idx != -1)
+                            .ToList(),
+                        Items = locationConfig.Items
+                            .Select(item => _sourceConfig.Items.IndexOf(item))
+                            .Where(idx => idx != -1)
+                            .ToList()
+                    };
+                    region.Locations.Add(location);
+                }
+
+                // Convert references to indices
+                region.Connections = regionConfig.Connections
+                    .Select(c => _sourceConfig.Regions.FindIndex(r => r.Name == c))
+                    .Where(idx => idx != -1)
+                    .ToList();
+
+                // Convert routes
+                foreach (var connection in region.Connections)
+                {
+                    var targetName = _sourceConfig.Regions[connection].Name;
+                    if (regionConfig.Routes.TryGetValue(targetName, out var routePoints))
+                    {
+                        region.Routes[connection] = routePoints;
+                    }
+                }
+
+                region.NPCs = regionConfig.NPCs
+                    .Select(npc => _sourceConfig.NPCs.IndexOf(npc))
+                    .Where(idx => idx != -1)
+                    .ToList();
+
+                region.Items = regionConfig.Items
+                    .Select(item => _sourceConfig.Items.IndexOf(item))
+                    .Where(idx => idx != -1)
+                    .ToList();
+
+                _data.Regions.Add(region);
+            }
+
+            // Convert NPCs
+            foreach (var npcName in _sourceConfig.NPCs)
+            {
+                var npc = new Entity
+                {
+                    NameId = GetOrAddString(npcName),
+                    Level = Random.Shared.Next(1, 10),
+                    HP = Random.Shared.Next(50, 100),
+                    Stats = GenerateRandomStats(),
+                    DialogueRefs = AssignRandomDialogue()
+                };
+                _data.NPCs.Add(npc);
+            }
+
+            // Convert items
+            foreach (var itemName in _sourceConfig.Items)
+            {
+                var item = new Item
+                {
+                    NameId = GetOrAddString(itemName),
+                    DescriptionId = GetOrAddString($"A {itemName.ToLower()} of unknown origin."),
+                    Stats = new ItemStats
+                    {
+                        Value = Random.Shared.Next(1, 100),
+                        Weight = Random.Shared.Next(1, 10),
+                        Durability = Random.Shared.Next(50, 100),
+                        Type = (ItemType)Random.Shared.Next(0, 5)
+                    }
+                };
+                _data.Items.Add(item);
+            }
+
+            // Update counts in header
+            _data.Header.RegionCount = _data.Regions.Count;
+            _data.Header.NPCCount = _data.NPCs.Count;
+            _data.Header.ItemCount = _data.Items.Count;
+
+            // Save to binary-like format
+            SaveWorld();
+        }
+
+        private void BuildResourceTables()
+        {
+            // Add common dialogue to shared pool
+            _data.Resources.SharedDialogue.AddRange(new[]
+            {
+            "Hello traveler!",
+            "Nice weather we're having.",
+            "Safe travels!",
+            "I have wares if you have coin.",
+            "These are dangerous times.",
+            "Watch yourself out there."
+        });
+        }
+
+        private int GetOrAddString(string str)
+        {
+            if (!_data.Resources.StringPool.TryGetValue(str, out int id))
+            {
+                id = _data.Resources.StringPool.Count;
+                _data.Resources.StringPool[str] = id;
+            }
+            return id;
+        }
+
+        private EntityStats GenerateRandomStats()
+        {
+            return new EntityStats
+            {
+                Strength = Random.Shared.Next(1, 20),
+                Dexterity = Random.Shared.Next(1, 20),
+                Intelligence = Random.Shared.Next(1, 20),
+                Defense = Random.Shared.Next(1, 20)
+            };
+        }
+
+        private List<int> AssignRandomDialogue()
+        {
+            return Enumerable.Range(0, Random.Shared.Next(2, 4))
+                .Select(_ => Random.Shared.Next(0, _data.Resources.SharedDialogue.Count))
+                .Distinct()
+                .ToList();
+        }
+
+        private void SaveWorld()
+        {
+            string worldPath = Path.Combine(_outputPath, "world.dat");
+            Directory.CreateDirectory(_outputPath);
+
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = false, // Compact format
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            // Serialize to JSON bytes
+            var jsonBytes = System.Text.Encoding.UTF8.GetBytes(
+                JsonSerializer.Serialize(_data, options));
+
+            // Compress using GZip
+            using var fs = File.Create(worldPath);
+            using var gzip = new System.IO.Compression.GZipStream(
+                fs,
+                System.IO.Compression.CompressionLevel.Optimal);
+            gzip.Write(jsonBytes, 0, jsonBytes.Length);
+        }
+    }
+    public class ProceduralWorldGenerator
+    {
+        private readonly Random _random;
+        private readonly int _width;
+        private readonly int _height;
+        private readonly float[,] _heightMap;
+        private readonly float[,] _moistureMap;
+
+        public ProceduralWorldGenerator(int seed = 0, int width = 100, int height = 100)
+        {
+            _random = seed == 0 ? Random.Shared : new Random(seed);
+            _width = width;
+            _height = height;
+            _heightMap = new float[width, height];
+            _moistureMap = new float[width, height];
+
+            GenerateTerrain();
+        }
+
+        private void GenerateTerrain()
+        {
+            // Generate height map using multiple octaves of Perlin noise
+            for (int x = 0; x < _width; x++)
+            {
+                for (int y = 0; y < _height; y++)
+                {
+                    float nx = x / (float)_width;
+                    float ny = y / (float)_height;
+
+                    _heightMap[x, y] = GenerateOctaveNoise(nx, ny, 6, 0.5f);
+                    _moistureMap[x, y] = GenerateOctaveNoise(nx + 1000, ny + 1000, 4, 0.6f);
+                }
+            }
+        }
+
+        private float GenerateOctaveNoise(float x, float y, int octaves, float persistence)
+        {
+            float total = 0;
+            float frequency = 1;
+            float amplitude = 1;
+            float maxValue = 0;
+
+            for (int i = 0; i < octaves; i++)
+            {
+                total += Noise(x * frequency, y * frequency) * amplitude;
+                maxValue += amplitude;
+                amplitude *= persistence;
+                frequency *= 2;
+            }
+
+            return total / maxValue;
+        }
+
+        private float Noise(float x, float y)
+        {
+            // Simple implementation of 2D noise
+            int xi = (int)x & 255;
+            int yi = (int)y & 255;
+            float xf = x - (int)x;
+            float yf = y - (int)y;
+
+            float u = Fade(xf);
+            float v = Fade(yf);
+
+            return Lerp(v,
+                Lerp(u,
+                    Grad(_random.Next(256), xf, yf),
+                    Grad(_random.Next(256), xf - 1, yf)),
+                Lerp(u,
+                    Grad(_random.Next(256), xf, yf - 1),
+                    Grad(_random.Next(256), xf - 1, yf - 1)));
+        }
+
+        private float Fade(float t) => t * t * t * (t * (t * 6 - 15) + 10);
+
+        private float Lerp(float t, float a, float b) => a + t * (b - a);
+
+        private float Grad(int hash, float x, float y)
+        {
+            return ((hash & 1) == 0 ? x : -x) + ((hash & 2) == 0 ? y : -y);
+        }
+
+        public WorldConfig GenerateWorld()
+        {
+            var config = new WorldConfig
+            {
+                Name = GenerateWorldName(),
+                Description = "A procedurally generated realm with diverse landscapes and hidden mysteries.",
+                Regions = new List<RegionConfig>(),
+                NPCs = new List<string>(),
+                Items = new List<string>()
+            };
+
+            // Find interesting points for regions
+            var regions = FindRegionLocations();
+
+            // Generate regions and their connections
+            foreach (var point in regions)
+            {
+                var regionType = DetermineRegionType(point.x, point.y);
+                var region = GenerateRegion(regionType, point.x, point.y);
+                config.Regions.Add(region);
+            }
+
+            // Connect nearby regions
+            GenerateConnections(config.Regions, regions);
+
+            // Collect all unique NPCs and items
+            config.NPCs = config.Regions.SelectMany(r => r.NPCs).Distinct().ToList();
+            config.Items = config.Regions.SelectMany(r => r.Items).Distinct().ToList();
+
+            return config;
+        }
+
+        private List<(int x, int y)> FindRegionLocations()
+        {
+            var locations = new List<(int x, int y)>();
+            int minDistance = 10; // Minimum distance between regions
+
+            // Find local maxima and interesting points in the heightmap
+            for (int x = 5; x < _width - 5; x += 5)
+            {
+                for (int y = 5; y < _height - 5; y += 5)
+                {
+                    if (IsInterestingLocation(x, y) &&
+                        !locations.Any(l => Distance(l, (x, y)) < minDistance))
+                    {
+                        locations.Add((x, y));
+                    }
+                }
+            }
+
+            return locations;
+        }
+
+        private bool IsInterestingLocation(int x, int y)
+        {
+            float height = _heightMap[x, y];
+            float moisture = _moistureMap[x, y];
+
+            // Check if this point is a local maximum or has interesting features
+            return IsLocalMaximum(x, y) ||
+                   (height > 0.7f) ||  // Mountains
+                   (height < 0.3f && moisture > 0.6f) || // Lakes/Swamps
+                   (height > 0.4f && height < 0.6f && moisture > 0.5f); // Forests
+        }
+
+        private bool IsLocalMaximum(int x, int y)
+        {
+            float value = _heightMap[x, y];
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                for (int dy = -1; dy <= 1; dy++)
+                {
+                    if (dx == 0 && dy == 0) continue;
+                    if (x + dx < 0 || x + dx >= _width || y + dy < 0 || y + dy >= _height) continue;
+                    if (_heightMap[x + dx, y + dy] > value) return false;
+                }
+            }
+            return true;
+        }
+
+        private string DetermineRegionType(int x, int y)
+        {
+            float height = _heightMap[x, y];
+            float moisture = _moistureMap[x, y];
+
+            if (height > 0.7f) return "Mountain";
+            if (height > 0.6f) return "Hills";
+            if (height < 0.3f && moisture > 0.6f) return "Lake";
+            if (height < 0.4f && moisture > 0.5f) return "Swamp";
+            if (moisture > 0.6f) return "Forest";
+            if (moisture < 0.3f) return "Plains";
+            return "Valley";
+        }
+
+        private RegionConfig GenerateRegion(string type, int x, int y)
+        {
+            var region = new RegionConfig
+            {
+                Name = GenerateRegionName(type),
+                Description = GenerateRegionDescription(type),
+                Connections = new List<string>(),
+                NPCs = GenerateNPCsForType(type),
+                Items = GenerateItemsForType(type),
+                Locations = new List<LocationConfig>(),
+                Routes = new Dictionary<string, List<RoutePoint>>()
+            };
+
+            // Generate locations based on region type
+            if (type == "Valley" || type == "Plains" || _random.Next(100) < 40)
+            {
+                GenerateSettlement(region);
+            }
+
+            // Generate route points between regions
+            foreach (var connection in region.Connections)
+            {
+                region.Routes[connection] = GenerateRoutePath();
+            }
+
+            return region;
+        }
+
+        private void GenerateSettlement(RegionConfig region)
+        {
+            // Determine settlement size and type
+            var size = _random.Next(100) switch
+            {
+                > 90 => "large",
+                > 70 => "medium",
+                _ => "small"
+            };
+
+            var locationCount = size switch
+            {
+                "large" => _random.Next(8, 12),
+                "medium" => _random.Next(5, 8),
+                _ => _random.Next(3, 5)
+            };
+
+            // Essential locations based on size
+            var essentialLocations = size switch
+            {
+                "large" => new[] { "Town Hall", "Market", "Inn", "Temple", "Blacksmith" },
+                "medium" => new[] { "Inn", "Market", "Chapel", "Blacksmith" },
+                _ => new[] { "Inn", "Trading Post" }
+            };
+
+            // Add essential locations
+            foreach (var locType in essentialLocations)
+            {
+                region.Locations.Add(GenerateLocation(locType));
+            }
+
+            // Add random additional locations
+            var additionalTypes = new[]
+            {
+            "House", "Farm", "Workshop", "Store", "Stable",
+            "Garden", "Well", "Warehouse", "Watch Post", "Mill"
+        };
+
+            for (int i = essentialLocations.Length; i < locationCount; i++)
+            {
+                var locType = additionalTypes[_random.Next(additionalTypes.Length)];
+                region.Locations.Add(GenerateLocation(locType));
+            }
+        }
+
+        private LocationConfig GenerateLocation(string type)
+        {
+            return new LocationConfig
+            {
+                Name = GenerateLocationName(type),
+                Type = type,
+                Description = GenerateLocationDescription(type),
+                NPCs = GenerateNPCsForLocation(type),
+                Items = GenerateItemsForLocation(type)
+            };
+        }
+
+        private string GenerateLocationName(string type)
+        {
+            var prefixes = new Dictionary<string, string[]>
+            {
+                ["Inn"] = new[] { "Traveler's", "Weary", "Golden", "Silver", "Old" },
+                ["Market"] = new[] { "Town", "Trade", "Market", "Merchant's", "Commons" },
+                ["Temple"] = new[] { "Sacred", "Holy", "Divine", "Blessed", "Ancient" },
+                ["Blacksmith"] = new[] { "Iron", "Forge", "Anvil", "Steel", "Smith's" },
+                ["Trading Post"] = new[] { "Frontier", "Trader's", "Merchant's", "Caravan", "Waypoint" }
+            };
+
+            var suffixes = new Dictionary<string, string[]>
+            {
+                ["Inn"] = new[] { "Rest", "Lodge", "Inn", "Haven", "House" },
+                ["Market"] = new[] { "Square", "Plaza", "Market", "Exchange", "Grounds" },
+                ["Temple"] = new[] { "Temple", "Sanctuary", "Chapel", "Shrine", "Cathedral" },
+                ["Blacksmith"] = new[] { "Forge", "Workshop", "Smith", "Works", "Anvil" },
+                ["Trading Post"] = new[] { "Post", "House", "Store", "Exchange", "Shop" }
+            };
+
+            if (prefixes.TryGetValue(type, out var typePrefix) && suffixes.TryGetValue(type, out var typeSuffix))
+            {
+                return $"{typePrefix[_random.Next(typePrefix.Length)]} {typeSuffix[_random.Next(typeSuffix.Length)]}";
+            }
+
+            return $"{type}";
+        }
+
+        private List<RoutePoint> GenerateRoutePath()
+        {
+            var points = new List<RoutePoint>();
+            var pathLength = _random.Next(2, 5);
+
+            for (int i = 0; i < pathLength; i++)
+            {
+                var point = new RoutePoint
+                {
+                    Description = GenerateRouteDescription(),
+                    Directions = GenerateRouteDirections(),
+                    Landmarks = GenerateRouteLandmarks()
+                };
+                points.Add(point);
+            }
+
+            return points;
+        }
+
+        private string GenerateRouteDescription()
+        {
+            var descriptions = new[]
+            {
+            "The path winds through dense vegetation.",
+            "A well-worn trail stretches ahead.",
+            "The route follows an ancient stone road.",
+            "A narrow path hugs the hillside.",
+            "The track crosses a shallow stream.",
+            "A bridge spans a deep ravine here."
+        };
+            return descriptions[_random.Next(descriptions.Length)];
+        }
+
+        private string GenerateRouteDirections()
+        {
+            var directions = new[]
+            {
+            "Follow the path north past the large boulder.",
+            "Continue east along the stream.",
+            "Head uphill toward the cliff face.",
+            "Take the fork in the road heading west.",
+            "Cross the wooden bridge and continue straight.",
+            "Follow the markers through the valley."
+        };
+            return directions[_random.Next(directions.Length)];
+        }
+
+        private List<LocationConfig> GenerateRouteLandmarks()
+        {
+            var landmarks = new List<LocationConfig>();
+            if (_random.Next(100) < 30) // 30% chance for a landmark
+            {
+                var types = new[]
+                {
+                "Ancient Ruins", "Watch Tower", "Abandoned Fort",
+                "Old Shrine", "Cave Entrance", "Stone Circle",
+                "Abandoned Mill", "Bridge", "Wayshrine",
+                "Campsite", "Trading Post", "Mystery"
+            };
+
+                var type = types[_random.Next(types.Length)];
+                landmarks.Add(new LocationConfig
+                {
+                    Name = GenerateLocationName(type),
+                    Type = type,
+                    Description = GenerateLocationDescription(type),
+                    NPCs = GenerateNPCsForLocation(type),
+                    Items = GenerateItemsForLocation(type)
+                });
+            }
+            return landmarks;
+        }
+
+        private void GenerateConnections(List<RegionConfig> regions, List<(int x, int y)> positions)
+        {
+            // Connect each region to its 2-4 nearest neighbors
+            for (int i = 0; i < regions.Count; i++)
+            {
+                var distances = new List<(int index, double dist)>();
+                for (int j = 0; j < regions.Count; j++)
+                {
+                    if (i == j) continue;
+                    distances.Add((j, Distance(positions[i], positions[j])));
+                }
+
+                // Sort by distance and take 2-4 nearest
+                var connectionCount = _random.Next(2, 5);
+                var connections = distances
+                    .OrderBy(d => d.dist)
+                    .Take(connectionCount)
+                    .Select(d => regions[d.index].Name)
+                    .ToList();
+
+                regions[i].Connections = connections;
+            }
+        }
+
+        private string GenerateWorldName()
+        {
+            var prefixes = new[] { "Northern", "Eastern", "Western", "Southern", "Lost", "Ancient", "Wild" };
+            var suffixes = new[] { "Frontier", "Reaches", "Lands", "Territory", "Province", "Region", "Domain" };
+            return $"The {prefixes[_random.Next(prefixes.Length)]} {suffixes[_random.Next(suffixes.Length)]}";
+        }
+
+        private string GenerateRegionName(string type)
+        {
+            var prefixes = new Dictionary<string, string[]>
+            {
+                ["Mountain"] = new[] { "High", "Steep", "Rocky", "Stone", "Frost" },
+                ["Hills"] = new[] { "Rolling", "Green", "Windy", "Low", "Grassy" },
+                ["Lake"] = new[] { "Deep", "Clear", "Still", "Mirror", "Dark" },
+                ["Swamp"] = new[] { "Murky", "Misty", "Fog", "Reed", "Marsh" },
+                ["Forest"] = new[] { "Dense", "Old", "Wild", "Deep", "Shadow" },
+                ["Plains"] = new[] { "Open", "Vast", "Wide", "Windy", "Golden" },
+                ["Valley"] = new[] { "Hidden", "Quiet", "Green", "Peaceful", "Sheltered" }
+            };
+
+            var suffixes = new Dictionary<string, string[]>
+            {
+                ["Mountain"] = new[] { "Peak", "Ridge", "Summit", "Heights", "Pass" },
+                ["Hills"] = new[] { "Hills", "Slopes", "Rise", "Downs", "Highlands" },
+                ["Lake"] = new[] { "Lake", "Waters", "Pool", "Basin", "Mere" },
+                ["Swamp"] = new[] { "Marsh", "Bog", "Fen", "Swamp", "Mire" },
+                ["Forest"] = new[] { "Woods", "Forest", "Grove", "Thicket", "Woodland" },
+                ["Plains"] = new[] { "Plains", "Fields", "Grassland", "Meadow", "Prairie" },
+                ["Valley"] = new[] { "Valley", "Vale", "Dale", "Glen", "Bottom" }
+            };
+
+            var prefix = prefixes[type][_random.Next(prefixes[type].Length)];
+            var suffix = suffixes[type][_random.Next(suffixes[type].Length)];
+            return $"{prefix} {suffix}";
+        }
+
+        private string GenerateRegionDescription(string type)
+        {
+            var descriptions = new Dictionary<string, string[]>
+            {
+                ["Mountain"] = new[] {
+                "Steep cliffs rise sharply against the sky, their peaks shrouded in clouds.",
+                "A rugged landscape of stone and snow stretches upward into thin air.",
+                "Rocky paths wind between towering peaks of weathered stone."
+            },
+                ["Hills"] = new[] {
+                "Gentle slopes roll endlessly toward the horizon, covered in wild grass.",
+                "Wind-swept hills dotted with hardy shrubs and exposed rocks.",
+                "A series of low rises and dips create a peaceful, pastoral landscape."
+            },
+                ["Lake"] = new[] {
+                "Clear waters reflect the sky like a mirror, surrounded by reeds.",
+                "A calm body of water stretches into the distance, its surface occasionally broken by fish.",
+                "The lake's deep waters lap gently at its rocky shores."
+            },
+                ["Swamp"] = new[] {
+                "Murky water pools between twisted trees draped with moss.",
+                "A maze of waterways winds through dense vegetation and muddy ground.",
+                "Mist clings to the surface of dark water, obscuring what lies beneath."
+            },
+                ["Forest"] = new[] {
+                "Ancient trees stand like silent sentinels, their canopy blocking most light.",
+                "A dense woodland of old growth trees and tangled underbrush.",
+                "Filtered sunlight creates patterns on the forest floor."
+            },
+                ["Plains"] = new[] {
+                "Tall grass waves in the wind like a golden sea under open skies.",
+                "A vast expanse of open ground stretches to the horizon.",
+                "Wild grasses and scattered wildflowers cover the level ground."
+            },
+                ["Valley"] = new[] {
+                "Sheltered by high ground on either side, the valley offers protection from harsh winds.",
+                "A peaceful lowland nestled between higher terrain.",
+                "Rich soil and protected position make this an ideal settlement location."
+            }
+            };
+
+            return descriptions[type][_random.Next(descriptions[type].Length)];
+        }
+
+        private List<string> GenerateNPCsForType(string type)
+        {
+            var npcs = new List<string>();
+            var count = _random.Next(2, 5);
+
+            var npcTypes = new Dictionary<string, string[]>
+            {
+                ["Mountain"] = new[] { "Miner", "Guide", "Climber", "Scout", "Hunter" },
+                ["Hills"] = new[] { "Shepherd", "Farmer", "Hunter", "Guard", "Traveler" },
+                ["Lake"] = new[] { "Fisher", "Boatman", "Merchant", "Guard", "Dock Worker" },
+                ["Swamp"] = new[] { "Hunter", "Guide", "Herbalist", "Fisher", "Recluse" },
+                ["Forest"] = new[] { "Woodcutter", "Hunter", "Ranger", "Trapper", "Scout" },
+                ["Plains"] = new[] { "Farmer", "Herder", "Merchant", "Guard", "Scout" },
+                ["Valley"] = new[] { "Farmer", "Miller", "Trader", "Guard", "Worker" }
+            };
+
+            for (int i = 0; i < count; i++)
+            {
+                npcs.Add(npcTypes[type][_random.Next(npcTypes[type].Length)]);
+            }
+
+            return npcs.Distinct().ToList();
+        }
+
+        private List<string> GenerateItemsForType(string type)
+        {
+            var items = new List<string>();
+            var count = _random.Next(3, 6);
+
+            var itemTypes = new Dictionary<string, string[]>
+            {
+                ["Mountain"] = new[] { "Pickaxe", "Rope", "Lantern", "Iron Ore", "Climbing Gear" },
+                ["Hills"] = new[] { "Walking Staff", "Water Skin", "Dried Food", "Wool", "Tools" },
+                ["Lake"] = new[] { "Fishing Rod", "Net", "Fresh Fish", "Boat Hook", "Rope" },
+                ["Swamp"] = new[] { "Boots", "Herbs", "Walking Staff", "Medicine", "Torch" },
+                ["Forest"] = new[] { "Axe", "Bow", "Herbs", "Leather", "Wood" },
+                ["Plains"] = new[] { "Farming Tools", "Seeds", "Water Skin", "Cart", "Food" },
+                ["Valley"] = new[] { "Tools", "Grain", "Cart", "Trade Goods", "Food" }
+            };
+
+            for (int i = 0; i < count; i++)
+            {
+                items.Add(itemTypes[type][_random.Next(itemTypes[type].Length)]);
+            }
+
+            return items.Distinct().ToList();
+        }
+
+        private double Distance((int x, int y) a, (int x, int y) b)
+        {
+            var dx = a.x - b.x;
+            var dy = a.y - b.y;
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        private string GenerateLocationDescription(string type)
+        {
+            var descriptions = new Dictionary<string, string[]>
+            {
+                ["Inn"] = new[] {
+                "A cozy establishment with a warm hearth and the smell of fresh bread.",
+                "The sound of lively chatter fills this well-maintained inn.",
+                "A popular rest stop for weary travelers, known for its comfortable beds."
+            },
+                ["Market"] = new[] {
+                "Colorful stalls line the busy marketplace, filled with goods from all over.",
+                "Merchants call out their wares as customers haggle over prices.",
+                "A bustling center of trade where locals gather to buy and sell."
+            },
+                ["Temple"] = new[] {
+                "Peaceful silence fills this sacred space, broken only by quiet prayer.",
+                "Sunlight streams through colored windows onto stone floors.",
+                "An ancient place of worship, maintained with careful dedication."
+            },
+                ["Blacksmith"] = new[] {
+                "The ring of hammer on anvil echoes from the busy forge.",
+                "Heat radiates from the glowing forge as tools take shape.",
+                "A well-equipped workshop where quality weapons and tools are made."
+            },
+                ["Trading Post"] = new[] {
+                "A sturdy building where traders exchange goods and news.",
+                "Shelves lined with goods from distant lands fill this trading post.",
+                "A busy stop along the trade route, always full of travelers."
+            },
+                ["House"] = new[] {
+                "A modest dwelling with a small garden.",
+                "Smoke rises from the chimney of this comfortable home.",
+                "A well-maintained house with flowers in the windows."
+            },
+                ["Farm"] = new[] {
+                "Fields of crops stretch out behind the farmhouse.",
+                "A working farm with various animals and growing fields.",
+                "The smell of fresh hay wafts from the barn."
+            },
+                ["Workshop"] = new[] {
+                "Tools and materials fill this busy craftsman's space.",
+                "The sound of work echoes from within.",
+                "A place where skilled artisans practice their trade."
+            },
+                ["Ancient Ruins"] = new[] {
+                "Crumbling stone walls hint at past grandeur.",
+                "Mystery surrounds these weathered ruins.",
+                "Time-worn stones covered in creeping vines."
+            },
+                ["Watch Tower"] = new[] {
+                "A tall structure providing views of the surrounding area.",
+                "Guards keep vigilant watch from this strategic point.",
+                "A defensive position overlooking the landscape."
+            }
+            };
+
+            if (descriptions.TryGetValue(type, out var typeDescriptions))
+            {
+                return typeDescriptions[_random.Next(typeDescriptions.Length)];
+            }
+
+            return $"A typical {type.ToLower()}.";
+        }
+
+        private List<string> GenerateNPCsForLocation(string type)
+        {
+            var npcs = new List<string>();
+            var count = _random.Next(1, 4);
+
+            var npcTypes = new Dictionary<string, string[]>
+            {
+                ["Inn"] = new[] { "Innkeeper", "Barmaid", "Cook", "Patron", "Traveler" },
+                ["Market"] = new[] { "Merchant", "Shopper", "Guard", "Vendor", "Pickpocket" },
+                ["Temple"] = new[] { "Priest", "Acolyte", "Worshipper", "Pilgrim", "Healer" },
+                ["Blacksmith"] = new[] { "Smith", "Apprentice", "Customer", "Supplier" },
+                ["Trading Post"] = new[] { "Trader", "Merchant", "Guard", "Porter", "Customer" },
+                ["House"] = new[] { "Resident", "Family Member", "Visitor" },
+                ["Farm"] = new[] { "Farmer", "Farmhand", "Worker", "Animal Handler" },
+                ["Workshop"] = new[] { "Craftsman", "Apprentice", "Customer", "Supplier" },
+                ["Watch Tower"] = new[] { "Guard", "Watchman", "Soldier", "Scout" },
+                ["Ancient Ruins"] = new[] { "Explorer", "Archaeologist", "Treasure Hunter", "Guard" }
+            };
+
+            if (npcTypes.TryGetValue(type, out var typeNPCs))
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    npcs.Add(typeNPCs[_random.Next(typeNPCs.Length)]);
+                }
+            }
+
+            return npcs.Distinct().ToList();
+        }
+
+        private List<string> GenerateItemsForLocation(string type)
+        {
+            var items = new List<string>();
+            var count = _random.Next(2, 5);
+
+            var itemTypes = new Dictionary<string, string[]>
+            {
+                ["Inn"] = new[] { "Ale", "Bread", "Stew", "Bedroll", "Candle", "Key" },
+                ["Market"] = new[] { "Food", "Cloth", "Pottery", "Tools", "Jewelry", "Spices" },
+                ["Temple"] = new[] { "Candle", "Holy Symbol", "Incense", "Offering", "Scripture" },
+                ["Blacksmith"] = new[] { "Sword", "Armor", "Tools", "Metal", "Coal", "Hammer" },
+                ["Trading Post"] = new[] { "Map", "Supplies", "Trade Goods", "Food", "Equipment" },
+                ["House"] = new[] { "Furniture", "Dishes", "Tools", "Personal Items" },
+                ["Farm"] = new[] { "Tools", "Seeds", "Grain", "Feed", "Produce" },
+                ["Workshop"] = new[] { "Tools", "Materials", "Products", "Work Table" },
+                ["Watch Tower"] = new[] { "Weapons", "Armor", "Supplies", "Signal Horn" },
+                ["Ancient Ruins"] = new[] { "Artifact", "Relic", "Old Coin", "Broken Pottery" }
+            };
+
+            if (itemTypes.TryGetValue(type, out var typeItems))
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    items.Add(typeItems[_random.Next(typeItems.Length)]);
+                }
+            }
+
+            return items.Distinct().ToList();
+        }
+    }
+
+    public class WorldConfig
+    {
+        public string Name { get; set; } = "Demo World";
+        public string Description { get; set; } = "A sample RPG world";
+        public List<RegionConfig> Regions { get; set; } = new();
+        public List<string> NPCs { get; set; } = new();
+        public List<string> Items { get; set; } = new();
+    }
+
+    public class RegionConfig
+    {
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public List<string> Connections { get; set; } = new();
+        public List<string> NPCs { get; set; } = new();
+        public List<string> Items { get; set; } = new();
+        public List<LocationConfig> Locations { get; set; } = new();
+        public Dictionary<string, List<RoutePoint>> Routes { get; set; } = new();
+    }
+
+    public class LocationConfig
+    {
+        public string Name { get; set; } = "";
+        public string Type { get; set; } = "";
+        public string Description { get; set; } = "";
+        public List<string> NPCs { get; set; } = new();
+        public List<string> Items { get; set; } = new();
+    }
+
+    public class RoutePoint
+    {
+        public int DescriptionId { get; set; }
+        public int DirectionsId { get; set; }
+        public string Description { get; set; } = "";
+        public string Directions { get; set; } = "";
+        public List<LocationConfig> Landmarks { get; set; } = new();
+    }
+    public class Header
+    {
+        public string Magic { get; set; } = "RPGW"; // Magic number
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Version { get; set; } = "1.0";
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public int RegionCount { get; set; }
+        public int NPCCount { get; set; }
+        public int ItemCount { get; set; }
+    }
+
+    public class ResourceTable
+    {
+        public Dictionary<string, int> StringPool { get; set; } = new();
+        public Dictionary<string, int> TextureRefs { get; set; } = new();
+        public Dictionary<string, int> SoundRefs { get; set; } = new();
+        public List<string> SharedDialogue { get; set; } = new();
+    }
+
+    public class GenWorldRegion
+    {
+        public int NameId { get; set; }          // Reference to string pool
+        public int DescriptionId { get; set; }   // Reference to string pool
+        public List<int> Connections { get; set; } = new();  // GenWorldRegion indices
+        public List<int> NPCs { get; set; } = new();        // NPC indices
+        public List<int> Items { get; set; } = new();       // Item indices
+        public Vector2 Position { get; set; } = new();
+        public List<Location> Locations { get; set; } = new();
+        public Dictionary<int, List<RoutePoint>> Routes { get; set; } = new();
+    }
+
+    public class Location
+    {
+        public int NameId { get; set; }
+        public int TypeId { get; set; }
+        public int DescriptionId { get; set; }
+        public List<int> NPCs { get; set; } = new();
+        public List<int> Items { get; set; } = new();
+    }
+
+    public class Entity
+    {
+        public int NameId { get; set; }          // Reference to string pool
+        public int Level { get; set; }
+        public int HP { get; set; }
+        public List<int> DialogueRefs { get; set; } = new(); // References to shared dialogue
+        public EntityStats Stats { get; set; } = new();
+    }
+
+    public class Item
+    {
+        public int NameId { get; set; }          // Reference to string pool
+        public int DescriptionId { get; set; }   // Reference to string pool
+        public ItemStats Stats { get; set; } = new();
+    }
+
+    public class Vector2
+    {
+        public float X { get; set; }
+        public float Y { get; set; }
+    }
+
+    public class EntityStats
+    {
+        public int Strength { get; set; }
+        public int Dexterity { get; set; }
+        public int Intelligence { get; set; }
+        public int Defense { get; set; }
+    }
+
+    public class ItemStats
+    {
+        public int Value { get; set; }
+        public int Weight { get; set; }
+        public int Durability { get; set; }
+        public ItemType Type { get; set; }
+    }
+
+    public enum ItemType
+    {
+        Weapon,
+        Armor,
+        Consumable,
+        Quest,
+        Misc
+    }
+}
+
+File: .\Program.cs
+﻿using System.Text;
+using System.IO.Compression;
+using RPG;
+using RPG.Commands;
+using System.Text.Json;
+class Program
+{
+    private const int MIN_WIDTH = 80;
+    private const int MIN_HEIGHT = 24;
+
+    static async Task Main(string[] args)
+    {
+        while (true)
+        {
+            if (!CheckMinimumSize())
+            {
+                await ShowSizeError();
+                continue;
+            }
+
+            var choice = await ShowMainMenu();
+            switch (choice)
+            {
+                case 1: // Start New Game
+                    await StartGame();
+                    break;
+                case 2: // Load Game
+                    await ShowLoadGameMenu();
+                    break;
+                case 3: // Options
+                    await ShowOptionsMenu();
+                    break;
+                case 4: // Exit
+                    return;
+            }
+        }
+    }
+
+    private static bool CheckMinimumSize()
+    {
+        return Console.WindowWidth >= MIN_WIDTH && Console.WindowHeight >= MIN_HEIGHT;
+    }
+
+    private static async Task ShowSizeError()
+    {
+        using var manager = new ConsoleWindowManager();
+        var state = new GameState(manager);
+        var errorRegion = new Region
+        {
+            Name = state.Localization.GetString("Error_Title"),
+            BorderColor = ConsoleColor.Red,
+            TitleColor = ConsoleColor.Red,
+            RenderContent = (region) =>
+            {
+                var message = new List<string>
+                {
+                    "",
+                    state.Localization.GetString("Error_WindowTooSmall"),
+                    "",
+                    state.Localization.GetString("Error_MinimumSize", MIN_WIDTH, MIN_HEIGHT),
+                    state.Localization.GetString("Error_CurrentSize", Console.WindowWidth, Console.WindowHeight),
+                    "",
+                    state.Localization.GetString("Error_ResizePrompt"),
+                    state.Localization.GetString("Error_ExitPrompt"),
+                    "",
+                    state.Localization.GetString("Error_ResizeTip")
+                };
+                manager.RenderWrappedText(region, message, ConsoleColor.White);
+            }
+        };
+
+        void UpdateLayout()
+        {
+            manager.UpdateRegion("Error", r =>
+            {
+                r.X = 1;
+                r.Y = 1;
+                r.Width = Console.WindowWidth - 2;
+                r.Height = Console.WindowHeight - 2;
+            });
+        }
+
+        manager.AddRegion("Error", errorRegion);
+        UpdateLayout();
+
+        while (true)
+        {
+            if (Console.KeyAvailable)
+            {
+                var key = Console.ReadKey(true);
+                switch (key.Key)
+                {
+                    case ConsoleKey.Enter:
+                        if (CheckMinimumSize())
+                            return;
+                        break;
+                    case ConsoleKey.Escape:
+                        Environment.Exit(0);
+                        break;
+                }
+            }
+
+            if (manager.CheckResize())
+            {
+                UpdateLayout();
+            }
+
+            await Task.Delay(16);
+        }
+    }
+
+    private static async Task<int> ShowMainMenu()
+    {
+        using var manager = new ConsoleWindowManager();
+        var state = new GameState(manager);
+        var choice = 1;
+        const string version = "v0.1.0";
+
+        // Update the mainMenu region to use localized strings
+        var mainMenu = new Region
+        {
+            Name = state.Localization.GetString("MainMenu_Title", version),
+            BorderColor = ConsoleColor.Blue,
+            TitleColor = ConsoleColor.Cyan,
+            RenderContent = (region) =>
+            {
+                var logo = new List<string>
+                {
+                    @"██████╗ ███████╗███╗   ███╗ ██████╗ ",
+                    @"██╔══██╗██╔════╝████╗ ████║██╔═══██╗",
+                    @"██║  ██║█████╗  ██╔████╔██║██║   ██║",
+                    @"██║  ██║██╔══╝  ██║╚██╔╝██║██║   ██║",
+                    @"██████╔╝███████╗██║ ╚═╝ ██║╚██████╔╝",
+                    @"╚═════╝ ╚══════╝╚═╝     ╚═╝ ╚═════╝ "
+                };
+
+                var menuItems = new List<string>
+                {
+                    "",
+                    "",
+                };
+                menuItems.AddRange(logo);
+                menuItems.AddRange(new[]
+                {
+                    "",
+                    state.Localization.GetString("MainMenu_NavigationHint"),
+                    "",
+                    choice == 1 ? $"> [{state.Localization.GetString("MainMenu_Start")}] <" :
+                                 $"  {state.Localization.GetString("MainMenu_Start")}  ",
+                    choice == 2 ? $"> [{state.Localization.GetString("MainMenu_Load")}] <" :
+                                 $"  {state.Localization.GetString("MainMenu_Load")}  ",
+                    choice == 3 ? $"> [{state.Localization.GetString("MainMenu_Options")}] <" :
+                                 $"  {state.Localization.GetString("MainMenu_Options")}  ",
+                    choice == 4 ? $"> [{state.Localization.GetString("MainMenu_Exit")}] <" :
+                                 $"  {state.Localization.GetString("MainMenu_Exit")}  ",
+                    "",
+                    "",
+                    state.Localization.GetString("MainMenu_Copyright", DateTime.Now.Year),
+                    state.Localization.GetString("MainMenu_CreatedFor")
+                });
+
+                // Modify menuItems to show available saves
+                var saves = SaveManager.GetSaveFiles();
+                if (saves.Any())
+                {
+                    menuItems.Add("");
+                    menuItems.Add("Available Saves:");
+                    foreach (var (slot, save) in saves)
+                    {
+                        menuItems.Add($"  {slot}: {save.DisplayName}");
+                    }
+                }
+
+                manager.RenderWrappedText(region, menuItems, ConsoleColor.White);
+            }
+        };
+
+        void UpdateLayout()
+        {
+            manager.UpdateRegion("MainMenu", r =>
+            {
+                r.X = 1;
+                r.Y = 1;
+                r.Width = Console.WindowWidth - 2;
+                r.Height = Console.WindowHeight - 2;
+            });
+        }
+
+        manager.AddRegion("MainMenu", mainMenu);
+        UpdateLayout();
+
+        while (true)
+        {
+            if (Console.KeyAvailable)
+            {
+                var key = Console.ReadKey(true);
+                switch (key.Key)
+                {
+                    case ConsoleKey.UpArrow:
+                        choice = choice == 1 ? 4 : choice - 1;
+                        manager.QueueRender();
+                        break;
+                    case ConsoleKey.DownArrow:
+                        choice = choice == 4 ? 1 : choice + 1;
+                        manager.QueueRender();
+                        break;
+                    case ConsoleKey.Enter:
+                        return choice;
+                }
+            }
+
+            if (manager.CheckResize())
+            {
+                UpdateLayout();
+            }
+
+            await Task.Delay(16);
+        }
+    }
+
+    private static async Task StartGame(string? loadSlot = null)
+    {
+        using var manager = new ConsoleWindowManager();
+        var state = new GameState(manager);
+
+        // Load world data first if starting new game
+        if (loadSlot == null)
+        {
+            try
+            {
+                // Check if world exists, if not generate it
+                if (!File.Exists("./World/world.dat"))
+                {
+                    state.GameLog.Add("Generating new world...");
+
+                    // Generate world using ProceduralWorldGenerator
+                    var generator = new ProceduralWorldGenerator(Random.Shared.Next());
+                    var worldConfig = generator.GenerateWorld();
+
+                    // Ensure directory exists
+                    Directory.CreateDirectory("./World");
+
+                    var builder = new OptimizedWorldBuilder("./World", worldConfig);
+                    builder.Build();
+
+                    state.GameLog.Add($"Generated world '{worldConfig.Name}' with {worldConfig.Regions.Count} regions");
+                }
+
+                state.LoadWorld("./World/world.dat", true);
+            }
+            catch (Exception ex)
+            {
+                state.GameLog.Add($"Failed to load/generate world: {ex.Message}");
+                state.GameLog.Add("Press any key to return to menu...");
+                Console.ReadKey(true);
+                return;
+            }
+        }
+        // For loading saved games, let LoadGame handle world loading
+        else if (!state.LoadGame(loadSlot))
+        {
+            state.GameLog.Add($"Failed to load save: {loadSlot}");
+            await Task.Delay(2000);
+            return;
+        }
+
+        SetupCommands(state);
+
+        // Create layout regions with relative positioning
+        void UpdateLayout()
+        {
+            manager.UpdateRegion("GameLog", r =>
+            {
+                r.X = 1;
+                r.Y = 1;
+                r.Width = Console.WindowWidth - 42;
+                r.Height = Console.WindowHeight - 6;
+            });
+
+            manager.UpdateRegion("Stats", r =>
+            {
+                r.X = Console.WindowWidth - 40;
+                r.Y = 1;
+                r.Width = 39;
+                r.Height = Console.WindowHeight - 6;
+            });
+
+            manager.UpdateRegion("Input", r =>
+            {
+                r.X = 1;
+                r.Y = Console.WindowHeight - 4;
+                r.Width = Console.WindowWidth - 2;
+                r.Height = 3;
+            });
+        }
+
+        var gameLog = new Region
+        {
+            Name = "Game Log",
+            BorderColor = ConsoleColor.Blue,
+            TitleColor = ConsoleColor.Cyan,
+            RenderContent = (region) =>
+            {
+                manager.RenderWrappedText(region, state.GameLog.TakeLast(50), ConsoleColor.White);
+            }
+        };
+
+        var statsPanel = new Region
+        {
+            Name = "Character Stats",
+            BorderColor = ConsoleColor.Green,
+            TitleColor = ConsoleColor.Green,
+            RenderContent = (region) =>
+            {
+                var stats = new List<string>
+                {
+                    $"Player: {state.PlayerName}",
+                    $"Level: {state.Level}",
+                    $"HP: {state.HP}/{state.MaxHP}",
+                    "Equipment:",
+                    "- Rusty Sword",
+                    "- Leather Armor",
+                    "Gold: 100"
+                };
+                manager.RenderWrappedText(region, stats, ConsoleColor.White);
+            }
+        };
+
+        var inputRegion = new Region
+        {
+            Name = "Input",
+            BorderColor = ConsoleColor.Yellow,
+            TitleColor = ConsoleColor.Yellow
+        };
+
+        // Add regions and set initial layout
+        manager.AddRegion("GameLog", gameLog);
+        manager.AddRegion("Stats", statsPanel);
+        manager.AddRegion("Input", inputRegion);
+        UpdateLayout();
+
+        // Input handling
+        var inputBuffer = new StringBuilder();
+
+        while (state.Running)
+        {
+            if (Console.KeyAvailable)
+            {
+                var key = Console.ReadKey(true);
+
+                switch (key.Key)
+                {
+                    case ConsoleKey.Enter:
+                        var command = inputBuffer.ToString().Trim();
+                        if (!string.IsNullOrEmpty(command))
+                        {
+                            ProcessCommand(command, state);
+                        }
+                        inputBuffer.Clear();
+                        manager.UpdateInputText("", ConsoleColor.White);
+                        break;
+
+                    case ConsoleKey.Backspace:
+                        if (inputBuffer.Length > 0)
+                        {
+                            inputBuffer.Length = inputBuffer.Length - 1;
+                            manager.UpdateInputText(inputBuffer.ToString(), ConsoleColor.White);
+                        }
+                        break;
+
+                    case ConsoleKey.Escape:
+                        return;
+
+                    default:
+                        if (!char.IsControl(key.KeyChar) && inputBuffer.Length < 100)
+                        {
+                            inputBuffer.Append(key.KeyChar);
+                            manager.UpdateInputText(inputBuffer.ToString(), ConsoleColor.White);
+                        }
+                        break;
+                }
+
+                manager.QueueRender(); // Force a refresh after each keystroke
+            }
+
+            // Check for resize
+            if (manager.CheckResize())
+            {
+                UpdateLayout();
+            }
+
+            await Task.Delay(16);
+        }
+    }
+
+    private static void ProcessCommand(string input, GameState state)
+    {
+        if (!state.CommandHandler.ExecuteCommand(input, state))
+        {
+            state.GameLog.Add($"Unknown command: {input.Split(' ')[0]}");
+        }
+    }
+
+    private static void SetupCommands(GameState state)
+    {
+        var commandHandler = state.CommandHandler;
+
+        // Register built-in commands
+        commandHandler.RegisterCommand(new HelpCommand(commandHandler));
+
+        // Register save/load commands
+        commandHandler.RegisterCommand(new SaveCommand());
+        commandHandler.RegisterCommand(new LoadCommand());
+
+        // Load Lua commands
+        var luaLoader = new LuaCommandLoader(state);
+        foreach (var command in luaLoader.LoadCommands())
+        {
+            commandHandler.RegisterCommand(command);
+        }
+    }
+
+    private static async Task ShowOptionsMenu()
+    {
+        using var manager = new ConsoleWindowManager();
+        var state = new GameState(manager);
+        var currentOption = 1;
+        var languages = LocalizationManager.GetAvailableLanguages().ToList();
+        var currentLanguageIndex = languages.FindIndex(c => c.Name == GameSettings.CurrentLanguage);
+
+        // Subscribe to language changes
+        state.Localization.LanguageChanged += (newLanguage) =>
+        {
+            // Force refresh of all UI elements
+            manager.QueueRender();
+            // Save settings when language changes
+            GameSettings.Instance.Save();
+        };
+
+        void UpdateLayout()
+        {
+            manager.UpdateRegion("Options", r =>
+            {
+                r.X = 1;
+                r.Y = 1;
+                r.Width = Console.WindowWidth - 2;
+                r.Height = Console.WindowHeight - 2;
+            });
+        }
+
+        var optionsMenu = new Region
+        {
+            Name = state.Localization.GetString("Options_Title"),
+            BorderColor = ConsoleColor.Blue,
+            TitleColor = ConsoleColor.Cyan,
+            RenderContent = (region) =>
+            {
+                var options = new List<string>
+                {
+                    "",
+                    state.Localization.GetString("Options_Instructions"),
+                    "",
+                    currentOption == 1 ?
+                        $"> [{state.Localization.GetString("Options_Language")}]: {languages[currentLanguageIndex].DisplayName} <" :
+                        $"  {state.Localization.GetString("Options_Language")}: {languages[currentLanguageIndex].DisplayName}  ",
+                    "",
+                    currentOption == 2 ?
+                        $"> [{state.Localization.GetString("Options_Back")}] <" :
+                        $"  {state.Localization.GetString("Options_Back")}  "
+                };
+
+                manager.RenderWrappedText(region, options, ConsoleColor.White);
+            }
+        };
+
+        manager.AddRegion("Options", optionsMenu);
+        UpdateLayout();
+
+        while (true)
+        {
+            if (Console.KeyAvailable)
+            {
+                var key = Console.ReadKey(true);
+                switch (key.Key)
+                {
+                    case ConsoleKey.UpArrow:
+                        currentOption = currentOption == 1 ? 2 : 1;
+                        manager.QueueRender();
+                        break;
+                    case ConsoleKey.DownArrow:
+                        currentOption = currentOption == 2 ? 1 : 2;
+                        manager.QueueRender();
+                        break;
+                    case ConsoleKey.LeftArrow:
+                        if (currentOption == 1)
+                        {
+                            currentLanguageIndex = (currentLanguageIndex - 1 + languages.Count) % languages.Count;
+                            GameSettings.CurrentLanguage = languages[currentLanguageIndex].Name;
+                            state.Localization.SetLanguage(GameSettings.CurrentLanguage);
+                            manager.QueueRender();
+                        }
+                        break;
+                    case ConsoleKey.RightArrow:
+                        if (currentOption == 1)
+                        {
+                            currentLanguageIndex = (currentLanguageIndex + 1) % languages.Count;
+                            GameSettings.CurrentLanguage = languages[currentLanguageIndex].Name;
+                            state.Localization.SetLanguage(GameSettings.CurrentLanguage);
+                            manager.QueueRender();
+                        }
+                        break;
+                    case ConsoleKey.Enter:
+                        if (currentOption == 2)
+                            return;
+                        break;
+                    case ConsoleKey.Escape:
+                        return;
+                }
+            }
+
+            if (manager.CheckResize())
+            {
+                UpdateLayout();
+            }
+
+            await Task.Delay(16);
+        }
+    }
+
+    private static async Task ShowMessageBox(string message)
+    {
+        using var manager = new ConsoleWindowManager();
+        var messageBox = new Region
+        {
+            Name = "Message",
+            BorderColor = ConsoleColor.Blue,
+            TitleColor = ConsoleColor.Cyan,
+            RenderContent = (region) =>
+            {
+                var lines = new List<string>
+                {
+                    "",
+                    message,
+                    "",
+                    "Press any key to continue..."
+                };
+                manager.RenderWrappedText(region, lines, ConsoleColor.White);
+            }
+        };
+
+        void UpdateLayout()
+        {
+            manager.UpdateRegion("Message", r =>
+            {
+                r.X = Console.WindowWidth / 4;
+                r.Y = Console.WindowHeight / 3;
+                r.Width = Console.WindowWidth / 2;
+                r.Height = Console.WindowHeight / 3;
+            });
+        }
+
+        manager.AddRegion("Message", messageBox);
+        UpdateLayout();
+
+        while (true)
+        {
+            if (Console.KeyAvailable)
+            {
+                Console.ReadKey(true);
+                return;
+            }
+
+            if (manager.CheckResize())
+            {
+                UpdateLayout();
+            }
+
+            await Task.Delay(16);
+        }
+    }
+
+    private static async Task ShowLoadGameMenu()
+    {
+        using var manager = new ConsoleWindowManager();
+        var state = new GameState(manager);
+        
+        // Check for saves first
+        var saves = SaveManager.GetSaveFiles();
+        if (!saves.Any())
+        {
+            // Use messageBox instead of ShowMessageBox for better control
+            var messageBox = new Region
+            {
+                Name = state.Localization.GetString("Load_Title"),
+                BorderColor = ConsoleColor.Yellow,
+                TitleColor = ConsoleColor.Yellow,
+                RenderContent = (region) =>
+                {
+                    var lines = new List<string>
+                    {
+                        "",
+                        state.Localization.GetString("Load_NoSaves"),
+                        "",
+                        "Press any key to return..."
+                    };
+                    manager.RenderWrappedText(region, lines, ConsoleColor.White);
+                }
+            };
+
+            void UpdateMessageLayout()
+            {
+                manager.UpdateRegion("Message", r =>
+                {
+                    r.X = Console.WindowWidth / 4;
+                    r.Y = Console.WindowHeight / 3;
+                    r.Width = Console.WindowWidth / 2;
+                    r.Height = 6; // Fixed height for message box
+                });
+            }
+
+            manager.AddRegion("Message", messageBox);
+            UpdateMessageLayout();
+
+            // Wait for key press
+            while (!Console.KeyAvailable)
+            {
+                if (manager.CheckResize())
+                {
+                    UpdateMessageLayout();
+                }
+                await Task.Delay(16);
+            }
+            Console.ReadKey(true);
+            return;
+        }
+
+        var selectedIndex = 0;
+        const int itemsPerPage = 5;
+        var currentPage = 0;
+        var totalPages = (int)Math.Ceiling(saves.Count / (double)itemsPerPage);
+
+        var loadMenu = new Region
+        {
+            Name = state.Localization.GetString("Load_Title"),
+            BorderColor = ConsoleColor.Blue,
+            TitleColor = ConsoleColor.Cyan,
+            RenderContent = (region) =>
+            {
+                var menuItems = new List<string>
+                {
+                    "",
+                    state.Localization.GetString("Load_Instructions"),
+                    state.Localization.GetString("Load_DeleteInstructions"),
+                    ""
+                };
+
+                var pageStart = currentPage * itemsPerPage;
+                var pageSaves = saves.Skip(pageStart).Take(itemsPerPage).ToList();
+
+                for (int i = 0; i < pageSaves.Count; i++)
+                {
+                    var saveInfo = pageSaves[i];
+                    var index = pageStart + i;
+                    var saveType = saveInfo.Metadata.SaveType == SaveType.Autosave ? "[Auto]" : "[Manual]";
+
+                    // Format save date nicely
+                    var saveDate = saveInfo.Metadata.SaveTime.ToString("yyyy-MM-dd HH:mm");
+
+                    // Add selection indicator
+                    menuItems.Add(index == selectedIndex ?
+                        $"> [{saveInfo.Slot}] {saveType} {saveDate}" :
+                        $"  {saveInfo.Slot}: {saveType} {saveDate}");
+
+                    // Add save details
+                    menuItems.Add($"     {saveInfo.Metadata.LastPlayedCharacter} - Level {saveInfo.Metadata.CharacterLevel}");
+                    menuItems.Add($"     Play time: {FormatPlayTime(saveInfo.Metadata.TotalPlayTime)}");
+                    menuItems.Add("");
+                }
+
+                // Add pagination info if there are multiple pages
+                if (totalPages > 1)
+                {
+                    menuItems.Add("");
+                    menuItems.Add($"Page {currentPage + 1} of {totalPages}");
+                    menuItems.Add("Use Left/Right arrows to navigate pages");
+                }
+
+                manager.RenderWrappedText(region, menuItems, ConsoleColor.White);
+            }
+        };
+
+        void UpdateLayout()
+        {
+            manager.UpdateRegion("LoadMenu", r =>
+            {
+                r.X = 1;
+                r.Y = 1;
+                r.Width = Console.WindowWidth - 2;
+                r.Height = Console.WindowHeight - 2;
+            });
+        }
+
+        manager.AddRegion("LoadMenu", loadMenu);
+        UpdateLayout();
+
+        async Task<bool> ConfirmDelete(string slot)
+        {
+            var selected = false; // Move this declaration up
+            var confirmBox = new Region
+            {
+                Name = state.Localization.GetString("Error_Title"),
+                BorderColor = ConsoleColor.Red,
+                TitleColor = ConsoleColor.Red,
+                ZIndex = 10, // Ensure it appears on top
+                RenderContent = (region) =>
+                {
+                    var lines = new List<string>
+                    {
+                        "",
+                        state.Localization.GetString("Load_ConfirmDelete", slot),
+                        "",
+                        state.Localization.GetString("Load_DeleteWarning"),
+                        "",
+                        selected ? "> [Yes]    No  <" : "  Yes   > [No] <",
+                        ""
+                    };
+                    manager.RenderWrappedText(region, lines, ConsoleColor.White);
+                }
+            };
+
+            void UpdateConfirmLayout()
+            {
+                manager.UpdateRegion("Confirm", r =>
+                {
+                    r.X = Console.WindowWidth / 4;
+                    r.Y = Console.WindowHeight / 3;
+                    r.Width = Console.WindowWidth / 2;
+                    r.Height = 9; // Fixed height for confirmation box
+                });
+            }
+
+            manager.AddRegion("Confirm", confirmBox);
+            UpdateConfirmLayout();
+            var result = false;
+            var confirmed = false;
+
+            while (!confirmed)
+            {
+                if (Console.KeyAvailable)
+                {
+                    var key = Console.ReadKey(true);
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.LeftArrow:
+                        case ConsoleKey.RightArrow:
+                            selected = !selected;
+                            manager.QueueRender();
+                            break;
+                        case ConsoleKey.Enter:
+                            result = selected;
+                            confirmed = true;
+                            break;
+                        case ConsoleKey.Escape:
+                            result = false;
+                            confirmed = true;
+                            break;
+                    }
+                }
+
+                if (manager.CheckResize())
+                {
+                    UpdateConfirmLayout();
+                }
+
+                await Task.Delay(16);
+            }
+
+            // Remove confirmation dialog
+            manager.UpdateRegion("Confirm", r => r.IsVisible = false);
+            manager.QueueRender();
+            return result;
+        }
+
+        while (true)
+        {
+            if (Console.KeyAvailable)
+            {
+                var key = Console.ReadKey(true);
+                switch (key.Key)
+                {
+                    case ConsoleKey.UpArrow:
+                        selectedIndex = (selectedIndex - 1 + saves.Count) % saves.Count;
+                        currentPage = selectedIndex / itemsPerPage;
+                        manager.QueueRender();
+                        break;
+
+                    case ConsoleKey.DownArrow:
+                        selectedIndex = (selectedIndex + 1) % saves.Count;
+                        currentPage = selectedIndex / itemsPerPage;
+                        manager.QueueRender();
+                        break;
+
+                    case ConsoleKey.LeftArrow:
+                        if (totalPages > 1)
+                        {
+                            currentPage = (currentPage - 1 + totalPages) % totalPages;
+                            selectedIndex = currentPage * itemsPerPage;
+                            manager.QueueRender();
+                        }
+                        break;
+
+                    case ConsoleKey.RightArrow:
+                        if (totalPages > 1)
+                        {
+                            currentPage = (currentPage + 1) % totalPages;
+                            selectedIndex = currentPage * itemsPerPage;
+                            manager.QueueRender();
+                        }
+                        break;
+
+                    case ConsoleKey.Delete:
+                        var (slotToDelete, _) = saves[selectedIndex];
+                        if (await ConfirmDelete(slotToDelete))
+                        {
+                            SaveManager.DeleteSave(slotToDelete);
+
+                            // Refresh save list
+                            saves = SaveManager.GetSaveFiles();
+                            if (!saves.Any())
+                            {
+                                // Use the same messageBox as initial check
+                                var messageBox = new Region
+                                {
+                                    Name = state.Localization.GetString("Load_Title"),
+                                    BorderColor = ConsoleColor.Yellow,
+                                    TitleColor = ConsoleColor.Yellow,
+                                    RenderContent = (region) =>
+                                    {
+                                        var lines = new List<string>
+                                        {
+                                            "",
+                                            state.Localization.GetString("Load_NoSaves"),
+                                            "",
+                                            "Press any key to return..."
+                                        };
+                                        manager.RenderWrappedText(region, lines, ConsoleColor.White);
+                                    }
+                                };
+
+                                void UpdateMessageLayout()
+                                {
+                                    manager.UpdateRegion("Message", r =>
+                                    {
+                                        r.X = Console.WindowWidth / 4;
+                                        r.Y = Console.WindowHeight / 3;
+                                        r.Width = Console.WindowWidth / 2;
+                                        r.Height = 6;
+                                    });
+                                }
+
+                                // Remove the load menu
+                                manager.UpdateRegion("LoadMenu", r => r.IsVisible = false);
+                                
+                                // Show the message box
+                                manager.AddRegion("Message", messageBox);
+                                UpdateMessageLayout();
+                                manager.QueueRender();
+
+                                // Wait for key press
+                                while (!Console.KeyAvailable)
+                                {
+                                    if (manager.CheckResize())
+                                    {
+                                        UpdateMessageLayout();
+                                    }
+                                    await Task.Delay(16);
+                                }
+                                Console.ReadKey(true);
+                                return;
+                            }
+
+                            totalPages = (int)Math.Ceiling(saves.Count / (double)itemsPerPage);
+                            selectedIndex = Math.Min(selectedIndex, saves.Count - 1);
+                            currentPage = selectedIndex / itemsPerPage;
+                            manager.QueueRender();
+                        }
+                        break;
+
+                    case ConsoleKey.Enter:
+                        var (slot, _) = saves[selectedIndex];
+                        manager.Dispose();
+                        await StartGame(slot);
+                        return;
+
+                    case ConsoleKey.Escape:
+                        return;
+                }
+            }
+
+            if (manager.CheckResize())
+            {
+                UpdateLayout();
+            }
+
+            await Task.Delay(16);
+        }
+    }
+
+    private static string FormatPlayTime(TimeSpan time)
+    {
+        if (time.TotalDays >= 1)
+            return $"{(int)time.TotalDays}d {time.Hours}h {time.Minutes}m";
+        if (time.TotalHours >= 1)
+            return $"{(int)time.TotalHours}h {time.Minutes}m";
+        return $"{time.Minutes}m {time.Seconds}s";
+    }
+
+    private static async Task<bool> ShowConfirmationDialog(string message, string warning)
+    {
+        using var manager = new ConsoleWindowManager();
+        var selected = false;
+
+        var dialog = new Region
+        {
+            Name = "Confirm",
+            BorderColor = ConsoleColor.Red,
+            TitleColor = ConsoleColor.Red,
+            RenderContent = (region) =>
+            {
+                var lines = new List<string>
+                {
+                    "",
+                    message,
+                    "",
+                    warning,
+                    "",
+                    selected ? "> [Yes]    No  <" : "  Yes   > [No] <",
+                    ""
+                };
+                manager.RenderWrappedText(region, lines, ConsoleColor.White);
+            }
+        };
+
+        void UpdateLayout()
+        {
+            manager.UpdateRegion("Confirm", r =>
+            {
+                r.X = Console.WindowWidth / 4;
+                r.Y = Console.WindowHeight / 3;
+                r.Width = Console.WindowWidth / 2;
+                r.Height = Console.WindowHeight / 3;
+            });
+        }
+
+        manager.AddRegion("Confirm", dialog);
+        UpdateLayout();
+
+        while (true)
+        {
+            if (Console.KeyAvailable)
+            {
+                var key = Console.ReadKey(true);
+                switch (key.Key)
+                {
+                    case ConsoleKey.LeftArrow:
+                    case ConsoleKey.RightArrow:
+                        selected = !selected;
+                        manager.QueueRender();
+                        break;
+
+                    case ConsoleKey.Enter:
+                        return selected;
+
+                    case ConsoleKey.Escape:
+                        return false;
+                }
+            }
+
+            if (manager.CheckResize())
+            {
+                UpdateLayout();
+            }
+
+            await Task.Delay(16);
+        }
+    }
+}
+
+File: .\RPG.csproj
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NLua" Version="1.7.3" />
+    <PackageReference Include="Spectre.Console" Version="0.49.1" />
+    <PackageReference Include="Terminal.Gui" Version="1.17.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="LuaScripts\*.lua" />
+  </ItemGroup>
+
+</Project>
+
+File: .\SaveData.cs
+using System.Text.Json.Serialization;
+
+namespace RPG
+{
+    public class SaveData
+    {
+        public string PlayerName { get; set; } = "Hero";
+        public int Level { get; set; } = 1;
+        public int HP { get; set; } = 100;
+        public int MaxHP { get; set; } = 100;
+        public string CurrentRegionId { get; set; } = "";
+        public DateTime SaveTime { get; set; }
+        public string WorldPath { get; set; } = "";
+        public int Gold { get; set; } = 100;
+        public Dictionary<string, int> Stats { get; set; } = new();
+        public List<string> Inventory { get; set; } = new();
+        public Dictionary<string, bool> GameFlags { get; set; } = new();
+        public TimeSpan TotalPlayTime { get; set; } = TimeSpan.Zero;
+        public DateTime LastPlayTime { get; set; } = DateTime.Now;
+        
+        [JsonIgnore]
+        public string DisplayName => $"{PlayerName} - Level {Level} - {SaveTime:g}";
+        
+        [JsonIgnore]
+        public string Description
+        {
+            get
+            {
+                var stats = new List<string>
+                {
+                    $"HP: {HP}/{MaxHP}",
+                    $"Location: {CurrentRegionId}",
+                    $"Gold: {Gold}",
+                    $"Playtime: {FormatPlayTime(TotalPlayTime)}"
+                };
+                return string.Join(" | ", stats);
+            }
+        }
+
+        private static string FormatPlayTime(TimeSpan time)
+        {
+            if (time.TotalDays >= 1)
+                return $"{(int)time.TotalDays}d {time.Hours}h";
+            if (time.TotalHours >= 1)
+                return $"{(int)time.TotalHours}h {time.Minutes}m";
+            return $"{time.Minutes}m {time.Seconds}s";
+        }
+
+        public void UpdatePlayTime()
+        {
+            var now = DateTime.Now;
+            var sessionTime = now - LastPlayTime;
+            TotalPlayTime += sessionTime;
+            LastPlayTime = now;
+        }
+    }
+}
+
+
+File: .\SaveManager.cs
+using System.Text.Json;
+using System.IO.Compression;
+
+namespace RPG
+{
+    public static class SaveManager
+    {
+        private const int CURRENT_SAVE_VERSION = 1;
+        private const int MAX_AUTOSAVES = 3;
+        private const int MAX_BACKUPS = 5;
+
+        private static readonly string SaveDirectory = Path.Combine(
+            Environment.GetFolderPath(
+                Environment.OSVersion.Platform == PlatformID.Unix ||
+                Environment.OSVersion.Platform == PlatformID.MacOSX
+                    ? Environment.SpecialFolder.Personal
+                    : Environment.SpecialFolder.ApplicationData
+            ),
+            Environment.OSVersion.Platform == PlatformID.Unix ||
+            Environment.OSVersion.Platform == PlatformID.MacOSX
+                ? "Library/Application Support/DemoRPG/Saves"
+                : "DemoRPG/Saves"
+        );
+
+        private static readonly string BackupDirectory = Path.Combine(SaveDirectory, "Backups");
+        private static readonly string AutosaveDirectory = Path.Combine(SaveDirectory, "Autosaves");
+
+        static SaveManager()
+        {
+            Directory.CreateDirectory(SaveDirectory);
+            Directory.CreateDirectory(BackupDirectory);
+            Directory.CreateDirectory(AutosaveDirectory);
+        }
+
+        public static void Save(SaveData saveData, string slot, bool isAutosave = false)
+        {
+            var metadata = new SaveMetadata
+            {
+                Version = CURRENT_SAVE_VERSION,
+                SaveTime = DateTime.UtcNow,
+                LastPlayedCharacter = saveData.PlayerName,
+                TotalPlayTime = saveData.TotalPlayTime,
+                SaveType = isAutosave ? SaveType.Autosave : SaveType.Manual,
+                WorldPath = saveData.WorldPath,
+                CharacterLevel = saveData.Level
+            };
+
+            string path = GetSavePath(slot, isAutosave);
+            
+            // Create backup of existing save
+            if (File.Exists(path) && !isAutosave)
+            {
+                CreateBackup(slot);
+            }
+
+            // Serialize and compress
+            using var fs = File.Create(path);
+            using var gz = new GZipStream(fs, CompressionLevel.Optimal);
+            using var writer = new BinaryWriter(gz);
+
+            // Write metadata first
+            var metadataBytes = JsonSerializer.SerializeToUtf8Bytes(metadata);
+            writer.Write(metadataBytes.Length);
+            writer.Write(metadataBytes);
+
+            // Write save data
+            var saveDataBytes = JsonSerializer.SerializeToUtf8Bytes(saveData);
+            writer.Write(saveDataBytes.Length);
+            writer.Write(saveDataBytes);
+
+            // Cleanup old autosaves if needed
+            if (isAutosave)
+            {
+                CleanupOldAutosaves();
+            }
+        }
+
+        public static (SaveMetadata? Metadata, SaveData? Data) Load(string slot, bool isAutosave = false)
+        {
+            string path = GetSavePath(slot, isAutosave);
+            if (!File.Exists(path)) return (null, null);
+
+            try
+            {
+                using var fs = File.OpenRead(path);
+                using var gz = new GZipStream(fs, CompressionMode.Decompress);
+                using var reader = new BinaryReader(gz);
+
+                // Read metadata
+                int metadataLength = reader.ReadInt32();
+                var metadataBytes = reader.ReadBytes(metadataLength);
+                var metadata = JsonSerializer.Deserialize<SaveMetadata>(metadataBytes);
+
+                // Version check and migration if needed
+                if (metadata?.Version < CURRENT_SAVE_VERSION)
+                {
+                    return LoadLegacySave(path);
+                }
+
+                // Read save data
+                int saveDataLength = reader.ReadInt32();
+                var saveDataBytes = reader.ReadBytes(saveDataLength);
+                var saveData = JsonSerializer.Deserialize<SaveData>(saveDataBytes);
+
+                return (metadata, saveData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading save {path}: {ex.Message}");
+                return (null, null);
+            }
+        }
+
+        public static List<SaveInfo> GetSaveFiles(bool includeAutosaves = true)
+        {
+            var saves = new List<SaveInfo>();
+            
+            // Get manual saves
+            foreach (var file in Directory.GetFiles(SaveDirectory, "*.save"))
+            {
+                var info = GetSaveInfo(file, false);
+                if (info != null) saves.Add(info);
+            }
+
+            // Get autosaves if requested
+            if (includeAutosaves)
+            {
+                foreach (var file in Directory.GetFiles(AutosaveDirectory, "*.save"))
+                {
+                    var info = GetSaveInfo(file, true);
+                    if (info != null) saves.Add(info);
+                }
+            }
+
+            return saves.OrderByDescending(s => s.Metadata.SaveTime).ToList();
+        }
+
+        public static void CreateAutosave(SaveData saveData)
+        {
+            string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+            Save(saveData, $"auto_{timestamp}", true);
+        }
+
+        public static void DeleteSave(string slot, bool isAutosave = false)
+        {
+            string path = GetSavePath(slot, isAutosave);
+            if (File.Exists(path))
+            {
+                // Move to recycle bin instead of permanent deletion
+                Microsoft.VisualBasic.FileIO.FileSystem.DeleteFile(
+                    path,
+                    Microsoft.VisualBasic.FileIO.UIOption.OnlyErrorDialogs,
+                    Microsoft.VisualBasic.FileIO.RecycleOption.SendToRecycleBin
+                );
+            }
+        }
+
+        public static bool RestoreBackup(string slot, int backupIndex)
+        {
+            string backupPath = GetBackupPath(slot, backupIndex);
+            string targetPath = GetSavePath(slot, false);
+
+            if (File.Exists(backupPath))
+            {
+                File.Copy(backupPath, targetPath, true);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static SaveInfo? GetSaveInfo(string path, bool isAutosave)
+        {
+            try
+            {
+                var (metadata, _) = Load(Path.GetFileNameWithoutExtension(path), isAutosave);
+                if (metadata != null)
+                {
+                    return new SaveInfo
+                    {
+                        Slot = Path.GetFileNameWithoutExtension(path),
+                        IsAutosave = isAutosave,
+                        Metadata = metadata,
+                        FilePath = path
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error reading save info {path}: {ex.Message}");
+            }
+            return null;
+        }
+
+        private static void CreateBackup(string slot)
+        {
+            string sourcePath = GetSavePath(slot, false);
+            if (!File.Exists(sourcePath)) return;
+
+            string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+            string backupPath = Path.Combine(BackupDirectory, $"{slot}_{timestamp}.backup");
+            
+            File.Copy(sourcePath, backupPath, true);
+            CleanupOldBackups(slot);
+        }
+
+        private static void CleanupOldAutosaves()
+        {
+            var files = Directory.GetFiles(AutosaveDirectory, "*.save")
+                .OrderByDescending(f => File.GetLastWriteTime(f))
+                .Skip(MAX_AUTOSAVES);
+
+            foreach (var file in files)
+            {
+                try { File.Delete(file); }
+                catch { /* Ignore cleanup errors */ }
+            }
+        }
+
+        private static void CleanupOldBackups(string slot)
+        {
+            var files = Directory.GetFiles(BackupDirectory, $"{slot}_*.backup")
+                .OrderByDescending(f => File.GetLastWriteTime(f))
+                .Skip(MAX_BACKUPS);
+
+            foreach (var file in files)
+            {
+                try { File.Delete(file); }
+                catch { /* Ignore cleanup errors */ }
+            }
+        }
+
+        private static (SaveMetadata?, SaveData?) LoadLegacySave(string path)
+        {
+            // Handle loading and migrating old save formats
+            try
+            {
+                string json = File.ReadAllText(path);
+                var legacyData = JsonSerializer.Deserialize<SaveData>(json);
+                if (legacyData == null) return (null, null);
+
+                // Create metadata from legacy save
+                var metadata = new SaveMetadata
+                {
+                    Version = 0,
+                    SaveTime = File.GetLastWriteTime(path),
+                    LastPlayedCharacter = legacyData.PlayerName,
+                    TotalPlayTime = TimeSpan.Zero, // Not available in legacy saves
+                    SaveType = SaveType.Manual,
+                    WorldPath = legacyData.WorldPath,
+                    CharacterLevel = legacyData.Level
+                };
+
+                return (metadata, legacyData);
+            }
+            catch
+            {
+                return (null, null);
+            }
+        }
+
+        private static string GetSavePath(string slot, bool isAutosave) =>
+            Path.Combine(
+                isAutosave ? AutosaveDirectory : SaveDirectory,
+                $"{slot}.save"
+            );
+
+        private static string GetBackupPath(string slot, int backupIndex)
+        {
+            var backups = Directory.GetFiles(BackupDirectory, $"{slot}_*.backup")
+                .OrderByDescending(f => File.GetLastWriteTime(f))
+                .ToList();
+
+            return backupIndex < backups.Count ? backups[backupIndex] : "";
+        }
+    }
+
+    public class SaveInfo
+    {
+        public string Slot { get; set; } = "";
+        public bool IsAutosave { get; set; }
+        public SaveMetadata Metadata { get; set; } = new();
+        public string FilePath { get; set; } = "";
+
+        // Add this method to support deconstruction
+        public void Deconstruct(out string slot, out SaveData data)
+        {
+            slot = Slot;
+            // Load the actual save data when deconstructing
+            var (_, saveData) = SaveManager.Load(Slot, IsAutosave);
+            data = saveData ?? new SaveData();
+        }
+    }
+
+    public class SaveMetadata
+    {
+        public int Version { get; set; }
+        public DateTime SaveTime { get; set; }
+        public string LastPlayedCharacter { get; set; } = "";
+        public TimeSpan TotalPlayTime { get; set; }
+        public SaveType SaveType { get; set; }
+        public string WorldPath { get; set; } = "";
+        public int CharacterLevel { get; set; }
+        public Dictionary<string, string> CustomData { get; set; } = new();
+    }
+
+    public enum SaveType
+    {
+        Manual,
+        Autosave,
+        Quicksave
+    }
+}
+
+
+File: .\WorldData.cs
+using System.Text.Json.Serialization;
+
+namespace RPG
+{
+    public class WorldRegionBase
+    {
+        public int NameId { get; set; }
+        public int DescriptionId { get; set; }
+        public List<int> Connections { get; set; } = new();
+        public List<int> NPCs { get; set; } = new();
+        public List<int> Items { get; set; } = new();
+        public Vector2 Position { get; set; } = new();
+        public List<Location> Locations { get; set; } = new();
+        public Dictionary<int, List<RoutePoint>> Routes { get; set; } = new();
+    }
+
+    public class WorldRegion : WorldRegionBase
+    {
+        // No need to redeclare properties as they're inherited from WorldRegionBase
+    }
+
+    public class WorldData
+    {
+        public Header Header { get; set; } = new();
+        public ResourceTable Resources { get; set; } = new();
+        public List<WorldRegion> Regions { get; set; } = new();  // Changed from Region to WorldRegionBase
+        public List<Entity> NPCs { get; set; } = new();
+        public List<Item> Items { get; set; } = new();
+    }
+}
+
+
+File: .\WorldLoader.cs
+using System.IO.Compression;
+using System.Text.Json;
+
+namespace RPG
+{
+    public class WorldLoader
+    {
+        private readonly WorldData _worldData;
+        private readonly Dictionary<int, string> _stringCache;
+
+        public WorldLoader(string worldPath)
+        {
+            // Read and decompress world file
+            using var fs = File.OpenRead(worldPath);
+            using var gzip = new GZipStream(fs, CompressionMode.Decompress);
+            using var ms = new MemoryStream();
+            gzip.CopyTo(ms);
+            ms.Position = 0;
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            _worldData = JsonSerializer.Deserialize<WorldData>(ms.ToArray(), options)!;
+            _stringCache = _worldData.Resources.StringPool
+                .ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+
+            ValidateWorldData();
+        }
+
+        private void ValidateWorldData()
+        {
+            if (_worldData.Header.Magic != "RPGW")
+                throw new InvalidDataException("Invalid world file format");
+        }
+
+        // Basic accessors
+        public string GetString(int id) =>
+            _stringCache.TryGetValue(id, out var str) ? str : $"<unknown string {id}>";
+
+        public WorldData GetWorldData() => _worldData;
+
+        // Region methods
+        public WorldRegion? GetStartingRegion()
+        {
+            return _worldData.Regions
+                .FirstOrDefault(r => 
+                    GetString(r.NameId).Contains("Village") || 
+                    GetString(r.NameId).Contains("Town"))
+                as WorldRegion
+                ?? _worldData.Regions.FirstOrDefault() as WorldRegion;
+        }
+
+        public WorldRegion? GetRegionByName(string name)
+        {
+            return _worldData.Regions
+                .FirstOrDefault(r => 
+                    GetString(r.NameId).Equals(name, StringComparison.OrdinalIgnoreCase))
+                as WorldRegion;
+        }
+
+        public IEnumerable<WorldRegion> GetConnectedRegions(WorldRegion region) =>
+            region.Connections.Select(idx => _worldData.Regions[idx]);
+
+        // Location methods
+        public Location? GetLocationByName(WorldRegion region, string name)
+        {
+            return region.Locations.FirstOrDefault(l => 
+                GetString(l.NameId).Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public string GetLocationDescription(Location location)
+        {
+            var desc = GetString(location.DescriptionId);
+            var type = GetString(location.TypeId);
+            return $"{desc}\nThis is a {type}.";
+        }
+
+        public bool LocationNameMatches(Location location, string name) =>
+            GetString(location.NameId).Equals(name, StringComparison.OrdinalIgnoreCase);
+
+        public IEnumerable<Location> GetLocationsInRegion(WorldRegion region) =>
+            region.Locations;
+
+        // NPC methods
+        public IEnumerable<Entity> GetNPCsInRegion(WorldRegion region) =>
+            region.NPCs.Select(idx => _worldData.NPCs[idx]);
+
+        public List<Entity> GetNPCsInLocation(Location location) =>
+            location.NPCs.Select(idx => _worldData.NPCs[idx]).ToList();
+
+        public string GetNPCDialogue(Entity npc)
+        {
+            if (npc.DialogueRefs.Any())
+            {
+                int dialogueIdx = npc.DialogueRefs[Random.Shared.Next(npc.DialogueRefs.Count)];
+                return _worldData.Resources.SharedDialogue[dialogueIdx];
+            }
+            return "...";
+        }
+
+        // Item methods
+        public IEnumerable<Item> GetItemsInRegion(WorldRegion region) =>
+            region.Items.Select(idx => _worldData.Items[idx]);
+
+        public List<Item> GetItemsInLocation(Location location) =>
+            location.Items.Select(idx => _worldData.Items[idx]).ToList();
+
+        // Route methods
+        public List<RoutePoint> GetRoute(WorldRegion from, WorldRegion to)
+        {
+            int toIndex = _worldData.Regions.IndexOf(to as WorldRegion);
+            return from.Routes.TryGetValue(toIndex, out var route) ? route : new List<RoutePoint>();
+        }
+
+        public string GetRouteDescription(RoutePoint point) => 
+            GetString(point.DescriptionId);
+
+        public string GetRouteDirections(RoutePoint point) => 
+            GetString(point.DirectionsId);
+
+        public IEnumerable<Location> GetRouteLandmarks(RoutePoint point) =>
+            point.Landmarks.Select(l => new Location 
+            {
+                NameId = GetOrAddString(l.Name),
+                TypeId = GetOrAddString(l.Type),
+                DescriptionId = GetOrAddString(l.Description)
+            });
+
+        private int GetOrAddString(string str)
+        {
+            if (_worldData.Resources.StringPool.TryGetValue(str, out var id))
+                return id;
+
+            id = _worldData.Resources.StringPool.Count;
+            _worldData.Resources.StringPool[str] = id;
+            _stringCache[id] = str;
+            return id;
+        }
+
+        // Helper methods for getting display text
+        public string GetEntityName(Entity entity) => GetString(entity.NameId);
+        public string GetItemName(Item item) => GetString(item.NameId);
+        public string GetItemDescription(Item item) => GetString(item.DescriptionId);
+        public string GetRegionName(WorldRegion region) => GetString(region.NameId);
+        public string GetRegionDescription(WorldRegion region) => GetString(region.DescriptionId);
+        public string GetLocationName(Location location) => GetString(location.NameId);
+    }
+}
+
+
+File: .\Commands\BaseCommand.cs
+namespace RPG.Commands
+{
+    public abstract class BaseCommand : ICommand
+    {
+        public abstract string Name { get; }
+        public abstract string Description { get; }
+        public virtual string[] Aliases => Array.Empty<string>();
+        public abstract void Execute(string args, GameState state);
+    }
+}
+
+
+File: .\Commands\HelpCommand.cs
+namespace RPG.Commands
+{
+    public class HelpCommand : BaseCommand
+    {
+        private readonly CommandHandler _commandHandler;
+
+        public HelpCommand(CommandHandler commandHandler)
+        {
+            _commandHandler = commandHandler;
+        }
+
+        public override string Name => "help";
+        public override string Description => "Shows list of available commands";
+
+        public override void Execute(string args, GameState state)
+        {
+            state.GameLog.Add("Available commands:");
+            foreach (var cmd in _commandHandler.GetCommands())
+            {
+                state.GameLog.Add($"- {cmd.Name}: {cmd.Description}");
+            }
+        }
+    }
+}
+
+
+File: .\Commands\ICommand.cs
+namespace RPG.Commands
+{
+    public interface ICommand
+    {
+        string Name { get; }
+        string Description { get; }
+        string[] Aliases { get; }
+        void Execute(string args, GameState state);
+    }
+}
+
+
+File: .\Commands\LoadCommand.cs
+namespace RPG.Commands
+{
+    public class LoadCommand : ICommand
+    {
+        public string Name => "load";
+        public string Description => "Load game from a slot (1-5)";
+        public string[] Aliases => new[] { "l" };
+
+        public void Execute(string args, GameState state)
+        {
+            if (string.IsNullOrWhiteSpace(args) || !int.TryParse(args, out int slot) || slot < 1 || slot > 5)
+            {
+                state.GameLog.Add("Usage: load <1-5>");
+                return;
+            }
+
+            if (state.LoadGame(slot.ToString()))
+            {
+                state.GameLog.Add($"Game loaded from slot {slot}");
+            }
+            else
+            {
+                state.GameLog.Add($"No save found in slot {slot}");
+            }
+        }
+    }
+}
+
+
+File: .\Commands\LuaCommand.cs
+using NLua;
+
+namespace RPG.Commands
+{
+    public class LuaCommand : BaseCommand
+    {
+        private readonly string _name;
+        private readonly string _description;
+        private readonly LuaFunction _executeFunction;
+        private readonly string[] _aliases;
+        private readonly string _usage;
+        private readonly string _category;
+
+        public LuaCommand(string name, string description, LuaFunction executeFunction, 
+            string[] aliases, string usage, string category)
+        {
+            _name = name;
+            _description = description;
+            _executeFunction = executeFunction;
+            _aliases = aliases;
+            _usage = usage;
+            _category = category;
+        }
+
+        public override string Name => _name;
+        public override string Description => _description;
+        public override string[] Aliases => _aliases;
+        public string Usage => _usage;
+        public string Category => _category;
+
+        public override void Execute(string args, GameState state)
+        {
+            try
+            {
+                _executeFunction.Call(args, state);
+            }
+            catch (Exception ex)
+            {
+                state.GameLog.Add($"Error executing command '{_name}': {ex.Message}");
+            }
+        }
+    }
+}
+
+
+File: .\Commands\LuaCommandLoader.cs
+using NLua;
+using System.Reflection;
+
+namespace RPG.Commands
+{
+    public class LuaCommandLoader
+    {
+        private readonly GameState _state;
+        private readonly LuaGameAPI _gameApi;
+        private readonly Lua _lua;
+        private readonly Assembly _assembly;
+        private readonly string _userScriptsPath;
+
+        public LuaCommandLoader(GameState state)
+        {
+            _state = state;
+            _lua = new Lua();
+            _assembly = Assembly.GetExecutingAssembly();
+            
+            // Cross-platform app data path
+            string appDataPath = Environment.GetFolderPath(
+                Environment.OSVersion.Platform == PlatformID.Unix || 
+                Environment.OSVersion.Platform == PlatformID.MacOSX
+                    ? Environment.SpecialFolder.Personal
+                    : Environment.SpecialFolder.ApplicationData
+            );
+            
+            _userScriptsPath = Path.Combine(
+                appDataPath,
+                Environment.OSVersion.Platform == PlatformID.Unix || 
+                Environment.OSVersion.Platform == PlatformID.MacOSX
+                    ? "Library/Application Support/DemoRPG/Scripts"
+                    : "DemoRPG/Scripts"
+            );
+            
+            // Create game API with our Lua instance
+            _gameApi = new LuaGameAPI(_state, _lua);
+            
+            // Register game API and types
+            _lua.LoadCLRPackage();
+            _lua["game"] = _gameApi;
+            _lua["KeepClrObject"] = true;
+
+            // Load core library first
+            var coreScript = GetEmbeddedScript("core.lua");
+            if (coreScript != null)
+            {
+                _lua["core"] = _lua.DoString(coreScript)[0];
+            }
+
+            // Add helper functions and command creation API
+            _lua.DoString(@"
+                -- Command creation helper
+                function CreateCommand(config)
+                    assert(type(config) == 'table', 'CreateCommand requires a config table')
+                    assert(config.name, 'Command requires a name')
+                    assert(config.description, 'Command requires a description')
+                    assert(config.execute, 'Command requires an execute function')
+
+                    return {
+                        name = config.name,
+                        description = config.description,
+                        execute = config.execute,
+                        aliases = config.aliases or {},
+                        usage = config.usage or '',
+                        category = config.category or 'General'
+                    }
+                end
+
+                -- String split helper
+                function split(str, sep)
+                    sep = sep or '%s'
+                    local t = {}
+                    for field in string.gmatch(str, '[^'..sep..']+') do
+                        table.insert(t, field)
+                    end
+                    return t
+                end
+
+                -- Arguments parser helper
+                function parseArgs(argStr)
+                    local args = split(argStr or '')
+                    return {
+                        raw = argStr or '',
+                        list = args,
+                        count = #args,
+                        get = function(self, index)
+                            return self.list[index]
+                        end
+                    }
+                end
+            ");
+        }
+
+        private string GetEmbeddedScript(string filename)
+        {
+            var resourcePath = _assembly.GetManifestResourceNames().FirstOrDefault(r => r.EndsWith(filename));
+            if (resourcePath == null) return null;
+            
+            using var stream = _assembly.GetManifestResourceStream(resourcePath);
+            if (stream == null) return null;
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
+        }
+
+        private IEnumerable<ICommand> LoadUserCommands()
+        {
+            if (!Directory.Exists(_userScriptsPath))
+            {
+                Directory.CreateDirectory(_userScriptsPath);
+                yield break;
+            }
+
+            foreach (var file in Directory.GetFiles(_userScriptsPath, "*.lua"))
+            {
+                LuaTable chunk = null;
+                try
+                {
+                    chunk = _lua.DoFile(file)[0] as LuaTable;
+                }
+                catch (Exception ex)
+                {
+                    _state.GameLog.Add($"Error loading user command {Path.GetFileName(file)}: {ex.Message}");
+                }
+
+                if (chunk != null)
+                {
+                    yield return new LuaCommand(
+                        chunk["name"] as string ?? "",
+                        chunk["description"] as string ?? "",
+                        chunk["execute"] as LuaFunction,
+                        (chunk["aliases"] as LuaTable)?.Values.Cast<string>().ToArray() ?? Array.Empty<string>(),
+                        chunk["usage"] as string ?? "",
+                        chunk["category"] as string ?? "User Commands"
+                    );
+                }
+            }
+        }
+
+        public IEnumerable<ICommand> LoadCommands()
+        {
+            // Load embedded system commands
+            var resources = _assembly.GetManifestResourceNames()
+                .Where(r => r.EndsWith(".lua"))
+                .Where(r => !r.EndsWith("core.lua"));
+
+            foreach (var resource in resources)
+            {
+                LuaTable chunk = null;
+                try
+                {
+                    string script = GetEmbeddedScript(Path.GetFileName(resource));
+                    if (script != null)
+                    {
+                        chunk = _lua.DoString(script)[0] as LuaTable;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _state.GameLog.Add($"Error loading Lua command {resource}: {ex.Message}");
+                }
+
+                if (chunk != null)
+                {
+                    yield return new LuaCommand(
+                        chunk["name"] as string ?? "",
+                        chunk["description"] as string ?? "",
+                        chunk["execute"] as LuaFunction,
+                        (chunk["aliases"] as LuaTable)?.Values.Cast<string>().ToArray() ?? Array.Empty<string>(),
+                        chunk["usage"] as string ?? "",
+                        chunk["category"] as string ?? "General"
+                    );
+                }
+            }
+
+            // Load user commands
+            foreach (var command in LoadUserCommands())
+            {
+                yield return command;
+            }
+        }
+    }
+}
+
+
+File: .\Commands\LuaGameAPI.cs
+using NLua;
+
+namespace RPG.Commands
+{
+    public class LuaGameAPI
+    {
+        private const float DEFAULT_TIME_SCALE = 0.1f;
+        private const int MAX_TRAVEL_DURATION_MS = 3000; // 3 seconds max
+        private readonly GameState _state;
+        private readonly Lua _lua;
+
+        public LuaGameAPI(GameState state, Lua lua)
+        {
+            _state = state;
+            _lua = lua;
+        }
+
+        // Game log methods
+        public void Log(string message) => _state.GameLog.Add(message);
+        public void LogColor(string message, string color)
+        {
+            // TODO: Implement colored text in game log
+            _state.GameLog.Add(message);
+        }
+        public void ClearLog() => _state.GameLog.Clear();
+
+        // Player state methods
+        public string GetPlayerName() => _state.PlayerName;
+        public void SetPlayerName(string name) => _state.PlayerName = name;
+        public int GetPlayerHP() => _state.HP;
+        public void SetPlayerHP(int hp) => _state.HP = Math.Clamp(hp, 0, _state.MaxHP);
+        public int GetPlayerMaxHP() => _state.MaxHP;
+        public void SetPlayerMaxHP(int maxHp) => _state.MaxHP = Math.Max(1, maxHp);
+        public int GetPlayerLevel() => _state.Level;
+        public void SetPlayerLevel(int level) => _state.Level = Math.Max(1, level);
+
+        // Utility methods
+        public void Sleep(int milliseconds) => Thread.Sleep(milliseconds);
+        public string AskQuestion(string question)
+        {
+            Log(question);
+            // TODO: Implement proper input handling
+            return "";
+        }
+        // Combat helper methods
+        public bool RollDice(int sides) => Random.Shared.Next(1, sides + 1) == sides;
+        public int GetRandomNumber(int min, int max) => Random.Shared.Next(min, max + 1);
+
+        // Region helper methods
+        public string GetRegionName(WorldRegion region) =>
+            _state.World?.GetString(region.NameId) ?? "<invalid region>";
+
+        public string GetRegionDescription(WorldRegion region) =>
+            _state.World?.GetString(region.DescriptionId) ?? "<invalid region>";
+
+        public LuaTable GetConnectedRegions(WorldRegion region)
+        {
+            var table = _lua.DoString("return {}")[0] as LuaTable;
+            if (_state.World == null || table == null) 
+                return table;
+
+            var regions = _state.World.GetConnectedRegions(region).ToList();
+            for (int i = 0; i < regions.Count; i++)
+            {
+                table[i + 1] = regions[i];
+            }
+            return table;
+        }
+
+        // Updated region helper methods
+        public RegionWrapper GetCurrentRegion()
+        {
+            if (_state?.World == null || _state.CurrentRegion == null)
+                return null;
+            return new RegionWrapper(_state.CurrentRegion, _state.World);
+        }
+
+        public void SetCurrentRegion(RegionWrapper region)
+        {
+            if (region?.Region != null)
+                _state.CurrentRegion = region.Region;
+        }
+
+        public LuaTable GetConnectedRegions()
+        {
+            if (_state?.World == null || _state.CurrentRegion == null)
+                return CreateEmptyTable();
+
+            var regions = _state.World.GetConnectedRegions(_state.CurrentRegion)
+                .Select(r => new RegionWrapper(r, _state.World));
+
+            return regions.ToLuaTable(_lua);
+        }
+
+        private LuaTable CreateEmptyTable()
+        {
+            return _lua.DoString("return {}")[0] as LuaTable ?? 
+                   throw new InvalidOperationException("Failed to create Lua table");
+        }
+
+        // Helper method to check if a region name matches
+        public bool RegionNameMatches(RegionWrapper region, string name)
+        {
+            return region.Name.Equals(name, StringComparison.OrdinalIgnoreCase);
+        }
+
+        // Location methods
+        public LocationWrapper GetCurrentLocation()
+        {
+            if (_state?.World == null || _state.CurrentLocation == null)
+                return null;
+            return new LocationWrapper(_state.CurrentLocation, _state.World);
+        }
+
+        public void SetCurrentLocation(LocationWrapper location)
+        {
+            _state.CurrentLocation = location?.Location;
+        }
+
+        public LuaTable GetLocationsInRegion()
+        {
+            if (_state?.World == null || _state.CurrentRegion == null)
+                return CreateEmptyTable();
+
+            var locations = _state.World.GetLocationsInRegion(_state.CurrentRegion)
+                .Select(l => new LocationWrapper(l, _state.World));
+
+            return locations.ToLuaTable(_lua);
+        }
+
+        public bool LocationNameMatches(LocationWrapper location, string name)
+        {
+            return location.Name.Equals(name, StringComparison.OrdinalIgnoreCase);
+        }
+
+        // Location navigation
+        public void NavigateToLocation(LocationWrapper location)
+        {
+            if (location?.Location != null)
+                _state.NavigateToLocation(location.Location);
+        }
+
+        // Region position and travel methods
+        public double GetDistanceBetweenRegions(RegionWrapper from, RegionWrapper to)
+        {
+            if (from?.Region == null || to?.Region == null) return 0;
+            
+            var dx = to.Region.Position.X - from.Region.Position.X;
+            var dy = to.Region.Position.Y - from.Region.Position.Y;
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        public Vector2 GetRegionPosition(RegionWrapper region)
+        {
+            return region?.Region?.Position ?? new Vector2();
+        }
+
+        // Travel time calculation (assumes 1 unit = 1 minute of travel time)
+        public int CalculateTravelTime(RegionWrapper from, RegionWrapper to)
+        {
+            var distance = GetDistanceBetweenRegions(from, to);
+            return (int)Math.Ceiling(distance);
+        }
+
+        // Simulate passing of time
+        public void SimulateTravelTime(int minutes)
+        {
+            // This is where you would add any time-based game mechanics
+            Thread.Sleep(Math.Min(minutes * 100, 2000)); // Cap at 2 seconds real time
+        }
+
+        public void SimulateTravelTimeWithProgress(int totalMinutes, float timeScale = DEFAULT_TIME_SCALE)
+        {
+            const int updateInterval = 100; // Update progress every 100ms
+            float durationMs = Math.Min(totalMinutes * 1000 * timeScale, MAX_TRAVEL_DURATION_MS);
+            float elapsedMs = 0;
+            
+            while (elapsedMs < durationMs)
+            {
+                ClearLog();
+                Log($"=== Traveling ===");
+                
+                float progress = elapsedMs / durationMs;
+                int remainingMinutes = (int)(totalMinutes * (1 - progress));
+                
+                Log($"Time remaining: {FormatTravelTime(remainingMinutes)}");
+                
+                // Create progress bar
+                int barLength = 20;
+                int progressBars = (int)(progress * barLength);
+                string progressBar = "[" + new string('=', progressBars) + new string(' ', barLength - progressBars) + "]";
+                Log(progressBar);
+                
+                Thread.Sleep(updateInterval);
+                elapsedMs += updateInterval;
+            }
+            ClearLog();
+        }
+
+        private string FormatTravelTime(int minutes)
+        {
+            if (minutes < 60)
+                return $"{minutes} minutes";
+            
+            int hours = minutes / 60;
+            int mins = minutes % 60;
+            return mins > 0 ? $"{hours}h {mins}m" : $"{hours}h";
+        }
+    }
+}
+
+
+File: .\Commands\LuaWrapper.cs
+using NLua;
+
+namespace RPG.Commands
+{
+    public class RegionWrapper
+    {
+        private readonly WorldRegion _region;
+        private readonly WorldLoader _world;
+
+        public RegionWrapper(WorldRegion region, WorldLoader world)
+        {
+            _region = region;
+            _world = world;
+        }
+
+        public string Name => _world.GetString(_region.NameId);
+        public string Description => _world.GetString(_region.DescriptionId);
+        public WorldRegion Region => _region;
+    }
+
+    public class LocationWrapper
+    {
+        private readonly Location _location;
+        private readonly WorldLoader _world;
+
+        public LocationWrapper(Location location, WorldLoader world)
+        {
+            _location = location;
+            _world = world;
+        }
+
+        public string Name => _world.GetString(_location.NameId);
+        public string Description => _world.GetString(_location.DescriptionId);
+        public string Type => _world.GetString(_location.TypeId);
+        public Location Location => _location;
+    }
+
+    public static class LuaTableExtensions
+    {
+        public static LuaTable ToLuaTable(this IEnumerable<RegionWrapper> items, Lua lua)
+        {
+            var table = lua.DoString("return {}")[0] as LuaTable;
+            if (table == null) return null;
+
+            int index = 1;
+            foreach (var item in items)
+            {
+                table[index++] = item;
+            }
+
+            return table;
+        }
+
+        public static LuaTable ToLuaTable(this IEnumerable<LocationWrapper> items, Lua lua)
+        {
+            var table = lua.DoString("return {}")[0] as LuaTable;
+            if (table == null) return null;
+
+            int index = 1;
+            foreach (var item in items)
+            {
+                table[index++] = item;
+            }
+
+            return table;
+        }
+    }
+}
+
+
+File: .\Commands\SaveCommand.cs
+using RPG;
+
+namespace RPG.Commands
+{
+    public class SaveCommand : ICommand
+    {
+        public string Name => "save";
+        public string Description => "Save game to a slot (1-5)";
+        public string[] Aliases => new[] { "s" };
+
+        public void Execute(string args, GameState state)
+        {
+            if (string.IsNullOrWhiteSpace(args) || !int.TryParse(args, out int slot) || slot < 1 || slot > 5)
+            {
+                state.GameLog.Add("Usage: save <1-5>");
+                return;
+            }
+
+            state.SaveGame(slot.ToString());
+        }
+    }
+}
+
+
+File: .\LuaScripts\clear.lua
+return CreateCommand({
+    name = "clear",
+    description = "Clear the log",
+    usage = "clear",
+    category = "Chat",
+    aliases = {"c"},
+    execute = function(args)
+        game:ClearLog()
+    end
+})
+
+File: .\LuaScripts\core.lua
+local core = {}
+
+-- Player related helpers
+function core.getPlayerInfo()
+    return {
+        name = game:GetPlayerName(),
+        hp = game:GetPlayerHP(),
+        maxHp = game:GetPlayerMaxHP(),
+        level = game:GetPlayerLevel()
+    }
+end
+
+-- Argument handling helpers
+function core.parseNumber(value, default)
+    local num = tonumber(value)
+    return num or default
+end
+
+-- String utilities
+function core.formatHealthChange(amount, action)
+    local player = core.getPlayerInfo()
+    return string.format("%s %s %d health. Current HP: %d/%d",
+        player.name,
+        action,
+        amount,
+        player.hp,
+        player.maxHp)
+end
+
+return core
+
+
+File: .\LuaScripts\damage.lua
+return CreateCommand({
+    name = "damage",
+    description = "Damage yourself",
+    usage = "damage [amount]",
+    category = "Combat",
+    aliases = {"d"},
+    execute = function(args)
+        local parsed = parseArgs(args)
+        local amount = core.parseNumber(parsed:get(1))
+        if amount == nil then
+            game:Log("Invalid amount")
+        else
+            local currentHP = game:GetPlayerHP()
+            game:SetPlayerHP(currentHP - amount)
+            game:Log(core.formatHealthChange(amount, "took"))
+        end
+    end
+})
+
+File: .\LuaScripts\enter.lua
+return CreateCommand({
+    name = "enter",
+    description = "Enter a location in the current region",
+    aliases = {"visit"},
+    usage = "enter <location name>",
+    category = "Navigation",
+    execute = function(args, state)
+        local currentRegion = game:GetCurrentRegion()
+        if not currentRegion then
+            game:Log("No region loaded!")
+            return
+        end
+
+        local targetName = args:match("^%s*(.-)%s*$")
+        if targetName == "" then
+            game:Log("Enter where?")
+            game:Log("Available locations:")
+            local locations = game:GetLocationsInRegion()
+            for _, location in pairs(locations) do
+                game:Log("  - " .. location.Name)
+            end
+            return
+        end
+
+        local targetLocation = nil
+        local locations = game:GetLocationsInRegion()
+        for _, location in pairs(locations) do
+            if game:LocationNameMatches(location, targetName) then
+                targetLocation = location
+                break
+            end
+        end
+
+        if not targetLocation then
+            game:Log("Cannot find location: " .. targetName)
+            game:Log("Available locations:")
+            for _, location in pairs(locations) do
+                game:Log("  - " .. location.Name)
+            end
+            return
+        end
+
+        game:NavigateToLocation(targetLocation)
+    end
+})
+
+
+File: .\LuaScripts\heal.lua
+return CreateCommand({
+    name = "heal",
+    description = "Heal yourself",
+    usage = "heal [amount]",
+    category = "Combat",
+    aliases = {"h"},
+    execute = function(args)
+        local parsed = parseArgs(args)
+        local amount = core.parseNumber(parsed:get(1))
+        if amount == nil then
+            game:Log("Invalid amount")
+        else
+            local currentHP = game:GetPlayerHP()
+            if currentHP == game:GetPlayerMaxHP() then
+                game:Log("You are already at full health")
+                return
+            end
+            if currentHP + amount < 0 then
+                game:Log("You can't heal for a negative amount")
+                return
+            end
+            if currentHP + amount > game:GetPlayerMaxHP() then
+                amount = game:GetPlayerMaxHP() - currentHP
+            end
+            game:SetPlayerHP(currentHP + amount)
+            game:ClearLog()
+            game:Log(core.formatHealthChange(amount, "healed"))
+        end
+    end
+})
+
+File: .\LuaScripts\leave.lua
+return CreateCommand({
+    name = "leave",
+    description = "Exit the current location",
+    aliases = {"exit"},
+    usage = "leave",
+    category = "Navigation",
+    execute = function(args, state)
+        if not game:GetCurrentLocation() then
+            game:Log("You are not in any location.")
+            return
+        end
+
+        game:SetCurrentLocation(nil)
+        game:Log("You leave the location.")
+        
+        -- Show region info and available locations
+        local region = game:GetCurrentRegion()
+        if region then
+            game:Log("")
+            game:Log("You are in " .. region.Name)
+            game:Log(region.Description)
+            
+            game:Log("")
+            game:Log("You see these locations:")
+            local locations = game:GetLocationsInRegion()
+            for _, location in pairs(locations) do
+                game:Log("  - " .. location.Name)
+            end
+        end
+    end
+})
+
+
+File: .\LuaScripts\look.lua
+return CreateCommand({
+    name = "look",
+    description = "Examine your surroundings",
+    aliases = {"examine", "l"},
+    usage = "look",
+    category = "Navigation",
+    execute = function(args, state)
+        local currentRegion = game:GetCurrentRegion()
+        if not currentRegion then
+            game:Log("No world loaded!")
+            return
+        end
+
+        local currentLocation = game:GetCurrentLocation()
+        
+        -- Show region info if not in a specific location
+        if not currentLocation then
+            game:Log("")
+            game:Log("You are in " .. currentRegion.Name)
+            game:Log(currentRegion.Description)
+            
+            -- Show available locations
+            game:Log("")
+            game:Log("You see these locations:")
+            local locations = game:GetLocationsInRegion()
+            for _, location in pairs(locations) do
+                game:Log("  - " .. location.Name)
+            end
+            
+            -- Show connected regions
+            game:Log("")
+            game:Log("You can travel to:")
+            local connections = game:GetConnectedRegions()
+            for _, connection in pairs(connections) do
+                game:Log("  - " .. connection.Name)
+            end
+        else
+            -- Show location-specific info
+            game:Log("")
+            game:Log("You are at " .. currentLocation.Name)
+            game:Log(currentLocation.Description)
+            game:Log("(In " .. currentRegion.Name .. ")")
+        end
+    end
+})
+
+
+File: .\LuaScripts\navigate.lua
+-- Utility function to remove leading and trailing whitespace from a string
+-- @param s (string) The input string to trim
+-- @return (string) The trimmed string with whitespace removed from both ends
+local function trim(s)
+    return s:match("^%s*(.-)%s*$")
+end
+
+-- Formats a duration in minutes into a human-readable string
+-- @param minutes (number) The number of minutes to format
+-- @return (string) A formatted string like "X minutes" or "X hours and Y minutes"
+local function formatTravelTime(minutes)
+    if minutes < 60 then
+        return string.format("%d minutes", minutes)
+    else
+        local hours = math.floor(minutes / 60)
+        local mins = minutes % 60
+        if mins == 0 then
+            return string.format("%d hours", hours)
+        else
+            return string.format("%d hours and %d minutes", hours, mins)
+        end
+    end
+end
+
+-- Creates and returns a command object for handling player movement between regions
+-- This command allows players to travel between connected regions in the game world
+return CreateCommand({
+    -- Basic command properties
+    name = "go",                     -- Primary command name
+    description = "Travel to a connected region", -- Command description
+    aliases = {"move", "travel"},    -- Alternative command names
+    usage = "go <region name>",      -- Usage instructions
+    category = "Navigation",         -- Command category for help systems
+
+    -- Main command execution function
+    -- @param args (string) The arguments passed to the command (region name)
+    -- @param state (table) The current game state
+    execute = function(args, state)
+        -- Check if a world is currently loaded
+        if not game:GetCurrentRegion() then
+            game:Log("No world loaded!")
+            return
+        end
+
+        -- Clear current location if player is in one
+        if game:GetCurrentLocation() then
+            game:SetCurrentLocation(nil)
+        end
+
+        -- Process and validate the target region name
+        local targetName = trim(args)
+        if targetName == "" then
+            game:Log("Where do you want to go?")
+            return
+        end
+
+        -- Get list of connected regions and find the target
+        local connections = game:GetConnectedRegions()
+        local currentRegion = game:GetCurrentRegion()
+        local targetRegion = nil
+        local availableRegions = {}
+
+        -- Search for matching region and build list of available destinations
+        for _, region in pairs(connections) do
+            table.insert(availableRegions, region.Name)
+            if game:RegionNameMatches(region, targetName) then
+                targetRegion = region
+                break
+            end
+        end
+
+        -- Handle case where target region wasn't found
+        if not targetRegion then
+            game:Log("Cannot travel to '" .. targetName .. "'")
+            game:Log("Available destinations:")
+            for _, name in ipairs(availableRegions) do
+                game:Log(" - " .. name)
+            end
+            return
+        end
+
+        -- Calculate and simulate travel time between regions
+        local travelTime = game:CalculateTravelTime(currentRegion, targetRegion)
+        game:SimulateTravelTimeWithProgress(travelTime)
+
+        -- Update player position and display new region information
+        game:SetCurrentRegion(targetRegion)
+        game:Log("You arrive at " .. targetRegion.Name)
+        game:Log(targetRegion.Description)
+        game:Log("")
+
+        -- Display available locations in the new region
+        game:Log("You see these locations:")
+        local locations = game:GetLocationsInRegion()
+        for _, location in pairs(locations) do
+            game:Log(" - " .. location.Name)
+        end
+        game:Log("")
+
+        -- Display new connected regions
+        game:Log("From here you can travel to:")
+        local newConnections = game:GetConnectedRegions()
+        for _, connection in pairs(newConnections) do
+            game:Log(" - " .. connection.Name)
+        end
+    end
+})
+
+File: .\LuaScripts\quit.lua
+return CreateCommand({
+    name = "exit",
+    description = "Exit the game",
+    usage = "exit",
+    category = "Management",
+    aliases = {"q", "quit", "e"},
+    execute = function(args, state)
+        state.Running = false
+    end
+})
+
+File: .\LuaScripts\say.lua
+return CreateCommand({
+    name = "say",
+    description = "Say something",
+    usage = "say [message]",
+    category = "Chat",
+    aliases = {"s"},
+    execute = function(args, state)
+        if args == "" then
+            state.GameLog:Add("Say what?")
+        else
+            state.GameLog:Add(string.format("%s says: %s", state.PlayerName, args))
+        end
+    end
+})
+

@@ -66,4 +66,22 @@
     <data name="Error_ResizeTip" xml:space="preserve">
         <value>Tip: Try maximizing your console window.</value>
     </data>
+    <data name="Load_NoSaves" xml:space="preserve">
+        <value>No saved games found.</value>
+    </data>
+    <data name="Load_Title" xml:space="preserve">
+        <value>Load Game</value>
+    </data>
+    <data name="Load_Instructions" xml:space="preserve">
+        <value>Use Up/Down arrows to select a save, Enter to load, Escape to return</value>
+    </data>
+    <data name="Load_ConfirmDelete" xml:space="preserve">
+        <value>Are you sure you want to delete save {0}?</value>
+    </data>
+    <data name="Load_DeleteInstructions" xml:space="preserve">
+        <value>Press Delete to remove a save</value>
+    </data>
+    <data name="Load_DeleteWarning" xml:space="preserve">
+        <value>This action cannot be undone!</value>
+    </data>
 </root>

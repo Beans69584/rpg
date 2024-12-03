@@ -53,8 +53,8 @@ namespace RPG
 
         public bool LoadGame(string slot)
         {
-            var saveData = SaveManager.Load(slot);
-            if (saveData == null) return false;
+            var (metadata, saveData) = SaveManager.Load(slot);
+            if (metadata == null || saveData == null) return false;
 
             // Load world first without setting starting region
             if (!string.IsNullOrEmpty(saveData.WorldPath))

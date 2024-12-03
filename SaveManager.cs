@@ -55,7 +55,7 @@ namespace RPG
 
             // Serialize and compress
             using var fs = File.Create(path);
-            using var gz = new GZipStream(fs, CompressionMode.Optimal);
+            using var gz = new GZipStream(fs, CompressionLevel.Optimal);
             using var writer = new BinaryWriter(gz);
 
             // Write metadata first
@@ -281,6 +281,15 @@ namespace RPG
         public bool IsAutosave { get; set; }
         public SaveMetadata Metadata { get; set; } = new();
         public string FilePath { get; set; } = "";
+
+        // Add this method to support deconstruction
+        public void Deconstruct(out string slot, out SaveData data)
+        {
+            slot = Slot;
+            // Load the actual save data when deconstructing
+            var (_, saveData) = SaveManager.Load(Slot, IsAutosave);
+            data = saveData ?? new SaveData();
+        }
     }
 
     public class SaveMetadata

@@ -1,0 +1,56 @@
+├── Commands
+│   ├── BaseCommand.cs
+│   ├── HelpCommand.cs
+│   ├── ICommand.cs
+│   ├── LoadCommand.cs
+│   ├── LuaCommand.cs
+│   ├── LuaCommandLoader.cs
+│   ├── LuaGameAPI.cs
+│   ├── LuaWrapper.cs
+│   └── SaveCommand.cs
+├── LuaScripts
+│   ├── clear.lua
+│   ├── core.lua
+│   ├── damage.lua
+│   ├── enter.lua
+│   ├── heal.lua
+│   ├── leave.lua
+│   ├── look.lua
+│   ├── navigate.lua
+│   ├── quit.lua
+│   └── say.lua
+├── Resources
+│   ├── Strings.de.resx
+│   ├── Strings.es.resx
+│   ├── Strings.fr.resx
+│   ├── Strings.it.resx
+│   ├── Strings.ja.resx
+│   ├── Strings.ko.resx
+│   ├── Strings.resx
+│   ├── Strings.ru.resx
+│   └── Strings.zh.resx
+├── Saves
+├── Scripts
+│   ├── build_world.csx
+│   └── inspect_world.csx
+├── World
+    └── world.dat
+├── .gitignore
+├── CommandHandler.cs
+├── ConsoleWindowManager.cs
+├── GameSettings.cs
+├── GameState.cs
+├── LICENSE
+├── Localization.cs
+├── LocalizationManager.cs
+├── ProceduralWorldGenerator.cs
+├── Program.cs
+├── RPG.csproj
+├── RPG.sln
+├── SaveData.cs
+├── SaveManager.cs
+├── WorldData.cs
+├── WorldLoader.cs
+├── combined.tree.txt
+├── combined.txt
+└── main.py

@@ -1,15 +1,22 @@
 using RPG.Commands;
+using RPG.Plugins;
 
 namespace RPG
 {
     public class CommandHandler
     {
         private readonly Dictionary<string, ICommand> _commands = new();
+        private IPluginManager? _pluginManager;
+
+        public void Initialize(IPluginManager pluginManager)
+        {
+            _pluginManager = pluginManager;
+        }
 
         public void RegisterCommand(ICommand command)
         {
             _commands[command.Name.ToLower()] = command;
-            
+
             // Register aliases
             foreach (var alias in command.Aliases)
             {
@@ -17,7 +24,7 @@ namespace RPG
             }
         }
 
-        public bool ExecuteCommand(string input, GameState state)
+        public async Task<bool> ExecuteCommand(string input, GameState state)
         {
             var parts = input.Split(' ', 2);
             var commandName = parts[0].ToLower();
@@ -25,8 +32,28 @@ namespace RPG
 
             if (_commands.TryGetValue(commandName, out var command))
             {
-                command.Execute(args, state);
-                return true;
+                try
+                {
+                    if (_pluginManager != null)
+                    {
+                        state.GameLog.Add("[Debug] Running command through middleware");
+                        bool middlewareResult = await Task.FromResult(
+                            _pluginManager.ProcessCommandMiddleware(input, state));
+                        if (!middlewareResult)
+                        {
+                            state.GameLog.Add("[Debug] Middleware chain failed");
+                            return false;
+                        }
+                    }
+
+                    command.Execute(args, state);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    state.GameLog.Add($"[Error] {ex.Message}");
+                    return false;
+                }
             }
 
             return false;
