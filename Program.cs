@@ -240,24 +240,8 @@ class Program
                     // Ensure directory exists
                     Directory.CreateDirectory("./World");
 
-                    // Convert config to compressed world data format
-                    var worldData = new WorldData
-                    {
-                        Header = new Header
-                        {
-                            Name = worldConfig.Name,
-                            Description = worldConfig.Description,
-                            Magic = "RPGW",
-                            Version = "1.0",
-                            CreatedAt = DateTime.UtcNow
-                        }
-                    };
-
-                    // Save using JSON compression
-                    var jsonBytes = JsonSerializer.SerializeToUtf8Bytes(worldData);
-                    using var fs = File.Create("./World/world.dat");
-                    using var gzip = new GZipStream(fs, CompressionMode.Compress);  // Changed from Optimal to Compress
-                    gzip.Write(jsonBytes);
+                    var builder = new OptimizedWorldBuilder("./World", worldConfig);
+                    builder.Build();
                     
                     state.GameLog.Add($"Generated world '{worldConfig.Name}' with {worldConfig.Regions.Count} regions");
                 }
@@ -429,7 +413,7 @@ class Program
         commandHandler.RegisterCommand(new LoadCommand());
 
         // Load Lua commands
-        var luaLoader = new LuaCommandLoader("Commands/Lua", state);
+        var luaLoader = new LuaCommandLoader(state);
         foreach (var command in luaLoader.LoadCommands())
         {
             commandHandler.RegisterCommand(command);

@@ -1,5 +1,200 @@
+using System.Text;
+using System.Text.Json;
+
 namespace RPG
 {
+    public class OptimizedWorldBuilder
+    {
+        private readonly string _outputPath;
+        private readonly WorldConfig _sourceConfig;
+        private readonly WorldData _data;
+
+        public OptimizedWorldBuilder(string outputPath, WorldConfig sourceConfig)
+        {
+            _outputPath = outputPath;
+            _sourceConfig = sourceConfig;
+            _data = new WorldData();
+        }
+
+        public void Build()
+        {
+            // Initialize header
+            _data.Header = new Header
+            {
+                Name = _sourceConfig.Name,
+                Description = _sourceConfig.Description,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            // Build string pool and resource tables
+            BuildResourceTables();
+
+            // Convert regions
+            foreach (var regionConfig in _sourceConfig.Regions)
+            {
+                var region = new WorldRegion
+                {
+                    NameId = GetOrAddString(regionConfig.Name),
+                    DescriptionId = GetOrAddString(regionConfig.Description),
+                    Position = new Vector2 { X = Random.Shared.Next(-100, 100), Y = Random.Shared.Next(-100, 100) }
+                };
+
+                // Convert locations
+                foreach (var locationConfig in regionConfig.Locations)
+                {
+                    var location = new Location
+                    {
+                        NameId = GetOrAddString(locationConfig.Name),
+                        TypeId = GetOrAddString(locationConfig.Type),
+                        DescriptionId = GetOrAddString(locationConfig.Description),
+                        NPCs = locationConfig.NPCs
+                            .Select(npc => _sourceConfig.NPCs.IndexOf(npc))
+                            .Where(idx => idx != -1)
+                            .ToList(),
+                        Items = locationConfig.Items
+                            .Select(item => _sourceConfig.Items.IndexOf(item))
+                            .Where(idx => idx != -1)
+                            .ToList()
+                    };
+                    region.Locations.Add(location);
+                }
+
+                // Convert references to indices
+                region.Connections = regionConfig.Connections
+                    .Select(c => _sourceConfig.Regions.FindIndex(r => r.Name == c))
+                    .Where(idx => idx != -1)
+                    .ToList();
+
+                // Convert routes
+                foreach (var connection in region.Connections)
+                {
+                    var targetName = _sourceConfig.Regions[connection].Name;
+                    if (regionConfig.Routes.TryGetValue(targetName, out var routePoints))
+                    {
+                        region.Routes[connection] = routePoints;
+                    }
+                }
+
+                region.NPCs = regionConfig.NPCs
+                    .Select(npc => _sourceConfig.NPCs.IndexOf(npc))
+                    .Where(idx => idx != -1)
+                    .ToList();
+
+                region.Items = regionConfig.Items
+                    .Select(item => _sourceConfig.Items.IndexOf(item))
+                    .Where(idx => idx != -1)
+                    .ToList();
+
+                _data.Regions.Add(region);
+            }
+
+            // Convert NPCs
+            foreach (var npcName in _sourceConfig.NPCs)
+            {
+                var npc = new Entity
+                {
+                    NameId = GetOrAddString(npcName),
+                    Level = Random.Shared.Next(1, 10),
+                    HP = Random.Shared.Next(50, 100),
+                    Stats = GenerateRandomStats(),
+                    DialogueRefs = AssignRandomDialogue()
+                };
+                _data.NPCs.Add(npc);
+            }
+
+            // Convert items
+            foreach (var itemName in _sourceConfig.Items)
+            {
+                var item = new Item
+                {
+                    NameId = GetOrAddString(itemName),
+                    DescriptionId = GetOrAddString($"A {itemName.ToLower()} of unknown origin."),
+                    Stats = new ItemStats
+                    {
+                        Value = Random.Shared.Next(1, 100),
+                        Weight = Random.Shared.Next(1, 10),
+                        Durability = Random.Shared.Next(50, 100),
+                        Type = (ItemType)Random.Shared.Next(0, 5)
+                    }
+                };
+                _data.Items.Add(item);
+            }
+
+            // Update counts in header
+            _data.Header.RegionCount = _data.Regions.Count;
+            _data.Header.NPCCount = _data.NPCs.Count;
+            _data.Header.ItemCount = _data.Items.Count;
+
+            // Save to binary-like format
+            SaveWorld();
+        }
+
+        private void BuildResourceTables()
+        {
+            // Add common dialogue to shared pool
+            _data.Resources.SharedDialogue.AddRange(new[]
+            {
+            "Hello traveler!",
+            "Nice weather we're having.",
+            "Safe travels!",
+            "I have wares if you have coin.",
+            "These are dangerous times.",
+            "Watch yourself out there."
+        });
+        }
+
+        private int GetOrAddString(string str)
+        {
+            if (!_data.Resources.StringPool.TryGetValue(str, out int id))
+            {
+                id = _data.Resources.StringPool.Count;
+                _data.Resources.StringPool[str] = id;
+            }
+            return id;
+        }
+
+        private EntityStats GenerateRandomStats()
+        {
+            return new EntityStats
+            {
+                Strength = Random.Shared.Next(1, 20),
+                Dexterity = Random.Shared.Next(1, 20),
+                Intelligence = Random.Shared.Next(1, 20),
+                Defense = Random.Shared.Next(1, 20)
+            };
+        }
+
+        private List<int> AssignRandomDialogue()
+        {
+            return Enumerable.Range(0, Random.Shared.Next(2, 4))
+                .Select(_ => Random.Shared.Next(0, _data.Resources.SharedDialogue.Count))
+                .Distinct()
+                .ToList();
+        }
+
+        private void SaveWorld()
+        {
+            string worldPath = Path.Combine(_outputPath, "world.dat");
+            Directory.CreateDirectory(_outputPath);
+
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = false, // Compact format
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            // Serialize to JSON bytes
+            var jsonBytes = System.Text.Encoding.UTF8.GetBytes(
+                JsonSerializer.Serialize(_data, options));
+
+            // Compress using GZip
+            using var fs = File.Create(worldPath);
+            using var gzip = new System.IO.Compression.GZipStream(
+                fs,
+                System.IO.Compression.CompressionLevel.Optimal);
+            gzip.Write(jsonBytes, 0, jsonBytes.Length);
+        }
+    }
     public class ProceduralWorldGenerator
     {
         private readonly Random _random;
