@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- Your existing string entries here -->
     <data name="MainMenu_Title" xml:space="preserve">
         <value>Demo RPG Game {0}</value>
     </data>

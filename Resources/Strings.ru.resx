@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <data name="MainMenu_Title" xml:space="preserve">
+        <value>Демо RPG Игра {0}</value>
+    </data>
+    <data name="MainMenu_Start" xml:space="preserve">
+        <value>Новая игра</value>
+    </data>
+    <data name="MainMenu_Load" xml:space="preserve">
+        <value>Загрузить игру</value>
+    </data>
+    <data name="MainMenu_Options" xml:space="preserve">
+        <value>Настройки</value>
+    </data>
+    <data name="MainMenu_Credits" xml:space="preserve">
+        <value>Титры</value>
+    </data>
+    <data name="MainMenu_Exit" xml:space="preserve">
+        <value>Выход</value>
+    </data>
+    <data name="Welcome_Message" xml:space="preserve">
+        <value>Добро пожаловать в Демо RPG Игру!</value>
+    </data>
+    <data name="Help_Hint" xml:space="preserve">
+        <value>Введите 'помощь' для списка команд.</value>
+    </data>
+    <data name="MainMenu_NavigationHint" xml:space="preserve">
+        <value>Используйте стрелки для навигации и Enter для выбора</value>
+    </data>
+    <data name="MainMenu_Copyright" xml:space="preserve">
+        <value>© {0} Демо RPG Игра - Все права защищены</value>
+    </data>
+    <data name="MainMenu_CreatedFor" xml:space="preserve">
+        <value>Создано в образовательных целях</value>
+    </data>
+    <data name="Options_Title" xml:space="preserve">
+        <value>Настройки</value>
+    </data>
+    <data name="Options_Instructions" xml:space="preserve">
+        <value>Используйте стрелки Влево/Вправо для смены языка, Вверх/Вниз для навигации</value>
+    </data>
+    <data name="Options_Language" xml:space="preserve">
+        <value>Язык</value>
+    </data>
+    <data name="Options_Back" xml:space="preserve">
+        <value>Назад</value>
+    </data>
+    <data name="Error_Title" xml:space="preserve">
+        <value>Ошибка</value>
+    </data>
+    <data name="Error_WindowTooSmall" xml:space="preserve">
+        <value>ОШИБКА: Окно консоли слишком маленькое!</value>
+    </data>
+    <data name="Error_MinimumSize" xml:space="preserve">
+        <value>Минимальный размер: {0}x{1}</value>
+    </data>
+    <data name="Error_CurrentSize" xml:space="preserve">
+        <value>Текущий размер: {0}x{1}</value>
+    </data>
+    <data name="Error_ResizePrompt" xml:space="preserve">
+        <value>Пожалуйста, измените размер окна консоли и нажмите Enter для продолжения</value>
+    </data>
+    <data name="Error_ExitPrompt" xml:space="preserve">
+        <value>или нажмите Escape для выхода.</value>
+    </data>
+    <data name="Error_ResizeTip" xml:space="preserve">
+        <value>Совет: Попробуйте развернуть окно консоли.</value>
+    </data>
+</root>

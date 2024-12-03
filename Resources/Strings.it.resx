@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <data name="MainMenu_Title" xml:space="preserve">
+        <value>Gioco RPG Demo {0}</value>
+    </data>
+    <data name="MainMenu_Start" xml:space="preserve">
+        <value>Nuova Partita</value>
+    </data>
+    <data name="MainMenu_Load" xml:space="preserve">
+        <value>Carica Partita</value>
+    </data>
+    <data name="MainMenu_Options" xml:space="preserve">
+        <value>Opzioni</value>
+    </data>
+    <data name="MainMenu_Credits" xml:space="preserve">
+        <value>Crediti</value>
+    </data>
+    <data name="MainMenu_Exit" xml:space="preserve">
+        <value>Esci</value>
+    </data>
+    <data name="Welcome_Message" xml:space="preserve">
+        <value>Benvenuto nel Gioco RPG Demo!</value>
+    </data>
+    <data name="Help_Hint" xml:space="preserve">
+        <value>Digita 'aiuto' per la lista dei comandi.</value>
+    </data>
+    <data name="MainMenu_NavigationHint" xml:space="preserve">
+        <value>Usa le frecce per navigare e Invio per selezionare</value>
+    </data>
+    <data name="MainMenu_Copyright" xml:space="preserve">
+        <value>© {0} Gioco RPG Demo - Tutti i diritti riservati</value>
+    </data>
+    <data name="MainMenu_CreatedFor" xml:space="preserve">
+        <value>Creato per scopi educativi</value>
+    </data>
+    <data name="Options_Title" xml:space="preserve">
+        <value>Opzioni</value>
+    </data>
+    <data name="Options_Instructions" xml:space="preserve">
+        <value>Usa le frecce Sinistra/Destra per cambiare lingua, Su/Giù per navigare</value>
+    </data>
+    <data name="Options_Language" xml:space="preserve">
+        <value>Lingua</value>
+    </data>
+    <data name="Options_Back" xml:space="preserve">
+        <value>Indietro</value>
+    </data>
+    <data name="Error_Title" xml:space="preserve">
+        <value>Errore</value>
+    </data>
+    <data name="Error_WindowTooSmall" xml:space="preserve">
+        <value>ERRORE: La finestra della console è troppo piccola!</value>
+    </data>
+    <data name="Error_MinimumSize" xml:space="preserve">
+        <value>Dimensione minima richiesta: {0}x{1}</value>
+    </data>
+    <data name="Error_CurrentSize" xml:space="preserve">
+        <value>Dimensione attuale: {0}x{1}</value>
+    </data>
+    <data name="Error_ResizePrompt" xml:space="preserve">
+        <value>Ridimensiona la finestra della console e premi Invio per continuare</value>
+    </data>
+    <data name="Error_ExitPrompt" xml:space="preserve">
+        <value>o premi Esc per uscire.</value>
+    </data>
+    <data name="Error_ResizeTip" xml:space="preserve">
+        <value>Suggerimento: Prova a massimizzare la finestra della console.</value>
+    </data>
+</root>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <data name="MainMenu_Title" xml:space="preserve">
+        <value>デモRPGゲーム {0}</value>
+    </data>
+    <data name="MainMenu_Start" xml:space="preserve">
+        <value>新規ゲーム</value>
+    </data>
+    <data name="MainMenu_Load" xml:space="preserve">
+        <value>ロード</value>
+    </data>
+    <data name="MainMenu_Options" xml:space="preserve">
+        <value>設定</value>
+    </data>
+    <data name="MainMenu_Credits" xml:space="preserve">
+        <value>クレジット</value>
+    </data>
+    <data name="MainMenu_Exit" xml:space="preserve">
+        <value>終了</value>
+    </data>
+    <data name="Welcome_Message" xml:space="preserve">
+        <value>デモRPGゲームへようこそ！</value>
+    </data>
+    <data name="Help_Hint" xml:space="preserve">
+        <value>コマンド一覧を見るには「ヘルプ」と入力してください。</value>
+    </data>
+    <data name="MainMenu_NavigationHint" xml:space="preserve">
+        <value>矢印キーで移動、Enterで選択</value>
+    </data>
+    <data name="MainMenu_Copyright" xml:space="preserve">
+        <value>© {0} デモRPGゲーム - All rights reserved</value>
+    </data>
+    <data name="MainMenu_CreatedFor" xml:space="preserve">
+        <value>教育目的で作成</value>
+    </data>
+    <data name="Options_Title" xml:space="preserve">
+        <value>設定</value>
+    </data>
+    <data name="Options_Instructions" xml:space="preserve">
+        <value>左右矢印で言語変更、上下矢印で移動</value>
+    </data>
+    <data name="Options_Language" xml:space="preserve">
+        <value>言語</value>
+    </data>
+    <data name="Options_Back" xml:space="preserve">
+        <value>戻る</value>
+    </data>
+    <data name="Error_Title" xml:space="preserve">
+        <value>エラー</value>
+    </data>
+    <data name="Error_WindowTooSmall" xml:space="preserve">
+        <value>エラー：コンソールウィンドウが小さすぎます！</value>
+    </data>
+    <data name="Error_MinimumSize" xml:space="preserve">
+        <value>必要最小サイズ：{0}x{1}</value>
+    </data>
+    <data name="Error_CurrentSize" xml:space="preserve">
+        <value>現在のサイズ：{0}x{1}</value>
+    </data>
+    <data name="Error_ResizePrompt" xml:space="preserve">
+        <value>ウィンドウサイズを変更してEnterを押してください</value>
+    </data>
+    <data name="Error_ExitPrompt" xml:space="preserve">
+        <value>または終了するにはEscapeを押してください。</value>
+    </data>
+    <data name="Error_ResizeTip" xml:space="preserve">
+        <value>ヒント：コンソールウィンドウを最大化してみてください。</value>
+    </data>
+</root>

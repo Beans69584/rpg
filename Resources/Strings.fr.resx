@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <data name="MainMenu_Title" xml:space="preserve">
+        <value>Jeu RPG Démo {0}</value>
+    </data>
+    <data name="MainMenu_Start" xml:space="preserve">
+        <value>Nouvelle Partie</value>
+    </data>
+    <data name="MainMenu_Load" xml:space="preserve">
+        <value>Charger Partie</value>
+    </data>
+    <data name="MainMenu_Options" xml:space="preserve">
+        <value>Options</value>
+    </data>
+    <data name="MainMenu_Credits" xml:space="preserve">
+        <value>Crédits</value>
+    </data>
+    <data name="MainMenu_Exit" xml:space="preserve">
+        <value>Quitter</value>
+    </data>
+    <data name="Welcome_Message" xml:space="preserve">
+        <value>Bienvenue dans le Jeu RPG Démo !</value>
+    </data>
+    <data name="Help_Hint" xml:space="preserve">
+        <value>Tapez 'aide' pour la liste des commandes.</value>
+    </data>
+    <data name="MainMenu_NavigationHint" xml:space="preserve">
+        <value>Utilisez les flèches pour naviguer et Entrée pour sélectionner</value>
+    </data>
+    <data name="MainMenu_Copyright" xml:space="preserve">
+        <value>© {0} Jeu RPG Démo - Tous droits réservés</value>
+    </data>
+    <data name="MainMenu_CreatedFor" xml:space="preserve">
+        <value>Créé à des fins éducatives</value>
+    </data>
+    <data name="Options_Title" xml:space="preserve">
+        <value>Options</value>
+    </data>
+    <data name="Options_Instructions" xml:space="preserve">
+        <value>Utilisez les flèches Gauche/Droite pour changer de langue, Haut/Bas pour naviguer</value>
+    </data>
+    <data name="Options_Language" xml:space="preserve">
+        <value>Langue</value>
+    </data>
+    <data name="Options_Back" xml:space="preserve">
+        <value>Retour</value>
+    </data>
+    <data name="Error_Title" xml:space="preserve">
+        <value>Erreur</value>
+    </data>
+    <data name="Error_WindowTooSmall" xml:space="preserve">
+        <value>ERREUR : La fenêtre de console est trop petite !</value>
+    </data>
+    <data name="Error_MinimumSize" xml:space="preserve">
+        <value>Taille minimale requise : {0}x{1}</value>
+    </data>
+    <data name="Error_CurrentSize" xml:space="preserve">
+        <value>Taille actuelle : {0}x{1}</value>
+    </data>
+    <data name="Error_ResizePrompt" xml:space="preserve">
+        <value>Veuillez redimensionner la fenêtre de console et appuyer sur Entrée pour continuer</value>
+    </data>
+    <data name="Error_ExitPrompt" xml:space="preserve">
+        <value>ou appuyez sur Échap pour quitter.</value>
+    </data>
+    <data name="Error_ResizeTip" xml:space="preserve">
+        <value>Conseil : Essayez de maximiser la fenêtre de console.</value>
+    </data>
+</root>

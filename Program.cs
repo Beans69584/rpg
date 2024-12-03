@@ -1,37 +1,8 @@
 ﻿using System.Text;
+using System.IO.Compression;
 using RPG;
 using RPG.Commands;
-
-public class GameState
-{
-    public List<string> GameLog { get; } = new();
-    public ConsoleWindowManager WindowManager { get; }
-    public string PlayerName { get; set; } = "Hero";
-    public int Level { get; set; } = 1;
-    public int HP { get; set; } = 100;
-    public int MaxHP { get; set; } = 100;
-    public CommandHandler CommandHandler { get; }
-    public bool Running { get; set; } = true;
-
-    public GameState(ConsoleWindowManager manager)
-    {
-        WindowManager = manager;
-        Localization = new LocalizationManager();
-        Localization.SetLanguage(GameSettings.CurrentLanguage); // Use global setting
-        CommandHandler = new CommandHandler();
-        GameLog.Add(Localization.GetString("Welcome_Message"));
-        GameLog.Add(Localization.GetString("Help_Hint"));
-    }
-
-    public LocalizationManager Localization { get; }
-    public string CurrentLanguage
-    {
-        get => GameSettings.CurrentLanguage;
-        set => GameSettings.CurrentLanguage = value;
-    }
-
-
-}
+using System.Text.Json;
 class Program
 {
     private const int MIN_WIDTH = 80;
@@ -54,15 +25,12 @@ class Program
                     await StartGame();
                     break;
                 case 2: // Load Game
-                    // Placeholder for load game functionality
+                    await ShowLoadGameMenu();
                     break;
                 case 3: // Options
                     await ShowOptionsMenu();
                     break;
-                case 4: // Credits
-                    // Placeholder for credits screen
-                    break;
-                case 5: // Exit
+                case 4: // Exit
                     return;
             }
         }
@@ -183,15 +151,25 @@ class Program
                                  $"  {state.Localization.GetString("MainMenu_Load")}  ",
                     choice == 3 ? $"> [{state.Localization.GetString("MainMenu_Options")}] <" :
                                  $"  {state.Localization.GetString("MainMenu_Options")}  ",
-                    choice == 4 ? $"> [{state.Localization.GetString("MainMenu_Credits")}] <" :
-                                 $"  {state.Localization.GetString("MainMenu_Credits")}  ",
-                    choice == 5 ? $"> [{state.Localization.GetString("MainMenu_Exit")}] <" :
+                    choice == 4 ? $"> [{state.Localization.GetString("MainMenu_Exit")}] <" :
                                  $"  {state.Localization.GetString("MainMenu_Exit")}  ",
                     "",
                     "",
                     state.Localization.GetString("MainMenu_Copyright", DateTime.Now.Year),
                     state.Localization.GetString("MainMenu_CreatedFor")
                 });
+
+                // Modify menuItems to show available saves
+                var saves = SaveManager.GetSaveFiles();
+                if (saves.Any())
+                {
+                    menuItems.Add("");
+                    menuItems.Add("Available Saves:");
+                    foreach (var (slot, save) in saves)
+                    {
+                        menuItems.Add($"  {slot}: {save.DisplayName}");
+                    }
+                }
 
                 manager.RenderWrappedText(region, menuItems, ConsoleColor.White);
             }
@@ -219,11 +197,11 @@ class Program
                 switch (key.Key)
                 {
                     case ConsoleKey.UpArrow:
-                        choice = choice == 1 ? 5 : choice - 1;
+                        choice = choice == 1 ? 4 : choice - 1;
                         manager.QueueRender();
                         break;
                     case ConsoleKey.DownArrow:
-                        choice = choice == 5 ? 1 : choice + 1;
+                        choice = choice == 4 ? 1 : choice + 1;
                         manager.QueueRender();
                         break;
                     case ConsoleKey.Enter:
@@ -240,10 +218,68 @@ class Program
         }
     }
 
-    private static async Task StartGame()
+    private static async Task StartGame(string? loadSlot = null)
     {
         using var manager = new ConsoleWindowManager();
         var state = new GameState(manager);
+
+        // Load world data first if starting new game
+        if (loadSlot == null)
+        {
+            try
+            {
+                // Check if world exists, if not generate it
+                if (!File.Exists("./World/world.dat"))
+                {
+                    state.GameLog.Add("Generating new world...");
+                    
+                    // Generate world using ProceduralWorldGenerator
+                    var generator = new ProceduralWorldGenerator(Random.Shared.Next());
+                    var worldConfig = generator.GenerateWorld();
+                    
+                    // Ensure directory exists
+                    Directory.CreateDirectory("./World");
+
+                    // Convert config to compressed world data format
+                    var worldData = new WorldData
+                    {
+                        Header = new Header
+                        {
+                            Name = worldConfig.Name,
+                            Description = worldConfig.Description,
+                            Magic = "RPGW",
+                            Version = "1.0",
+                            CreatedAt = DateTime.UtcNow
+                        }
+                    };
+
+                    // Save using JSON compression
+                    var jsonBytes = JsonSerializer.SerializeToUtf8Bytes(worldData);
+                    using var fs = File.Create("./World/world.dat");
+                    using var gzip = new GZipStream(fs, CompressionMode.Compress);  // Changed from Optimal to Compress
+                    gzip.Write(jsonBytes);
+                    
+                    state.GameLog.Add($"Generated world '{worldConfig.Name}' with {worldConfig.Regions.Count} regions");
+                }
+
+                state.LoadWorld("./World/world.dat", true);
+            }
+            catch (Exception ex)
+            {
+                state.GameLog.Add($"Failed to load/generate world: {ex.Message}");
+                state.GameLog.Add("Press any key to return to menu...");
+                Console.ReadKey(true);
+                return;
+            }
+        }
+        // For loading saved games, let LoadGame handle world loading
+        else if (!state.LoadGame(loadSlot))
+        {
+            state.GameLog.Add($"Failed to load save: {loadSlot}");
+            await Task.Delay(2000);
+            return;
+        }
+
         SetupCommands(state);
 
         // Create layout regions with relative positioning
@@ -388,6 +424,10 @@ class Program
         // Register built-in commands
         commandHandler.RegisterCommand(new HelpCommand(commandHandler));
 
+        // Register save/load commands
+        commandHandler.RegisterCommand(new SaveCommand());
+        commandHandler.RegisterCommand(new LoadCommand());
+
         // Load Lua commands
         var luaLoader = new LuaCommandLoader("Commands/Lua", state);
         foreach (var command in luaLoader.LoadCommands())
@@ -489,6 +529,147 @@ class Program
                         if (currentOption == 2)
                             return;
                         break;
+                    case ConsoleKey.Escape:
+                        return;
+                }
+            }
+
+            if (manager.CheckResize())
+            {
+                UpdateLayout();
+            }
+
+            await Task.Delay(16);
+        }
+    }
+
+    private static async Task ShowMessageBox(string message)
+    {
+        using var manager = new ConsoleWindowManager();
+        var messageBox = new Region
+        {
+            Name = "Message",
+            BorderColor = ConsoleColor.Blue,
+            TitleColor = ConsoleColor.Cyan,
+            RenderContent = (region) =>
+            {
+                var lines = new List<string>
+                {
+                    "",
+                    message,
+                    "",
+                    "Press any key to continue..."
+                };
+                manager.RenderWrappedText(region, lines, ConsoleColor.White);
+            }
+        };
+
+        void UpdateLayout()
+        {
+            manager.UpdateRegion("Message", r =>
+            {
+                r.X = Console.WindowWidth / 4;
+                r.Y = Console.WindowHeight / 3;
+                r.Width = Console.WindowWidth / 2;
+                r.Height = Console.WindowHeight / 3;
+            });
+        }
+
+        manager.AddRegion("Message", messageBox);
+        UpdateLayout();
+
+        while (true)
+        {
+            if (Console.KeyAvailable)
+            {
+                Console.ReadKey(true);
+                return;
+            }
+
+            if (manager.CheckResize())
+            {
+                UpdateLayout();
+            }
+
+            await Task.Delay(16);
+        }
+    }
+
+    private static async Task ShowLoadGameMenu()
+    {
+        using var manager = new ConsoleWindowManager();
+        var state = new GameState(manager);
+        var saves = SaveManager.GetSaveFiles();
+        var selectedIndex = 0;
+
+        if (!saves.Any())
+        {
+            await ShowMessageBox(state.Localization.GetString("Load_NoSaves"));
+            return;
+        }
+
+        var loadMenu = new Region
+        {
+            Name = state.Localization.GetString("Load_Title"),
+            BorderColor = ConsoleColor.Blue,
+            TitleColor = ConsoleColor.Cyan,
+            RenderContent = (region) =>
+            {
+                var menuItems = new List<string>
+                {
+                    "",
+                    state.Localization.GetString("Load_Instructions"),
+                    ""
+                };
+
+                for (int i = 0; i < saves.Count; i++)
+                {
+                    var (slot, save) = saves[i];
+                    menuItems.Add(i == selectedIndex ?
+                        $"> [{slot}] {save.DisplayName}" :
+                        $"  {slot}: {save.DisplayName}");
+                    menuItems.Add($"     {save.Description}");
+                    menuItems.Add("");
+                }
+
+                manager.RenderWrappedText(region, menuItems, ConsoleColor.White);
+            }
+        };
+
+        void UpdateLayout()
+        {
+            manager.UpdateRegion("LoadMenu", r =>
+            {
+                r.X = 1;
+                r.Y = 1;
+                r.Width = Console.WindowWidth - 2;
+                r.Height = Console.WindowHeight - 2;
+            });
+        }
+
+        manager.AddRegion("LoadMenu", loadMenu);
+        UpdateLayout();
+
+        while (true)
+        {
+            if (Console.KeyAvailable)
+            {
+                var key = Console.ReadKey(true);
+                switch (key.Key)
+                {
+                    case ConsoleKey.UpArrow:
+                        selectedIndex = (selectedIndex - 1 + saves.Count) % saves.Count;
+                        manager.QueueRender();
+                        break;
+                    case ConsoleKey.DownArrow:
+                        selectedIndex = (selectedIndex + 1) % saves.Count;
+                        manager.QueueRender();
+                        break;
+                    case ConsoleKey.Enter:
+                        var (slot, _) = saves[selectedIndex];
+                        manager.Dispose(); // Dispose of the load menu manager
+                        await StartGame(slot); // Start the game
+                        return;
                     case ConsoleKey.Escape:
                         return;
                 }

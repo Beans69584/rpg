@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <data name="MainMenu_Title" xml:space="preserve">
+        <value>Demo RPG Spiel {0}</value>
+    </data>
+    <data name="MainMenu_Start" xml:space="preserve">
+        <value>Neues Spiel</value>
+    </data>
+    <data name="MainMenu_Load" xml:space="preserve">
+        <value>Spiel laden</value>
+    </data>
+    <data name="MainMenu_Options" xml:space="preserve">
+        <value>Optionen</value>
+    </data>
+    <data name="MainMenu_Credits" xml:space="preserve">
+        <value>Credits</value>
+    </data>
+    <data name="MainMenu_Exit" xml:space="preserve">
+        <value>Beenden</value>
+    </data>
+    <data name="Welcome_Message" xml:space="preserve">
+        <value>Willkommen beim Demo RPG Spiel!</value>
+    </data>
+    <data name="Help_Hint" xml:space="preserve">
+        <value>Geben Sie 'hilfe' ein für eine Liste der Befehle.</value>
+    </data>
+    <data name="MainMenu_NavigationHint" xml:space="preserve">
+        <value>Pfeiltasten zur Navigation und Enter zum Auswählen</value>
+    </data>
+    <data name="MainMenu_Copyright" xml:space="preserve">
+        <value>© {0} Demo RPG Spiel - Alle Rechte vorbehalten</value>
+    </data>
+    <data name="MainMenu_CreatedFor" xml:space="preserve">
+        <value>Erstellt für Bildungszwecke</value>
+    </data>
+    <data name="Options_Title" xml:space="preserve">
+        <value>Optionen</value>
+    </data>
+    <data name="Options_Instructions" xml:space="preserve">
+        <value>Links/Rechts zum Sprachwechsel, Auf/Ab zur Navigation</value>
+    </data>
+    <data name="Options_Language" xml:space="preserve">
+        <value>Sprache</value>
+    </data>
+    <data name="Options_Back" xml:space="preserve">
+        <value>Zurück</value>
+    </data>
+    <data name="Error_Title" xml:space="preserve">
+        <value>Fehler</value>
+    </data>
+    <data name="Error_WindowTooSmall" xml:space="preserve">
+        <value>FEHLER: Konsolenfenster ist zu klein!</value>
+    </data>
+    <data name="Error_MinimumSize" xml:space="preserve">
+        <value>Minimale Größe erforderlich: {0}x{1}</value>
+    </data>
+    <data name="Error_CurrentSize" xml:space="preserve">
+        <value>Aktuelle Größe: {0}x{1}</value>
+    </data>
+    <data name="Error_ResizePrompt" xml:space="preserve">
+        <value>Bitte ändern Sie die Fenstergröße und drücken Sie Enter zum Fortfahren</value>
+    </data>
+    <data name="Error_ExitPrompt" xml:space="preserve">
+        <value>oder drücken Sie Escape zum Beenden.</value>
+    </data>
+    <data name="Error_ResizeTip" xml:space="preserve">
+        <value>Tipp: Versuchen Sie das Konsolenfenster zu maximieren.</value>
+    </data>
+</root>

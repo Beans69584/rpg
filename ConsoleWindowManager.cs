@@ -278,33 +278,56 @@ namespace RPG
             }
         }
 
+        public static bool IsDoubleWidth(char c)
+        {
+            // Check for CJK character ranges
+            return (c >= 0x1100 && c <= 0x11FF) ||   // Hangul Jamo
+                   (c >= 0x2E80 && c <= 0x9FFF) ||   // CJK Radicals through CJK Unified Ideographs
+                   (c >= 0xAC00 && c <= 0xD7AF) ||   // Hangul Syllables
+                   (c >= 0xF900 && c <= 0xFAFF) ||   // CJK Compatibility Ideographs
+                   (c >= 0xFE30 && c <= 0xFE4F) ||   // CJK Compatibility Forms
+                   (c >= 0xFF00 && c <= 0xFFEF);      // Halfwidth and Fullwidth Forms
+        }
+
         public void RenderWrappedText(Region region, IEnumerable<string> lines, ConsoleColor color)
         {
             var bounds = region.ContentBounds;
-            
-            // Convert lines to wrapped lines first to determine total height
             var allWrappedLines = new List<string>();
+            
             foreach (var line in lines)
             {
-                // Ensure each line doesn't exceed the width
                 allWrappedLines.AddRange(WrapText(line, bounds.Width));
             }
 
-            // Calculate start position to show the last lines that fit
             int totalLines = allWrappedLines.Count;
             int startLine = Math.Max(0, totalLines - bounds.Height);
             int currentY = bounds.Y;
 
-            // Render only the visible portion of text, starting from startLine
             for (int i = startLine; i < totalLines && currentY < bounds.Y + bounds.Height; i++)
             {
                 var line = allWrappedLines[i];
-                // Ensure line doesn't exceed the width by truncating if necessary
-                if (line.Length > bounds.Width)
+                int lineWidth = 0;
+                var visibleLine = new StringBuilder();
+
+                // Calculate visible portion considering double-width characters
+                foreach (char c in line)
                 {
-                    line = line.Substring(0, bounds.Width);
+                    int charWidth = IsDoubleWidth(c) ? 2 : 1;
+                    if (lineWidth + charWidth > bounds.Width)
+                        break;
+                        
+                    visibleLine.Append(c);
+                    lineWidth += charWidth;
                 }
-                buffer.WriteString(bounds.X, currentY, line.PadRight(bounds.Width), color);
+
+                // Pad with spaces to fill the width
+                while (lineWidth < bounds.Width)
+                {
+                    visibleLine.Append(' ');
+                    lineWidth++;
+                }
+
+                buffer.WriteString(bounds.X, currentY, visibleLine.ToString(), color);
                 currentY++;
             }
         }
@@ -317,21 +340,58 @@ namespace RPG
                 yield break;
             }
 
-            var words = text.Split(' ');
             var currentLine = new StringBuilder();
-
-            foreach (var word in words)
+            int currentWidth = 0;
+            
+            foreach (var word in text.Split(' '))
             {
-                if (currentLine.Length + word.Length + 1 > width)
+                int wordWidth = word.Sum(c => IsDoubleWidth(c) ? 2 : 1);
+                
+                if (currentWidth + wordWidth + (currentWidth > 0 ? 1 : 0) > width)
                 {
-                    yield return currentLine.ToString();
-                    currentLine.Clear();
+                    if (currentLine.Length > 0)
+                    {
+                        yield return currentLine.ToString();
+                        currentLine.Clear();
+                        currentWidth = 0;
+                    }
+                    
+                    // Handle words that are longer than the width
+                    if (wordWidth > width)
+                    {
+                        var temp = new StringBuilder();
+                        int tempWidth = 0;
+                        
+                        foreach (char c in word)
+                        {
+                            int charWidth = IsDoubleWidth(c) ? 2 : 1;
+                            if (tempWidth + charWidth > width)
+                            {
+                                yield return temp.ToString();
+                                temp.Clear();
+                                tempWidth = 0;
+                            }
+                            temp.Append(c);
+                            tempWidth += charWidth;
+                        }
+                        
+                        if (temp.Length > 0)
+                        {
+                            currentLine.Append(temp);
+                            currentWidth = tempWidth;
+                        }
+                        continue;
+                    }
                 }
 
-                if (currentLine.Length > 0)
+                if (currentWidth > 0)
+                {
                     currentLine.Append(' ');
+                    currentWidth++;
+                }
 
                 currentLine.Append(word);
+                currentWidth += wordWidth;
             }
 
             if (currentLine.Length > 0)
@@ -531,11 +591,23 @@ namespace RPG
 
         public void WriteString(int x, int y, string text, ConsoleColor color)
         {
-            for (int i = 0; i < text.Length; i++)
+            int currentX = x;
+            foreach (char c in text)
             {
-                SetChar(x + i, y, text[i], color);
+                if (currentX >= width) break;
+                
+                SetChar(currentX, y, c, color);
+                currentX += IsDoubleWidth(c) ? 2 : 1;
+
+                // Add a placeholder space for double-width characters
+                if (IsDoubleWidth(c) && currentX < width)
+                {
+                    SetChar(currentX - 1, y, '\0', color); // Use null character as placeholder
+                }
             }
         }
+
+        private bool IsDoubleWidth(char c) => ConsoleWindowManager.IsDoubleWidth(c);
 
         public void Flush()
         {

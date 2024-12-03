@@ -5,8 +5,9 @@ namespace RPG.Commands
     public class LuaCommandLoader
     {
         private readonly string _luaPath;
-        private readonly Lua _lua;
         private readonly GameState _state;
+        private readonly LuaGameAPI _gameApi;
+        private readonly Lua _lua;
 
         public LuaCommandLoader(string luaPath, GameState state)
         {
@@ -14,8 +15,13 @@ namespace RPG.Commands
             _state = state;
             _lua = new Lua();
             
-            // Register game API
-            _lua["game"] = new LuaGameAPI(state);
+            // Create game API with our Lua instance
+            _gameApi = new LuaGameAPI(_state, _lua);
+            
+            // Register game API and types
+            _lua.LoadCLRPackage();
+            _lua["game"] = _gameApi;
+            _lua["KeepClrObject"] = true;
 
             // Load core library first
             string corePath = Path.Combine(_luaPath, "core.lua");
