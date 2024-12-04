@@ -92,7 +92,7 @@ Game settings are stored in the application data directory:
 
 - Windows: `%AppData%\DemoRPG\Settings`
 - macOS: `~/Library/Application Support/DemoRPG/Settings`
-- Linux: `~/.config/DemoRPG`
+- Linux: `~/.local/share/demorpg/settings`
 
 ### Save Games
 
