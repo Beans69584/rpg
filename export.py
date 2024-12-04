@@ -1,187 +1,250 @@
 import os
 import logging
-import shutil
-from typing import List, Set
-from dataclasses import dataclass
 from pathlib import Path
+from typing import List, Set, Dict, Optional
+from dataclasses import dataclass
 import yaml
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('file_processor.log'),
-        logging.StreamHandler()
-    ]
-)
-
+from concurrent.futures import ThreadPoolExecutor
+import shutil
+from io import StringIO
 
 @dataclass
-class Config:
-    """Configuration class for file processing settings."""
+class FileProcessorConfig:
     extensions: Set[str]
     ignored_dirs: Set[str]
     ignored_files: Set[str]
+    source_dir: Path
     output_dir: Path
-    mirror_structure: bool
+    text_output: Path
+    mirror_dir_structure: bool = False
+    max_workers: int = 4
 
-    @classmethod
-    def from_yaml(cls, path: str = 'config.yaml') -> 'Config':
-        """Load configuration from YAML file."""
-        try:
-            with open(path, 'r') as f:
-                config = yaml.safe_load(f)
-                return cls(
-                    extensions=set(config.get('extensions', [])),
-                    ignored_dirs=set(config.get('ignored_dirs', [])),
-                    ignored_files=set(config.get('ignored_files', [])),
-                    output_dir=Path(config.get('output_dir', 'output')),
-                    mirror_structure=config.get(
-                        'mirror_structure', False)  # Add this line
-                )
-        except FileNotFoundError:
-            logging.warning(f"Config file {path} not found, using defaults")
-            return cls.get_defaults()
-
-    @classmethod
-    def get_defaults(cls) -> 'Config':
-        """Provide default configuration."""
-        return cls(
-            extensions={".cs", ".razor", ".cshtml", ".cshtml.cs", ".scss",
-                        ".csproj", ".js", ".lua"},
-            ignored_dirs={"node_modules", "build", "dist", "coverage",
-                          "public", ".next", ".git", "bin", "obj"},
-            ignored_files=set(),
-            output_dir=Path("output"),
-            mirror_structure=False  # Add this line
-        )
-
+@dataclass
+class ProcessingResults:
+    tree_output: str
+    combined_output: str
 
 class FileProcessor:
-    def __init__(self, config: Config):
+    def __init__(self, config: FileProcessorConfig):
         self.config = config
-        self.collected_text = []
+        self.processed_files: List[Path] = []
+        self.tree_output: Optional[str] = None
+        self.combined_output: Optional[str] = None
+        self.setup_logging()
+        
+    def setup_logging(self) -> None:
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.FileHandler('file_processor.log'),
+                logging.StreamHandler()
+            ]
+        )
+        self.logger = logging.getLogger(__name__)
 
-    def generate_unique_filename(self, base_path: Path, filename: str) -> str:
-        """Generate a unique filename in the given directory."""
-        name, ext = os.path.splitext(filename)
-        counter = 1
-        new_filename = filename
-        while (base_path / new_filename).exists():
-            new_filename = f"{name}_{counter}{ext}"
-            counter += 1
-        return new_filename
-
-    def process_directory(self, source_dir: Path) -> None:
-        """Process directory and copy files to output location."""
+    @staticmethod
+    def load_config(config_path: str) -> FileProcessorConfig:
+        """Load configuration from YAML file."""
         try:
-            self.config.output_dir.mkdir(parents=True, exist_ok=True)
-
-            for root, dirs, files in os.walk(source_dir):
-                # Filter out ignored directories
-                dirs[:] = [d for d in dirs if d not in self.config.ignored_dirs]
-
-                for file in files:
-                    if (any(file.endswith(ext) for ext in self.config.extensions)
-                            and file not in self.config.ignored_files):
-                        self._process_file(Path(root) / file)
-
+            with open(config_path, 'r') as f:
+                config_data = yaml.safe_load(f)
+                return FileProcessorConfig(
+                    extensions=set(config_data.get('extensions', [])),
+                    ignored_dirs=set(config_data.get('ignored_dirs', [])),
+                    ignored_files=set(config_data.get('ignored_files', [])),
+                    source_dir=Path(config_data.get('source_dir', '.')),
+                    output_dir=Path(config_data.get('output_dir', 'output')),
+                    text_output=Path(config_data.get('text_output', '.')),
+                    mirror_dir_structure=config_data.get('mirror_dir_structure', False),
+                    max_workers=config_data.get('max_workers', 4)
+                )
         except Exception as e:
-            logging.error(f"Error processing directory: {e}")
+            raise RuntimeError(f"Failed to load config: {str(e)}")
+
+    def generate_unique_filename(self, base_path: Path, filename: str) -> Path:
+        """Generate a unique filename in the given directory."""
+        path = Path(base_path) / filename
+        if not path.exists():
+            return path
+        
+        name, ext = path.stem, path.suffix
+        counter = 1
+        while True:
+            new_path = Path(base_path) / f"{name}_{counter}{ext}"
+            if not new_path.exists():
+                return new_path
+            counter += 1
+
+    def process_file(self, file_path: Path) -> Dict[str, str]:
+        """Process a single file and return its content and metadata."""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                return {
+                    'path': str(file_path.relative_to(self.config.source_dir)),
+                    'content': content
+                }
+        except Exception as e:
+            self.logger.error(f"Error processing {file_path}: {str(e)}")
+            return None
+
+    def write_output_file(self, file_data: Dict[str, str]) -> None:
+        """Write processed file to output directory."""
+        if not file_data:
+            return
+
+        try:
+            if self.config.mirror_dir_structure:
+                rel_path = Path(file_data['path'])
+                output_path = self.config.output_dir / rel_path
+            else:
+                # Original flat structure
+                output_path = self.config.output_dir / Path(file_data['path']).name
+                output_path = self.generate_unique_filename(self.config.output_dir, output_path.name)
+            
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(file_data['content'])
+            
+            self.logger.info(f"Written: {output_path}")
+            self.processed_files.append(output_path)
+        except Exception as e:
+            self.logger.error(f"Error writing output file: {str(e)}")
+
+    def should_process_file(self, file_path: Path) -> bool:
+        """Determine if a file should be processed based on configuration."""
+        return (
+            any(str(file_path).endswith(ext) for ext in self.config.extensions)
+            and file_path.name not in self.config.ignored_files
+        )
+
+    def process_directory(self) -> ProcessingResults:
+        """Process all files in the directory structure and return results."""
+        try:
+            # Clear output directory
+            if self.config.output_dir.exists():
+                shutil.rmtree(self.config.output_dir)
+            self.config.output_dir.mkdir(parents=True)
+
+            # Collect all files to process
+            files_to_process = []
+            for root, dirs, files in os.walk(self.config.source_dir):
+                dirs[:] = [d for d in dirs if d not in self.config.ignored_dirs]
+                
+                for file in files:
+                    file_path = Path(root) / file
+                    if self.should_process_file(file_path):
+                        files_to_process.append(file_path)
+
+            # Process files in parallel
+            with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
+                for file_data in executor.map(self.process_file, files_to_process):
+                    self.write_output_file(file_data)
+
+            # Generate outputs
+            tree_output = self.generate_tree_output()
+            combined_output = self.generate_combined_output()
+            
+            return ProcessingResults(
+                tree_output=tree_output,
+                combined_output=combined_output
+            )
+            
+        except Exception as e:
+            self.logger.error(f"Error during directory processing: {str(e)}")
             raise
 
-    def _process_file(self, file_path: Path) -> None:
-        """Process individual file."""
+    def generate_tree_output(self) -> str:
+        """Generate directory tree structure and return as string."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                content = f.read()
-                self.collected_text.append(f"File: {file_path}\n{content}\n\n")
-
-            if self.config.mirror_structure:
-                rel_path = file_path.relative_to(Path("."))
-                new_file_path = self.config.output_dir / rel_path
-                new_file_path.parent.mkdir(parents=True, exist_ok=True)
-            else:
-                new_filename = self.generate_unique_filename(
-                    self.config.output_dir,
-                    file_path.name
-                )
-                new_file_path = self.config.output_dir / new_filename
-
-            with open(new_file_path, "w", encoding="utf-8") as f:
-                f.write(content)
-
-            logging.info(f"Processed {file_path} -> {new_file_path}")
-
+            tree_content = self._generate_tree(self.config.source_dir)
+            tree_text = '\n'.join(tree_content)
+            
+            self.config.text_output.mkdir(parents=True, exist_ok=True)
+            
+            tree_file = self.config.text_output.absolute() / 'combined.tree.txt'
+            with open(tree_file, 'w', encoding='utf-8') as f:
+                f.write(tree_text)
+            self.logger.info(f"Generated tree structure: {tree_file}")
+            
+            return tree_text
         except Exception as e:
-            logging.error(f"Error processing file {file_path}: {e}")
+            self.logger.error(f"Error generating tree output: {str(e)}")
+            return ""
 
-    def generate_tree(self, dir_path: Path, prefix: str = "") -> List[str]:
-        """Generate a tree-like structure of the directory contents."""
+    def generate_combined_output(self) -> str:
+        """Generate combined file content and return as string."""
         try:
-            contents = []
-            items = sorted(os.listdir(dir_path))
-
-            dirs = [item for item in items
-                    if (dir_path / item).is_dir()
-                    and item not in self.config.ignored_dirs]
-
-            files = [item for item in items
-                     if (dir_path / item).is_file()]
-
-            for i, directory in enumerate(dirs):
-                is_last = (i == len(dirs) - 1) and not files
-                connector = "└── " if is_last else "├── "
-                contents.append(f"{prefix}{connector}{directory}")
-                new_prefix = prefix + ("    " if is_last else "│   ")
-                contents.extend(self.generate_tree(
-                    dir_path / directory, new_prefix))
-
-            for i, file in enumerate(files):
-                connector = "└── " if i == len(files) - 1 else "├── "
-                contents.append(f"{prefix}{connector}{file}")
-
-            return contents
-
+            combined_content = []
+            for file_path in self.processed_files:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    combined_content.append(f"File: {file_path}\n{f.read()}\n\n")
+            
+            combined_text = ''.join(combined_content)
+            
+            self.config.text_output.mkdir(parents=True, exist_ok=True)
+            
+            combined_file = self.config.text_output.absolute() / 'combined.txt'
+            with open(combined_file, 'w', encoding='utf-8') as f:
+                f.write(combined_text)
+            self.logger.info(f"Generated combined output: {combined_file}")
+            
+            return combined_text
         except Exception as e:
-            logging.error(f"Error generating tree for {dir_path}: {e}")
+            self.logger.error(f"Error generating combined output: {str(e)}")
+            return ""
+
+    def _generate_tree(self, path: Path, prefix: str = "") -> List[str]:
+        """Generate tree-like structure of directory contents."""
+        if path.name in self.config.ignored_dirs:
             return []
 
-    def save_outputs(self, source_dir: Path) -> None:
-        """Save the collected text and tree structure to files."""
         try:
-            # Save combined text
-            with open("combined.txt", "w", encoding="utf-8") as f:
-                f.write("".join(self.collected_text))
+            path.relative_to(self.config.text_output)
+        except ValueError:
+            return []
 
-            # Save tree structure
-            with open("combined.tree.txt", "w", encoding="utf-8") as f:
-                tree_content = "\n".join(self.generate_tree(source_dir))
-                f.write(f"{tree_content}\n")
+        contents = []
+        try:
+            paths = sorted(path.iterdir(), key=lambda p: (p.is_file(), p.name.lower()))
+        except PermissionError:
+            return []
+            
+        for i, p in enumerate(paths):
+            if p.name in self.config.ignored_dirs:
+                continue
+                
+            is_last = i == len(paths) - 1
+            connector = "└── " if is_last else "├── "
+            contents.append(f"{prefix}{connector}{p.name}")
+            
+            if p.is_dir():
+                extension = "    " if is_last else "│   "
+                contents.extend(self._generate_tree(p, prefix + extension))
+        
+        return contents
 
-        except Exception as e:
-            logging.error(f"Error saving outputs: {e}")
-
+def process_files(config_path: str = 'config.yml') -> ProcessingResults:
+    """Main function to process files and return results."""
+    try:
+        config = FileProcessor.load_config(config_path)
+        processor = FileProcessor(config)
+        return processor.process_directory()
+    except Exception as e:
+        logging.error(f"Application error: {str(e)}")
+        raise
 
 def main():
     try:
-        config = Config.from_yaml()
-
-        # Clean output directory
-        if config.output_dir.exists():
-            shutil.rmtree(config.output_dir)
-
-        processor = FileProcessor(config)
-        processor.process_directory(Path("."))
-        processor.save_outputs(Path("."))
-
-        logging.info("Processing completed successfully")
-
+        results = process_files()
+        print("\nDirectory Tree:")
+        print(results.tree_output)
+        print("\nFirst 500 characters of combined output:")
+        print(results.combined_output[:500] + "...")
     except Exception as e:
-        logging.error(f"Fatal error: {e}")
+        logging.error(f"Application error: {str(e)}")
         raise
-
 
 if __name__ == "__main__":
     main()

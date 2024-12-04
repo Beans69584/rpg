@@ -1,0 +1,19 @@
+extensions:
+  - .cs
+  - .csproj
+  - .lua
+
+ignored_dirs:
+  - bin
+  - obj
+  - output
+  - Scripts
+  - .git
+  - .vscode
+
+ignored_files: []
+source_dir: "."
+output_dir: "output"
+max_workers: 32
+text_output: "."
+mirror_dir_structure: false
