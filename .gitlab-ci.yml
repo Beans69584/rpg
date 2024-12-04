@@ -1,15 +1,29 @@
-image: mcr.microsoft.com/dotnet/sdk:7.0
+# Use the official .NET SDK Docker image for the job environment
+image: mcr.microsoft.com/dotnet/sdk:9.0
 
+# Global variables for the pipeline
 variables:
-  GIT_DEPTH: "1"
+  GIT_DEPTH: "1" # Use shallow clone for faster builds
+  DOTNET_CLI_HOME: "/root/.dotnet" # Ensure consistent tool install path
+  PATH: "$DOTNET_CLI_HOME/tools:$PATH" # Add .NET global tools to PATH
 
+# Cache configuration
+cache:
+  paths:
+    - /root/.nuget/packages/ # Cache NuGet packages
+    - /root/.dotnet/tools/   # Cache .NET tools
+
+# Define the job for building and deploying documentation
 pages:
   stage: deploy
   script:
+    # Install DocFX tool globally
     - dotnet tool install -g docfx
+    # Run the PowerShell script to build documentation
     - pwsh ./build_docs.ps1 -Environment gitlab
   artifacts:
     paths:
-      - public
+      - public # Output directory for the generated documentation
+    expire_in: 1 week # Artifacts expiration period for debugging
   only:
-    - main
+    - main # Restrict the job to run only on the 'main' branch
