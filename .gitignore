@@ -4,3 +4,4 @@ obj/
 World/
 *.dat
 *.snk
+*.log
