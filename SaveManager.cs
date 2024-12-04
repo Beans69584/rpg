@@ -1,26 +1,45 @@
 using System.Text.Json;
 using System.IO.Compression;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace RPG
 {
+    /// <summary>
+    /// Manages saving and loading game data to disk.
+    /// </summary>
     public static class SaveManager
     {
         private const int CURRENT_SAVE_VERSION = 1;
         private const int MAX_AUTOSAVES = 3;
         private const int MAX_BACKUPS = 5;
-
-        private static readonly string SaveDirectory = Path.Combine(
-            Environment.OSVersion.Platform == PlatformID.Unix ||
-            Environment.OSVersion.Platform == PlatformID.MacOSX
+        private static string GetApplicationFolder()
+        {
+            return Environment.OSVersion.Platform switch
+            {
+                PlatformID.Unix => "demorpg",
+                PlatformID.MacOSX => "Library/Application Support/DemoRPG",
+                PlatformID.Win32NT => "DemoRPG",
+                PlatformID.Win32Windows => "DemoRPG",
+                PlatformID.Win32S => throw new PlatformNotSupportedException("Win32s is not supported"),
+                PlatformID.WinCE => throw new PlatformNotSupportedException("Windows CE is not supported"),
+                PlatformID.Xbox => throw new PlatformNotSupportedException("Xbox is not supported"),
+                PlatformID.Other => throw new PlatformNotSupportedException("Unknown platform"),
+                _ => throw new PlatformNotSupportedException("Unknown platform"),
+            };
+        }
+        private static readonly string BaseDirectory = Path.Combine(
+            Environment.OSVersion.Platform is PlatformID.Unix or
+            PlatformID.MacOSX
                 ? Environment.GetEnvironmentVariable("XDG_DATA_HOME")
                     ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), ".local/share")
                 : Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            Environment.OSVersion.Platform == PlatformID.Unix
-                ? "demorpg/saves"
-                : Environment.OSVersion.Platform == PlatformID.MacOSX
-                    ? "Library/Application Support/DemoRPG/Saves"
-                    : "DemoRPG/Saves"
+            GetApplicationFolder()
         );
+
+        private static readonly string SaveDirectory = Path.Combine(BaseDirectory, "Saves");
 
 
         private static readonly string BackupDirectory = Path.Combine(SaveDirectory, "Backups");
@@ -33,9 +52,15 @@ namespace RPG
             Directory.CreateDirectory(AutosaveDirectory);
         }
 
+        /// <summary>
+        /// Saves the game data to disk.
+        /// </summary>
+        /// <param name="saveData">The game data to save.</param>
+        /// <param name="slot">The save slot to use.</param>
+        /// <param name="isAutosave">Whether this save is an autosave.</param>
         public static void Save(SaveData saveData, string slot, bool isAutosave = false)
         {
-            SaveMetadata metadata = new SaveMetadata
+            SaveMetadata metadata = new()
             {
                 Version = CURRENT_SAVE_VERSION,
                 SaveTime = DateTime.UtcNow,
@@ -56,8 +81,8 @@ namespace RPG
 
             // Serialize and compress
             using FileStream fs = File.Create(path);
-            using GZipStream gz = new GZipStream(fs, CompressionLevel.Optimal);
-            using BinaryWriter writer = new BinaryWriter(gz);
+            using GZipStream gz = new(fs, CompressionLevel.Optimal);
+            using BinaryWriter writer = new(gz);
 
             byte[] metadataBytes = JsonSerializer.SerializeToUtf8Bytes(metadata);
             writer.Write(metadataBytes.Length);
@@ -74,6 +99,12 @@ namespace RPG
             }
         }
 
+        /// <summary>
+        /// Loads the game data from disk.
+        /// </summary>
+        /// <param name="slot">The save slot to load.</param>
+        /// <param name="isAutosave">Whether to load an autosave.</param>
+        /// <returns>A tuple containing the save metadata and data.</returns>
         public static (SaveMetadata? Metadata, SaveData? Data) Load(string slot, bool isAutosave = false)
         {
             string path = GetSavePath(slot, isAutosave);
@@ -82,8 +113,8 @@ namespace RPG
             try
             {
                 using FileStream fs = File.OpenRead(path);
-                using GZipStream gz = new GZipStream(fs, CompressionMode.Decompress);
-                using BinaryReader reader = new BinaryReader(gz);
+                using GZipStream gz = new(fs, CompressionMode.Decompress);
+                using BinaryReader reader = new(gz);
 
                 // Read metadata using source generation
                 int metadataLength = reader.ReadInt32();
@@ -110,9 +141,14 @@ namespace RPG
             }
         }
 
+        /// <summary>
+        /// Gets a list of save files.
+        /// </summary>
+        /// <param name="includeAutosaves">Whether to include autosaves in the list.</param>
+        /// <returns>A list of save files.</returns>
         public static List<SaveInfo> GetSaveFiles(bool includeAutosaves = true)
         {
-            List<SaveInfo> saves = new List<SaveInfo>();
+            List<SaveInfo> saves = [];
 
             // Get manual saves
             foreach (string file in Directory.GetFiles(SaveDirectory, "*.save"))
@@ -131,15 +167,24 @@ namespace RPG
                 }
             }
 
-            return saves.OrderByDescending(s => s.Metadata.SaveTime).ToList();
+            return [.. saves.OrderByDescending(s => s.Metadata.SaveTime)];
         }
 
+        /// <summary>
+        /// Creates an autosave from the current game data.
+        /// </summary>
+        /// <param name="saveData">The game data to save.</param>
         public static void CreateAutosave(SaveData saveData)
         {
             string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
             Save(saveData, $"auto_{timestamp}", true);
         }
 
+        /// <summary>
+        /// Deletes a save file.
+        /// </summary>
+        /// <param name="slot">The save slot to delete.</param>
+        /// <param name="isAutosave">Whether to delete an autosave.</param>
         public static void DeleteSave(string slot, bool isAutosave = false)
         {
             string path = GetSavePath(slot, isAutosave);
@@ -154,6 +199,12 @@ namespace RPG
             }
         }
 
+        /// <summary>
+        /// Restores a backup to the main save file.
+        /// </summary>
+        /// <param name="slot">The save slot to restore.</param>
+        /// <param name="backupIndex">The index of the backup to restore.</param>
+        /// <returns>True if the backup was restored successfully.</returns>
         public static bool RestoreBackup(string slot, int backupIndex)
         {
             string backupPath = GetBackupPath(slot, backupIndex);
@@ -168,11 +219,23 @@ namespace RPG
             return false;
         }
 
+        /// <summary>
+        /// Checks if a save file exists in the specified slot.
+        /// </summary>
+        /// <param name="slot">The save slot to check.</param>
+        /// <param name="isAutosave">Whether to check for an autosave.</param>
+        /// <returns>True if a save file exists in the slot; otherwise, false.</returns>
+        public static bool SaveExists(string slot, bool isAutosave = false)
+        {
+            string path = GetSavePath(slot, isAutosave);
+            return File.Exists(path);
+        }
+
         private static SaveInfo? GetSaveInfo(string path, bool isAutosave)
         {
             try
             {
-                (SaveMetadata metadata, SaveData _) = Load(Path.GetFileNameWithoutExtension(path), isAutosave);
+                (SaveMetadata? metadata, SaveData? _) = Load(Path.GetFileNameWithoutExtension(path), isAutosave);
                 if (metadata != null)
                 {
                     return new SaveInfo
@@ -206,7 +269,7 @@ namespace RPG
         private static void CleanupOldAutosaves()
         {
             IEnumerable<string> files = Directory.GetFiles(AutosaveDirectory, "*.save")
-                .OrderByDescending(f => File.GetLastWriteTime(f))
+                .OrderByDescending(File.GetLastWriteTime)
                 .Skip(MAX_AUTOSAVES);
 
             foreach (string? file in files)
@@ -219,7 +282,7 @@ namespace RPG
         private static void CleanupOldBackups(string slot)
         {
             IEnumerable<string> files = Directory.GetFiles(BackupDirectory, $"{slot}_*.backup")
-                .OrderByDescending(f => File.GetLastWriteTime(f))
+                .OrderByDescending(File.GetLastWriteTime)
                 .Skip(MAX_BACKUPS);
 
             foreach (string? file in files)
@@ -239,7 +302,7 @@ namespace RPG
                 if (legacyData == null) return (null, null);
 
                 // Create metadata from legacy save
-                SaveMetadata metadata = new SaveMetadata
+                SaveMetadata metadata = new()
                 {
                     Version = 0,
                     SaveTime = File.GetLastWriteTime(path),
@@ -258,55 +321,112 @@ namespace RPG
             }
         }
 
-        private static string GetSavePath(string slot, bool isAutosave) =>
-            Path.Combine(
+        private static string GetSavePath(string slot, bool isAutosave)
+        {
+            return Path.Combine(
                 isAutosave ? AutosaveDirectory : SaveDirectory,
                 $"{slot}.save"
             );
+        }
 
         private static string GetBackupPath(string slot, int backupIndex)
         {
-            List<string> backups = Directory.GetFiles(BackupDirectory, $"{slot}_*.backup")
-                .OrderByDescending(f => File.GetLastWriteTime(f))
-                .ToList();
+            List<string> backups = [.. Directory.GetFiles(BackupDirectory, $"{slot}_*.backup").OrderByDescending(File.GetLastWriteTime)];
 
             return backupIndex < backups.Count ? backups[backupIndex] : "";
         }
     }
 
+    /// <summary>
+    /// Represents a save file.
+    /// </summary>
     public class SaveInfo
     {
+        /// <summary>
+        /// The save slot.
+        /// </summary>
         public string Slot { get; set; } = "";
+        /// <summary>
+        /// Whether this save is an autosave.
+        /// </summary>
         public bool IsAutosave { get; set; }
+        /// <summary>
+        /// The save metadata.
+        /// </summary>
         public SaveMetadata Metadata { get; set; } = new();
+        /// <summary>
+        /// The file path of the save.
+        /// </summary>
         public string FilePath { get; set; } = "";
 
-        // Add this method to support deconstruction
+        /// <summary>
+        /// Deconstructs the save info into its components.
+        /// </summary>
+        /// <param name="slot">The save slot.</param>
+        /// <param name="data">The save data.</param>
         public void Deconstruct(out string slot, out SaveData data)
         {
             slot = Slot;
-            // Load the actual save data when deconstructing
-            (SaveMetadata _, SaveData saveData) = SaveManager.Load(Slot, IsAutosave);
+            (SaveMetadata? _, SaveData? saveData) = SaveManager.Load(Slot, IsAutosave);
             data = saveData ?? new SaveData();
         }
     }
 
+    /// <summary>
+    /// Represents metadata for a save file.
+    /// </summary>
     public class SaveMetadata
     {
+        /// <summary>
+        /// Version of the save file format.
+        /// </summary>
         public int Version { get; set; }
+        /// <summary>
+        /// The time the save was created.
+        /// </summary>
         public DateTime SaveTime { get; set; }
+        /// <summary>
+        /// The name of the last played character.
+        /// </summary>
         public string LastPlayedCharacter { get; set; } = "";
+        /// <summary>
+        /// The total play time of the save.
+        /// </summary>
         public TimeSpan TotalPlayTime { get; set; }
+        /// <summary>
+        /// The type of save.
+        /// </summary>
         public SaveType SaveType { get; set; }
+        /// <summary>
+        /// The path to the world file.
+        /// </summary>
         public string WorldPath { get; set; } = "";
+        /// <summary>
+        /// The level of the last played character.
+        /// </summary>
         public int CharacterLevel { get; set; }
-        public Dictionary<string, string> CustomData { get; set; } = new();
+        /// <summary>
+        /// Custom data for the save.
+        /// </summary>
+        public Dictionary<string, string> CustomData { get; set; } = [];
     }
 
+    /// <summary>
+    /// Represents the type of save.
+    /// </summary>
     public enum SaveType
     {
+        /// <summary>
+        /// Manual save.
+        /// </summary>
         Manual,
+        /// <summary>
+        /// Autosave.
+        /// </summary>
         Autosave,
+        /// <summary>
+        /// Quicksave.
+        /// </summary>
         Quicksave
     }
 }

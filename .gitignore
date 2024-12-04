@@ -7,3 +7,5 @@ World/
 *.log
 *.txt
 output/
+docs/
+build_logs/

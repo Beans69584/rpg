@@ -1,49 +1,81 @@
+using System.Collections.Generic;
 using NLua;
 
 namespace RPG.Commands
 {
-    public class RegionWrapper
+    /// <summary>
+    /// Wrapper for lua commands to access the world state.
+    /// </summary>
+    /// <remarks>
+    /// Initialises a new instance of the <see cref="RegionWrapper"/> class.
+    /// </remarks>
+    /// <param name="region">The region to wrap.</param>
+    /// <param name="world">The world loader to use.</param>
+    public class RegionWrapper(WorldRegion region, WorldLoader world)
     {
-        private readonly WorldRegion _region;
-        private readonly WorldLoader _world;
+        private readonly WorldLoader _world = world;
 
-        public RegionWrapper(WorldRegion region, WorldLoader world)
-        {
-            _region = region;
-            _world = world;
-        }
-
-        public string Name => _world.GetString(_region.NameId);
-        public string Description => _world.GetString(_region.DescriptionId);
-        public WorldRegion Region => _region;
+        /// <summary>
+        /// Gets the name of the region.
+        /// </summary>
+        public string Name => _world.GetString(Region.NameId);
+        /// <summary>
+        /// Gets a brief description of the region.
+        /// </summary>
+        public string Description => _world.GetString(Region.DescriptionId);
+        /// <summary>
+        /// Gets the region.
+        /// </summary>
+        public WorldRegion Region { get; } = region;
     }
 
-    public class LocationWrapper
+    /// <summary>
+    /// Wrapper for lua commands to access the world state.
+    /// </summary>
+    /// <remarks>
+    /// Initialises a new instance of the <see cref="LocationWrapper"/> class.
+    /// </remarks>
+    /// <param name="location">The location to wrap.</param>
+    /// <param name="world">The world loader to use.</param>
+    public class LocationWrapper(Location location, WorldLoader world)
     {
-        private readonly Location _location;
-        private readonly WorldLoader _world;
+        private readonly WorldLoader _world = world;
 
-        public LocationWrapper(Location location, WorldLoader world)
-        {
-            _location = location;
-            _world = world;
-        }
-
-        public string Name => _world.GetString(_location.NameId);
-        public string Description => _world.GetString(_location.DescriptionId);
-        public string Type => _world.GetString(_location.TypeId);
-        public Location Location => _location;
+        /// <summary>
+        /// Gets the name of the location.
+        /// </summary>
+        public string Name => _world.GetString(Location.NameId);
+        /// <summary>
+        /// Gets a brief description of the location.
+        /// </summary>
+        public string Description => _world.GetString(Location.DescriptionId);
+        /// <summary>
+        /// Gets the type of the location.
+        /// </summary>
+        public string Type => _world.GetString(Location.TypeId);
+        /// <summary>
+        /// Gets the location.
+        /// </summary>
+        public Location Location { get; } = location;
     }
 
+    /// <summary>
+    /// Extension methods for lua tables.
+    /// </summary>
     public static class LuaTableExtensions
     {
-        public static LuaTable ToLuaTable(this IEnumerable<RegionWrapper> items, Lua lua)
+        /// <summary>
+        /// Converts a list of region wrappers to a lua table.
+        /// </summary>
+        /// <param name="items">The items to convert.</param>
+        /// <param name="lua">The lua instance to use.</param>
+        /// <returns>The lua table.</returns>
+        public static LuaTable? ToLuaTable(this IEnumerable<RegionWrapper> items, Lua lua)
         {
-            var table = lua.DoString("return {}")[0] as LuaTable;
-            if (table == null) return null;
+            if (lua.DoString("return {}")[0] is not LuaTable table) return null;
 
             int index = 1;
-            foreach (var item in items)
+            foreach (RegionWrapper item in items)
             {
                 table[index++] = item;
             }
@@ -51,13 +83,18 @@ namespace RPG.Commands
             return table;
         }
 
-        public static LuaTable ToLuaTable(this IEnumerable<LocationWrapper> items, Lua lua)
+        /// <summary>
+        /// Converts a list of location wrappers to a lua table.
+        /// </summary>
+        /// <param name="items">The items to convert.</param>
+        /// <param name="lua">The lua instance to use.</param>
+        /// <returns>The lua table.</returns>
+        public static LuaTable? ToLuaTable(this IEnumerable<LocationWrapper> items, Lua lua)
         {
-            var table = lua.DoString("return {}")[0] as LuaTable;
-            if (table == null) return null;
+            if (lua.DoString("return {}")[0] is not LuaTable table) return null;
 
             int index = 1;
-            foreach (var item in items)
+            foreach (LocationWrapper item in items)
             {
                 table[index++] = item;
             }

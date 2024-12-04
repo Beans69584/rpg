@@ -1,21 +1,29 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 
 namespace RPG
 {
-    public class OptimizedWorldBuilder
+    /// <summary>
+    /// Configuration for the world generation process.
+    /// </summary>
+    /// <remarks>
+    /// Initialises a new instance of the <see cref="OptimizedWorldBuilder"/> class.
+    /// </remarks>
+    /// <param name="outputPath">The output directory for the generated world data.</param>
+    /// <param name="sourceConfig">The source configuration for the world generation.</param>
+    public class OptimizedWorldBuilder(string outputPath, WorldConfig sourceConfig)
     {
-        private readonly string _outputPath;
-        private readonly WorldConfig _sourceConfig;
-        private readonly WorldData _data;
+        private readonly string _outputPath = outputPath;
+        private readonly WorldConfig _sourceConfig = sourceConfig;
+        private readonly WorldData _data = new();
 
-        public OptimizedWorldBuilder(string outputPath, WorldConfig sourceConfig)
-        {
-            _outputPath = outputPath;
-            _sourceConfig = sourceConfig;
-            _data = new WorldData();
-        }
-
+        /// <summary>
+        /// Builds the world data from the source configuration.
+        /// </summary>
         public void Build()
         {
             // Initialize header
@@ -32,7 +40,7 @@ namespace RPG
             // Convert regions
             foreach (RegionConfig regionConfig in _sourceConfig.Regions)
             {
-                WorldRegion region = new WorldRegion
+                WorldRegion region = new()
                 {
                     NameId = GetOrAddString(regionConfig.Name),
                     DescriptionId = GetOrAddString(regionConfig.Description),
@@ -42,28 +50,25 @@ namespace RPG
                 // Convert locations
                 foreach (LocationConfig locationConfig in regionConfig.Locations)
                 {
-                    Location location = new Location
+                    Location location = new()
                     {
                         NameId = GetOrAddString(locationConfig.Name),
                         TypeId = GetOrAddString(locationConfig.Type),
                         DescriptionId = GetOrAddString(locationConfig.Description),
-                        NPCs = locationConfig.NPCs
+                        NPCs = [.. locationConfig.NPCs
                             .Select(npc => _sourceConfig.NPCs.IndexOf(npc))
-                            .Where(idx => idx != -1)
-                            .ToList(),
-                        Items = locationConfig.Items
+                            .Where(idx => idx != -1)],
+                        Items = [.. locationConfig.Items
                             .Select(item => _sourceConfig.Items.IndexOf(item))
-                            .Where(idx => idx != -1)
-                            .ToList()
+                            .Where(idx => idx != -1)]
                     };
                     region.Locations.Add(location);
                 }
 
                 // Convert references to indices
-                region.Connections = regionConfig.Connections
+                region.Connections = [.. regionConfig.Connections
                     .Select(c => _sourceConfig.Regions.FindIndex(r => r.Name == c))
-                    .Where(idx => idx != -1)
-                    .ToList();
+                    .Where(idx => idx != -1)];
 
                 // Convert routes
                 foreach (int connection in region.Connections)
@@ -75,15 +80,13 @@ namespace RPG
                     }
                 }
 
-                region.NPCs = regionConfig.NPCs
+                region.NPCs = [.. regionConfig.NPCs
                     .Select(npc => _sourceConfig.NPCs.IndexOf(npc))
-                    .Where(idx => idx != -1)
-                    .ToList();
+                    .Where(idx => idx != -1)];
 
-                region.Items = regionConfig.Items
+                region.Items = [.. regionConfig.Items
                     .Select(item => _sourceConfig.Items.IndexOf(item))
-                    .Where(idx => idx != -1)
-                    .ToList();
+                    .Where(idx => idx != -1)];
 
                 _data.Regions.Add(region);
             }
@@ -91,7 +94,7 @@ namespace RPG
             // Convert NPCs
             foreach (string npcName in _sourceConfig.NPCs)
             {
-                Entity npc = new Entity
+                Entity npc = new()
                 {
                     NameId = GetOrAddString(npcName),
                     Level = Random.Shared.Next(1, 10),
@@ -105,7 +108,7 @@ namespace RPG
             // Convert items
             foreach (string itemName in _sourceConfig.Items)
             {
-                Item item = new Item
+                Item item = new()
                 {
                     NameId = GetOrAddString(itemName),
                     DescriptionId = GetOrAddString($"A {itemName.ToLower()} of unknown origin."),
@@ -132,15 +135,15 @@ namespace RPG
         private void BuildResourceTables()
         {
             // Add common dialogue to shared pool
-            _data.Resources.SharedDialogue.AddRange(new[]
-            {
+            _data.Resources.SharedDialogue.AddRange(
+            [
             "Hello traveler!",
             "Nice weather we're having.",
             "Safe travels!",
             "I have wares if you have coin.",
             "These are dangerous times.",
             "Watch yourself out there."
-        });
+        ]);
         }
 
         private int GetOrAddString(string str)
@@ -166,10 +169,9 @@ namespace RPG
 
         private List<int> AssignRandomDialogue()
         {
-            return Enumerable.Range(0, Random.Shared.Next(2, 4))
+            return [.. Enumerable.Range(0, Random.Shared.Next(2, 4))
                 .Select(_ => Random.Shared.Next(0, _data.Resources.SharedDialogue.Count))
-                .Distinct()
-                .ToList();
+                .Distinct()];
         }
 
         private void SaveWorld()
@@ -177,7 +179,7 @@ namespace RPG
             string worldPath = Path.Combine(_outputPath, "world.dat");
             Directory.CreateDirectory(_outputPath);
 
-            JsonSerializerOptions options = new JsonSerializerOptions
+            JsonSerializerOptions options = new()
             {
                 WriteIndented = false, // Compact format
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -188,12 +190,15 @@ namespace RPG
 
             // Compress using GZip
             using FileStream fs = File.Create(worldPath);
-            using System.IO.Compression.GZipStream gzip = new System.IO.Compression.GZipStream(
+            using System.IO.Compression.GZipStream gzip = new(
                 fs,
                 System.IO.Compression.CompressionLevel.Optimal);
             gzip.Write(jsonBytes, 0, jsonBytes.Length);
         }
     }
+    /// <summary>
+    /// Represents the configuration for a generated world.
+    /// </summary>
     public class ProceduralWorldGenerator
     {
         private readonly Random _random;
@@ -202,6 +207,12 @@ namespace RPG
         private readonly float[,] _heightMap;
         private readonly float[,] _moistureMap;
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="ProceduralWorldGenerator"/> class.
+        /// </summary>
+        /// <param name="seed">The seed value for the random number generator.</param>
+        /// <param name="width">The width of the generated world.</param>
+        /// <param name="height">The height of the generated world.</param>
         public ProceduralWorldGenerator(int seed = 0, int width = 100, int height = 100)
         {
             _random = seed == 0 ? Random.Shared : new Random(seed);
@@ -250,8 +261,6 @@ namespace RPG
         private float Noise(float x, float y)
         {
             // Simple implementation of 2D noise
-            int xi = (int)x & 255;
-            int yi = (int)y & 255;
             float xf = x - (int)x;
             float yf = y - (int)y;
 
@@ -267,34 +276,44 @@ namespace RPG
                     Grad(_random.Next(256), xf - 1, yf - 1)));
         }
 
-        private float Fade(float t) => t * t * t * (t * (t * 6 - 15) + 10);
+        private float Fade(float t)
+        {
+            return t * t * t * ((t * ((t * 6) - 15)) + 10);
+        }
 
-        private float Lerp(float t, float a, float b) => a + t * (b - a);
+        private float Lerp(float t, float a, float b)
+        {
+            return a + (t * (b - a));
+        }
 
         private float Grad(int hash, float x, float y)
         {
             return ((hash & 1) == 0 ? x : -x) + ((hash & 2) == 0 ? y : -y);
         }
 
+        /// <summary>
+        /// Generates a new world configuration based on the current settings.
+        /// </summary>
+        /// <returns>A new <see cref="WorldConfig"/> instance representing the generated world.</returns>
         public WorldConfig GenerateWorld()
         {
-            WorldConfig config = new WorldConfig
+            WorldConfig config = new()
             {
                 Name = GenerateWorldName(),
                 Description = "A procedurally generated realm with diverse landscapes and hidden mysteries.",
-                Regions = new List<RegionConfig>(),
-                NPCs = new List<string>(),
-                Items = new List<string>()
+                Regions = [],
+                NPCs = [],
+                Items = []
             };
 
             // Find interesting points for regions
             List<(int x, int y)> regions = FindRegionLocations();
 
             // Generate regions and their connections
-            foreach ((int x, int y) point in regions)
+            foreach ((int x, int y) in regions)
             {
-                string regionType = DetermineRegionType(point.x, point.y);
-                RegionConfig region = GenerateRegion(regionType, point.x, point.y);
+                string regionType = DetermineRegionType(x, y);
+                RegionConfig region = GenerateRegion(regionType);
                 config.Regions.Add(region);
             }
 
@@ -302,15 +321,15 @@ namespace RPG
             GenerateConnections(config.Regions, regions);
 
             // Collect all unique NPCs and items
-            config.NPCs = config.Regions.SelectMany(r => r.NPCs).Distinct().ToList();
-            config.Items = config.Regions.SelectMany(r => r.Items).Distinct().ToList();
+            config.NPCs = [.. config.Regions.SelectMany(r => r.NPCs).Distinct()];
+            config.Items = [.. config.Regions.SelectMany(r => r.Items).Distinct()];
 
             return config;
         }
 
         private List<(int x, int y)> FindRegionLocations()
         {
-            List<(int x, int y)> locations = new List<(int x, int y)>();
+            List<(int x, int y)> locations = [];
             int minDistance = 10; // Minimum distance between regions
 
             // Find local maxima and interesting points in the heightmap
@@ -319,7 +338,7 @@ namespace RPG
                 for (int y = 5; y < _height - 5; y += 5)
                 {
                     if (IsInterestingLocation(x, y) &&
-                        !locations.Any(l => Distance(l, (x, y)) < minDistance))
+                        !locations.Exists(l => Distance(l, (x, y)) < minDistance))
                     {
                         locations.Add((x, y));
                     }
@@ -366,21 +385,20 @@ namespace RPG
             if (height < 0.3f && moisture > 0.6f) return "Lake";
             if (height < 0.4f && moisture > 0.5f) return "Swamp";
             if (moisture > 0.6f) return "Forest";
-            if (moisture < 0.3f) return "Plains";
-            return "Valley";
+            return moisture < 0.3f ? "Plains" : "Valley";
         }
 
-        private RegionConfig GenerateRegion(string type, int x, int y)
+        private RegionConfig GenerateRegion(string type)
         {
-            RegionConfig region = new RegionConfig
+            RegionConfig region = new()
             {
                 Name = GenerateRegionName(type),
                 Description = GenerateRegionDescription(type),
-                Connections = new List<string>(),
+                Connections = [],
                 NPCs = GenerateNPCsForType(type),
                 Items = GenerateItemsForType(type),
-                Locations = new List<LocationConfig>(),
-                Routes = new Dictionary<string, List<RoutePoint>>()
+                Locations = [],
+                Routes = []
             };
 
             // Generate locations based on region type
@@ -418,9 +436,9 @@ namespace RPG
             // Essential locations based on size
             string[] essentialLocations = size switch
             {
-                "large" => new[] { "Town Hall", "Market", "Inn", "Temple", "Blacksmith" },
-                "medium" => new[] { "Inn", "Market", "Chapel", "Blacksmith" },
-                _ => new[] { "Inn", "Trading Post" }
+                "large" => ["Town Hall", "Market", "Inn", "Temple", "Blacksmith"],
+                "medium" => ["Inn", "Market", "Chapel", "Blacksmith"],
+                _ => ["Inn", "Trading Post"]
             };
 
             // Add essential locations
@@ -430,11 +448,11 @@ namespace RPG
             }
 
             // Add random additional locations
-            string[] additionalTypes = new[]
-            {
+            string[] additionalTypes =
+            [
             "House", "Farm", "Workshop", "Store", "Stable",
             "Garden", "Well", "Warehouse", "Watch Post", "Mill"
-        };
+        ];
 
             for (int i = essentialLocations.Length; i < locationCount; i++)
             {
@@ -457,22 +475,22 @@ namespace RPG
 
         private string GenerateLocationName(string type)
         {
-            Dictionary<string, string[]> prefixes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> prefixes = new()
             {
-                ["Inn"] = new[] { "Traveler's", "Weary", "Golden", "Silver", "Old" },
-                ["Market"] = new[] { "Town", "Trade", "Market", "Merchant's", "Commons" },
-                ["Temple"] = new[] { "Sacred", "Holy", "Divine", "Blessed", "Ancient" },
-                ["Blacksmith"] = new[] { "Iron", "Forge", "Anvil", "Steel", "Smith's" },
-                ["Trading Post"] = new[] { "Frontier", "Trader's", "Merchant's", "Caravan", "Waypoint" }
+                ["Inn"] = ["Traveler's", "Weary", "Golden", "Silver", "Old"],
+                ["Market"] = ["Town", "Trade", "Market", "Merchant's", "Commons"],
+                ["Temple"] = ["Sacred", "Holy", "Divine", "Blessed", "Ancient"],
+                ["Blacksmith"] = ["Iron", "Forge", "Anvil", "Steel", "Smith's"],
+                ["Trading Post"] = ["Frontier", "Trader's", "Merchant's", "Caravan", "Waypoint"]
             };
 
-            Dictionary<string, string[]> suffixes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> suffixes = new()
             {
-                ["Inn"] = new[] { "Rest", "Lodge", "Inn", "Haven", "House" },
-                ["Market"] = new[] { "Square", "Plaza", "Market", "Exchange", "Grounds" },
-                ["Temple"] = new[] { "Temple", "Sanctuary", "Chapel", "Shrine", "Cathedral" },
-                ["Blacksmith"] = new[] { "Forge", "Workshop", "Smith", "Works", "Anvil" },
-                ["Trading Post"] = new[] { "Post", "House", "Store", "Exchange", "Shop" }
+                ["Inn"] = ["Rest", "Lodge", "Inn", "Haven", "House"],
+                ["Market"] = ["Square", "Plaza", "Market", "Exchange", "Grounds"],
+                ["Temple"] = ["Temple", "Sanctuary", "Chapel", "Shrine", "Cathedral"],
+                ["Blacksmith"] = ["Forge", "Workshop", "Smith", "Works", "Anvil"],
+                ["Trading Post"] = ["Post", "House", "Store", "Exchange", "Shop"]
             };
 
             if (prefixes.TryGetValue(type, out string[]? typePrefix) && suffixes.TryGetValue(type, out string[]? typeSuffix))
@@ -485,12 +503,12 @@ namespace RPG
 
         private List<RoutePoint> GenerateRoutePath()
         {
-            List<RoutePoint> points = new List<RoutePoint>();
+            List<RoutePoint> points = [];
             int pathLength = _random.Next(2, 5);
 
             for (int i = 0; i < pathLength; i++)
             {
-                RoutePoint point = new RoutePoint
+                RoutePoint point = new()
                 {
                     Description = GenerateRouteDescription(),
                     Directions = GenerateRouteDirections(),
@@ -504,44 +522,44 @@ namespace RPG
 
         private string GenerateRouteDescription()
         {
-            string[] descriptions = new[]
-            {
+            string[] descriptions =
+            [
             "The path winds through dense vegetation.",
             "A well-worn trail stretches ahead.",
             "The route follows an ancient stone road.",
             "A narrow path hugs the hillside.",
             "The track crosses a shallow stream.",
             "A bridge spans a deep ravine here."
-        };
+        ];
             return descriptions[_random.Next(descriptions.Length)];
         }
 
         private string GenerateRouteDirections()
         {
-            string[] directions = new[]
-            {
+            string[] directions =
+            [
             "Follow the path north past the large boulder.",
             "Continue east along the stream.",
             "Head uphill toward the cliff face.",
             "Take the fork in the road heading west.",
             "Cross the wooden bridge and continue straight.",
             "Follow the markers through the valley."
-        };
+        ];
             return directions[_random.Next(directions.Length)];
         }
 
         private List<LocationConfig> GenerateRouteLandmarks()
         {
-            List<LocationConfig> landmarks = new List<LocationConfig>();
+            List<LocationConfig> landmarks = [];
             if (_random.Next(100) < 30) // 30% chance for a landmark
             {
-                string[] types = new[]
-                {
+                string[] types =
+                [
                 "Ancient Ruins", "Watch Tower", "Abandoned Fort",
                 "Old Shrine", "Cave Entrance", "Stone Circle",
                 "Abandoned Mill", "Bridge", "Wayshrine",
                 "Campsite", "Trading Post", "Mystery"
-            };
+            ];
 
                 string type = types[_random.Next(types.Length)];
                 landmarks.Add(new LocationConfig
@@ -561,7 +579,7 @@ namespace RPG
             // Connect each region to its 2-4 nearest neighbors
             for (int i = 0; i < regions.Count; i++)
             {
-                List<(int index, double dist)> distances = new List<(int index, double dist)>();
+                List<(int index, double dist)> distances = [];
                 for (int j = 0; j < regions.Count; j++)
                 {
                     if (i == j) continue;
@@ -570,11 +588,10 @@ namespace RPG
 
                 // Sort by distance and take 2-4 nearest
                 int connectionCount = _random.Next(2, 5);
-                List<string> connections = distances
+                List<string> connections = [.. distances
                     .OrderBy(d => d.dist)
                     .Take(connectionCount)
-                    .Select(d => regions[d.index].Name)
-                    .ToList();
+                    .Select(d => regions[d.index].Name)];
 
                 regions[i].Connections = connections;
             }
@@ -582,33 +599,33 @@ namespace RPG
 
         private string GenerateWorldName()
         {
-            string[] prefixes = new[] { "Northern", "Eastern", "Western", "Southern", "Lost", "Ancient", "Wild" };
-            string[] suffixes = new[] { "Frontier", "Reaches", "Lands", "Territory", "Province", "Region", "Domain" };
+            string[] prefixes = ["Northern", "Eastern", "Western", "Southern", "Lost", "Ancient", "Wild"];
+            string[] suffixes = ["Frontier", "Reaches", "Lands", "Territory", "Province", "Region", "Domain"];
             return $"The {prefixes[_random.Next(prefixes.Length)]} {suffixes[_random.Next(suffixes.Length)]}";
         }
 
         private string GenerateRegionName(string type)
         {
-            Dictionary<string, string[]> prefixes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> prefixes = new()
             {
-                ["Mountain"] = new[] { "High", "Steep", "Rocky", "Stone", "Frost" },
-                ["Hills"] = new[] { "Rolling", "Green", "Windy", "Low", "Grassy" },
-                ["Lake"] = new[] { "Deep", "Clear", "Still", "Mirror", "Dark" },
-                ["Swamp"] = new[] { "Murky", "Misty", "Fog", "Reed", "Marsh" },
-                ["Forest"] = new[] { "Dense", "Old", "Wild", "Deep", "Shadow" },
-                ["Plains"] = new[] { "Open", "Vast", "Wide", "Windy", "Golden" },
-                ["Valley"] = new[] { "Hidden", "Quiet", "Green", "Peaceful", "Sheltered" }
+                ["Mountain"] = ["High", "Steep", "Rocky", "Stone", "Frost"],
+                ["Hills"] = ["Rolling", "Green", "Windy", "Low", "Grassy"],
+                ["Lake"] = ["Deep", "Clear", "Still", "Mirror", "Dark"],
+                ["Swamp"] = ["Murky", "Misty", "Fog", "Reed", "Marsh"],
+                ["Forest"] = ["Dense", "Old", "Wild", "Deep", "Shadow"],
+                ["Plains"] = ["Open", "Vast", "Wide", "Windy", "Golden"],
+                ["Valley"] = ["Hidden", "Quiet", "Green", "Peaceful", "Sheltered"]
             };
 
-            Dictionary<string, string[]> suffixes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> suffixes = new()
             {
-                ["Mountain"] = new[] { "Peak", "Ridge", "Summit", "Heights", "Pass" },
-                ["Hills"] = new[] { "Hills", "Slopes", "Rise", "Downs", "Highlands" },
-                ["Lake"] = new[] { "Lake", "Waters", "Pool", "Basin", "Mere" },
-                ["Swamp"] = new[] { "Marsh", "Bog", "Fen", "Swamp", "Mire" },
-                ["Forest"] = new[] { "Woods", "Forest", "Grove", "Thicket", "Woodland" },
-                ["Plains"] = new[] { "Plains", "Fields", "Grassland", "Meadow", "Prairie" },
-                ["Valley"] = new[] { "Valley", "Vale", "Dale", "Glen", "Bottom" }
+                ["Mountain"] = ["Peak", "Ridge", "Summit", "Heights", "Pass"],
+                ["Hills"] = ["Hills", "Slopes", "Rise", "Downs", "Highlands"],
+                ["Lake"] = ["Lake", "Waters", "Pool", "Basin", "Mere"],
+                ["Swamp"] = ["Marsh", "Bog", "Fen", "Swamp", "Mire"],
+                ["Forest"] = ["Woods", "Forest", "Grove", "Thicket", "Woodland"],
+                ["Plains"] = ["Plains", "Fields", "Grassland", "Meadow", "Prairie"],
+                ["Valley"] = ["Valley", "Vale", "Dale", "Glen", "Bottom"]
             };
 
             string prefix = prefixes[type][_random.Next(prefixes[type].Length)];
@@ -618,43 +635,43 @@ namespace RPG
 
         private string GenerateRegionDescription(string type)
         {
-            Dictionary<string, string[]> descriptions = new Dictionary<string, string[]>
+            Dictionary<string, string[]> descriptions = new()
             {
-                ["Mountain"] = new[] {
+                ["Mountain"] = [
                 "Steep cliffs rise sharply against the sky, their peaks shrouded in clouds.",
                 "A rugged landscape of stone and snow stretches upward into thin air.",
                 "Rocky paths wind between towering peaks of weathered stone."
-            },
-                ["Hills"] = new[] {
+            ],
+                ["Hills"] = [
                 "Gentle slopes roll endlessly toward the horizon, covered in wild grass.",
                 "Wind-swept hills dotted with hardy shrubs and exposed rocks.",
                 "A series of low rises and dips create a peaceful, pastoral landscape."
-            },
-                ["Lake"] = new[] {
+            ],
+                ["Lake"] = [
                 "Clear waters reflect the sky like a mirror, surrounded by reeds.",
                 "A calm body of water stretches into the distance, its surface occasionally broken by fish.",
                 "The lake's deep waters lap gently at its rocky shores."
-            },
-                ["Swamp"] = new[] {
+            ],
+                ["Swamp"] = [
                 "Murky water pools between twisted trees draped with moss.",
                 "A maze of waterways winds through dense vegetation and muddy ground.",
                 "Mist clings to the surface of dark water, obscuring what lies beneath."
-            },
-                ["Forest"] = new[] {
+            ],
+                ["Forest"] = [
                 "Ancient trees stand like silent sentinels, their canopy blocking most light.",
                 "A dense woodland of old growth trees and tangled underbrush.",
                 "Filtered sunlight creates patterns on the forest floor."
-            },
-                ["Plains"] = new[] {
+            ],
+                ["Plains"] = [
                 "Tall grass waves in the wind like a golden sea under open skies.",
                 "A vast expanse of open ground stretches to the horizon.",
                 "Wild grasses and scattered wildflowers cover the level ground."
-            },
-                ["Valley"] = new[] {
+            ],
+                ["Valley"] = [
                 "Sheltered by high ground on either side, the valley offers protection from harsh winds.",
                 "A peaceful lowland nestled between higher terrain.",
                 "Rich soil and protected position make this an ideal settlement location."
-            }
+            ]
             };
 
             return descriptions[type][_random.Next(descriptions[type].Length)];
@@ -662,18 +679,18 @@ namespace RPG
 
         private List<string> GenerateNPCsForType(string type)
         {
-            List<string> npcs = new List<string>();
+            List<string> npcs = [];
             int count = _random.Next(2, 5);
 
-            Dictionary<string, string[]> npcTypes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> npcTypes = new()
             {
-                ["Mountain"] = new[] { "Miner", "Guide", "Climber", "Scout", "Hunter" },
-                ["Hills"] = new[] { "Shepherd", "Farmer", "Hunter", "Guard", "Traveler" },
-                ["Lake"] = new[] { "Fisher", "Boatman", "Merchant", "Guard", "Dock Worker" },
-                ["Swamp"] = new[] { "Hunter", "Guide", "Herbalist", "Fisher", "Recluse" },
-                ["Forest"] = new[] { "Woodcutter", "Hunter", "Ranger", "Trapper", "Scout" },
-                ["Plains"] = new[] { "Farmer", "Herder", "Merchant", "Guard", "Scout" },
-                ["Valley"] = new[] { "Farmer", "Miller", "Trader", "Guard", "Worker" }
+                ["Mountain"] = ["Miner", "Guide", "Climber", "Scout", "Hunter"],
+                ["Hills"] = ["Shepherd", "Farmer", "Hunter", "Guard", "Traveler"],
+                ["Lake"] = ["Fisher", "Boatman", "Merchant", "Guard", "Dock Worker"],
+                ["Swamp"] = ["Hunter", "Guide", "Herbalist", "Fisher", "Recluse"],
+                ["Forest"] = ["Woodcutter", "Hunter", "Ranger", "Trapper", "Scout"],
+                ["Plains"] = ["Farmer", "Herder", "Merchant", "Guard", "Scout"],
+                ["Valley"] = ["Farmer", "Miller", "Trader", "Guard", "Worker"]
             };
 
             for (int i = 0; i < count; i++)
@@ -681,23 +698,23 @@ namespace RPG
                 npcs.Add(npcTypes[type][_random.Next(npcTypes[type].Length)]);
             }
 
-            return npcs.Distinct().ToList();
+            return [.. npcs.Distinct()];
         }
 
         private List<string> GenerateItemsForType(string type)
         {
-            List<string> items = new List<string>();
+            List<string> items = [];
             int count = _random.Next(3, 6);
 
-            Dictionary<string, string[]> itemTypes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> itemTypes = new()
             {
-                ["Mountain"] = new[] { "Pickaxe", "Rope", "Lantern", "Iron Ore", "Climbing Gear" },
-                ["Hills"] = new[] { "Walking Staff", "Water Skin", "Dried Food", "Wool", "Tools" },
-                ["Lake"] = new[] { "Fishing Rod", "Net", "Fresh Fish", "Boat Hook", "Rope" },
-                ["Swamp"] = new[] { "Boots", "Herbs", "Walking Staff", "Medicine", "Torch" },
-                ["Forest"] = new[] { "Axe", "Bow", "Herbs", "Leather", "Wood" },
-                ["Plains"] = new[] { "Farming Tools", "Seeds", "Water Skin", "Cart", "Food" },
-                ["Valley"] = new[] { "Tools", "Grain", "Cart", "Trade Goods", "Food" }
+                ["Mountain"] = ["Pickaxe", "Rope", "Lantern", "Iron Ore", "Climbing Gear"],
+                ["Hills"] = ["Walking Staff", "Water Skin", "Dried Food", "Wool", "Tools"],
+                ["Lake"] = ["Fishing Rod", "Net", "Fresh Fish", "Boat Hook", "Rope"],
+                ["Swamp"] = ["Boots", "Herbs", "Walking Staff", "Medicine", "Torch"],
+                ["Forest"] = ["Axe", "Bow", "Herbs", "Leather", "Wood"],
+                ["Plains"] = ["Farming Tools", "Seeds", "Water Skin", "Cart", "Food"],
+                ["Valley"] = ["Tools", "Grain", "Cart", "Trade Goods", "Food"]
             };
 
             for (int i = 0; i < count; i++)
@@ -705,70 +722,70 @@ namespace RPG
                 items.Add(itemTypes[type][_random.Next(itemTypes[type].Length)]);
             }
 
-            return items.Distinct().ToList();
+            return [.. items.Distinct()];
         }
 
         private double Distance((int x, int y) a, (int x, int y) b)
         {
             int dx = a.x - b.x;
             int dy = a.y - b.y;
-            return Math.Sqrt(dx * dx + dy * dy);
+            return Math.Sqrt((dx * dx) + (dy * dy));
         }
 
         private string GenerateLocationDescription(string type)
         {
-            Dictionary<string, string[]> descriptions = new Dictionary<string, string[]>
+            Dictionary<string, string[]> descriptions = new()
             {
-                ["Inn"] = new[] {
+                ["Inn"] = [
                 "A cozy establishment with a warm hearth and the smell of fresh bread.",
                 "The sound of lively chatter fills this well-maintained inn.",
                 "A popular rest stop for weary travelers, known for its comfortable beds."
-            },
-                ["Market"] = new[] {
+            ],
+                ["Market"] = [
                 "Colorful stalls line the busy marketplace, filled with goods from all over.",
                 "Merchants call out their wares as customers haggle over prices.",
                 "A bustling center of trade where locals gather to buy and sell."
-            },
-                ["Temple"] = new[] {
+            ],
+                ["Temple"] = [
                 "Peaceful silence fills this sacred space, broken only by quiet prayer.",
                 "Sunlight streams through colored windows onto stone floors.",
                 "An ancient place of worship, maintained with careful dedication."
-            },
-                ["Blacksmith"] = new[] {
+            ],
+                ["Blacksmith"] = [
                 "The ring of hammer on anvil echoes from the busy forge.",
                 "Heat radiates from the glowing forge as tools take shape.",
                 "A well-equipped workshop where quality weapons and tools are made."
-            },
-                ["Trading Post"] = new[] {
+            ],
+                ["Trading Post"] = [
                 "A sturdy building where traders exchange goods and news.",
                 "Shelves lined with goods from distant lands fill this trading post.",
                 "A busy stop along the trade route, always full of travelers."
-            },
-                ["House"] = new[] {
+            ],
+                ["House"] = [
                 "A modest dwelling with a small garden.",
                 "Smoke rises from the chimney of this comfortable home.",
                 "A well-maintained house with flowers in the windows."
-            },
-                ["Farm"] = new[] {
+            ],
+                ["Farm"] = [
                 "Fields of crops stretch out behind the farmhouse.",
                 "A working farm with various animals and growing fields.",
                 "The smell of fresh hay wafts from the barn."
-            },
-                ["Workshop"] = new[] {
+            ],
+                ["Workshop"] = [
                 "Tools and materials fill this busy craftsman's space.",
                 "The sound of work echoes from within.",
                 "A place where skilled artisans practice their trade."
-            },
-                ["Ancient Ruins"] = new[] {
+            ],
+                ["Ancient Ruins"] = [
                 "Crumbling stone walls hint at past grandeur.",
                 "Mystery surrounds these weathered ruins.",
                 "Time-worn stones covered in creeping vines."
-            },
-                ["Watch Tower"] = new[] {
+            ],
+                ["Watch Tower"] = [
                 "A tall structure providing views of the surrounding area.",
                 "Guards keep vigilant watch from this strategic point.",
                 "A defensive position overlooking the landscape."
-            }
+            ]
             };
 
             if (descriptions.TryGetValue(type, out string[]? typeDescriptions))
@@ -781,21 +798,21 @@ namespace RPG
 
         private List<string> GenerateNPCsForLocation(string type)
         {
-            List<string> npcs = new List<string>();
+            List<string> npcs = [];
             int count = _random.Next(1, 4);
 
-            Dictionary<string, string[]> npcTypes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> npcTypes = new()
             {
-                ["Inn"] = new[] { "Innkeeper", "Barmaid", "Cook", "Patron", "Traveler" },
-                ["Market"] = new[] { "Merchant", "Shopper", "Guard", "Vendor", "Pickpocket" },
-                ["Temple"] = new[] { "Priest", "Acolyte", "Worshipper", "Pilgrim", "Healer" },
-                ["Blacksmith"] = new[] { "Smith", "Apprentice", "Customer", "Supplier" },
-                ["Trading Post"] = new[] { "Trader", "Merchant", "Guard", "Porter", "Customer" },
-                ["House"] = new[] { "Resident", "Family Member", "Visitor" },
-                ["Farm"] = new[] { "Farmer", "Farmhand", "Worker", "Animal Handler" },
-                ["Workshop"] = new[] { "Craftsman", "Apprentice", "Customer", "Supplier" },
-                ["Watch Tower"] = new[] { "Guard", "Watchman", "Soldier", "Scout" },
-                ["Ancient Ruins"] = new[] { "Explorer", "Archaeologist", "Treasure Hunter", "Guard" }
+                ["Inn"] = ["Innkeeper", "Barmaid", "Cook", "Patron", "Traveler"],
+                ["Market"] = ["Merchant", "Shopper", "Guard", "Vendor", "Pickpocket"],
+                ["Temple"] = ["Priest", "Acolyte", "Worshipper", "Pilgrim", "Healer"],
+                ["Blacksmith"] = ["Smith", "Apprentice", "Customer", "Supplier"],
+                ["Trading Post"] = ["Trader", "Merchant", "Guard", "Porter", "Customer"],
+                ["House"] = ["Resident", "Family Member", "Visitor"],
+                ["Farm"] = ["Farmer", "Farmhand", "Worker", "Animal Handler"],
+                ["Workshop"] = ["Craftsman", "Apprentice", "Customer", "Supplier"],
+                ["Watch Tower"] = ["Guard", "Watchman", "Soldier", "Scout"],
+                ["Ancient Ruins"] = ["Explorer", "Archaeologist", "Treasure Hunter", "Guard"]
             };
 
             if (npcTypes.TryGetValue(type, out string[]? typeNPCs))
@@ -806,26 +823,26 @@ namespace RPG
                 }
             }
 
-            return npcs.Distinct().ToList();
+            return [.. npcs.Distinct()];
         }
 
         private List<string> GenerateItemsForLocation(string type)
         {
-            List<string> items = new List<string>();
+            List<string> items = [];
             int count = _random.Next(2, 5);
 
-            Dictionary<string, string[]> itemTypes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> itemTypes = new()
             {
-                ["Inn"] = new[] { "Ale", "Bread", "Stew", "Bedroll", "Candle", "Key" },
-                ["Market"] = new[] { "Food", "Cloth", "Pottery", "Tools", "Jewelry", "Spices" },
-                ["Temple"] = new[] { "Candle", "Holy Symbol", "Incense", "Offering", "Scripture" },
-                ["Blacksmith"] = new[] { "Sword", "Armor", "Tools", "Metal", "Coal", "Hammer" },
-                ["Trading Post"] = new[] { "Map", "Supplies", "Trade Goods", "Food", "Equipment" },
-                ["House"] = new[] { "Furniture", "Dishes", "Tools", "Personal Items" },
-                ["Farm"] = new[] { "Tools", "Seeds", "Grain", "Feed", "Produce" },
-                ["Workshop"] = new[] { "Tools", "Materials", "Products", "Work Table" },
-                ["Watch Tower"] = new[] { "Weapons", "Armor", "Supplies", "Signal Horn" },
-                ["Ancient Ruins"] = new[] { "Artifact", "Relic", "Old Coin", "Broken Pottery" }
+                ["Inn"] = ["Ale", "Bread", "Stew", "Bedroll", "Candle", "Key"],
+                ["Market"] = ["Food", "Cloth", "Pottery", "Tools", "Jewelry", "Spices"],
+                ["Temple"] = ["Candle", "Holy Symbol", "Incense", "Offering", "Scripture"],
+                ["Blacksmith"] = ["Sword", "Armor", "Tools", "Metal", "Coal", "Hammer"],
+                ["Trading Post"] = ["Map", "Supplies", "Trade Goods", "Food", "Equipment"],
+                ["House"] = ["Furniture", "Dishes", "Tools", "Personal Items"],
+                ["Farm"] = ["Tools", "Seeds", "Grain", "Feed", "Produce"],
+                ["Workshop"] = ["Tools", "Materials", "Products", "Work Table"],
+                ["Watch Tower"] = ["Weapons", "Armor", "Supplies", "Signal Horn"],
+                ["Ancient Ruins"] = ["Artifact", "Relic", "Old Coin", "Broken Pottery"]
             };
 
             if (itemTypes.TryGetValue(type, out string[]? typeItems))
@@ -836,132 +853,391 @@ namespace RPG
                 }
             }
 
-            return items.Distinct().ToList();
+            return [.. items.Distinct()];
         }
     }
 
+    /// <summary>
+    /// Represents the configuration for a generated world.
+    /// </summary>
     public class WorldConfig
     {
+        /// <summary>
+        /// Gets or sets the name of the world.
+        /// </summary>
         public string Name { get; set; } = "Demo World";
+        /// <summary>
+        /// Gets or sets the description of the world.
+        /// </summary>
         public string Description { get; set; } = "A sample RPG world";
-        public List<RegionConfig> Regions { get; set; } = new();
-        public List<string> NPCs { get; set; } = new();
-        public List<string> Items { get; set; } = new();
+        /// <summary>
+        /// Gets or sets the list of regions in the world.
+        /// </summary>
+        public List<RegionConfig> Regions { get; set; } = [];
+        /// <summary>
+        /// Gets or sets the list of NPCs in the world.
+        /// </summary>
+        public List<string> NPCs { get; set; } = [];
+        /// <summary>
+        /// Gets or sets the list of items in the world.
+        /// </summary>
+        public List<string> Items { get; set; } = [];
     }
 
+    /// <summary>
+    /// Represents the configuration for a region in the world.
+    /// </summary>
     public class RegionConfig
     {
+        /// <summary>
+        /// Gets or sets the name of the region.
+        /// </summary>
         public string Name { get; set; } = "";
+        /// <summary>
+        /// Gets or sets the description of the region.
+        /// </summary>
         public string Description { get; set; } = "";
-        public List<string> Connections { get; set; } = new();
-        public List<string> NPCs { get; set; } = new();
-        public List<string> Items { get; set; } = new();
-        public List<LocationConfig> Locations { get; set; } = new();
-        public Dictionary<string, List<RoutePoint>> Routes { get; set; } = new();
+        /// <summary>
+        /// Gets or sets the list of connections to other regions.
+        /// </summary>
+        public List<string> Connections { get; set; } = [];
+        /// <summary>
+        /// Gets or sets the list of NPCs in the region.
+        /// </summary>
+        public List<string> NPCs { get; set; } = [];
+        /// <summary>
+        /// Gets or sets the list of items in the region.
+        /// </summary>
+        public List<string> Items { get; set; } = [];
+        /// <summary>
+        /// Gets or sets the list of locations in the region.
+        /// </summary>
+        public List<LocationConfig> Locations { get; set; } = [];
+        /// <summary>
+        /// Gets or sets the list of routes to other regions.
+        /// </summary>
+        public Dictionary<string, List<RoutePoint>> Routes { get; set; } = [];
     }
 
+    /// <summary>
+    /// Represents the configuration for a location in the world.
+    /// </summary>
     public class LocationConfig
     {
+        /// <summary>
+        /// Gets or sets the name of the location.
+        /// </summary>
         public string Name { get; set; } = "";
+        /// <summary>
+        /// Gets or sets the type of the location.
+        /// </summary>
         public string Type { get; set; } = "";
+        /// <summary>
+        /// Gets or sets the description of the location.
+        /// </summary>
         public string Description { get; set; } = "";
-        public List<string> NPCs { get; set; } = new();
-        public List<string> Items { get; set; } = new();
+        /// <summary>
+        /// Gets or sets the list of NPCs at the location.
+        /// </summary>
+        public List<string> NPCs { get; set; } = [];
+        /// <summary>
+        /// Gets or sets the list of items at the location.
+        /// </summary>
+        public List<string> Items { get; set; } = [];
     }
 
+    /// <summary>
+    /// Represents a point along a route between regions.
+    /// </summary>
     public class RoutePoint
     {
+        /// <summary>
+        /// Gets or sets the description of the route point.
+        /// </summary>
         public int DescriptionId { get; set; }
+        /// <summary>
+        /// Gets or sets the directions at the route point.
+        /// </summary>
         public int DirectionsId { get; set; }
+        /// <summary>
+        /// Gets or sets the list of landmarks at the route point.
+        /// </summary>
         public string Description { get; set; } = "";
+        /// <summary>
+        /// Gets or sets the directions at the route point.
+        /// </summary>
         public string Directions { get; set; } = "";
-        public List<LocationConfig> Landmarks { get; set; } = new();
+        /// <summary>
+        /// Gets or sets the list of landmarks at the route point.
+        /// </summary>
+        public List<LocationConfig> Landmarks { get; set; } = [];
     }
+    /// <summary>
+    /// Represents the header information for a generated world file.
+    /// </summary>
     public class Header
     {
-        public string Magic { get; set; } = "RPGW"; // Magic number
+        /// <summary>
+        /// Gets or sets the magic number identifying the file format.
+        /// </summary>
+        public string Magic { get; set; } = "RPGW";
+
+        /// <summary>
+        /// Gets or sets the name of the world.
+        /// </summary>
         public string Name { get; set; } = "";
+
+        /// <summary>
+        /// Gets or sets the description of the world.
+        /// </summary>
         public string Description { get; set; } = "";
+
+        /// <summary>
+        /// Gets or sets the version of the world format.
+        /// </summary>
         public string Version { get; set; } = "1.0";
+
+        /// <summary>
+        /// Gets or sets the creation timestamp of the world.
+        /// </summary>
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Gets or sets the total number of regions in the world.
+        /// </summary>
         public int RegionCount { get; set; }
+
+        /// <summary>
+        /// Gets or sets the total number of NPCs in the world.
+        /// </summary>
         public int NPCCount { get; set; }
+
+        /// <summary>
+        /// Gets or sets the total number of items in the world.
+        /// </summary>
         public int ItemCount { get; set; }
     }
 
+    /// <summary>
+    /// Contains resource mappings and shared data for the world.
+    /// </summary>
     public class ResourceTable
     {
-        public Dictionary<string, int> StringPool { get; set; } = new();
-        public Dictionary<string, int> TextureRefs { get; set; } = new();
-        public Dictionary<string, int> SoundRefs { get; set; } = new();
-        public List<string> SharedDialogue { get; set; } = new();
+        /// <summary>
+        /// Maps strings to their unique integer identifiers.
+        /// </summary>
+        public Dictionary<string, int> StringPool { get; set; } = [];
+        /// <summary>
+        /// Maps texture names to their resource identifiers.
+        /// </summary>
+        public Dictionary<string, int> TextureRefs { get; set; } = [];
+        /// <summary>
+        /// Maps sound effect names to their resource identifiers.
+        /// </summary>
+        public Dictionary<string, int> SoundRefs { get; set; } = [];
+        /// <summary>
+        /// Collection of common dialogue lines shared across NPCs.
+        /// </summary>
+        public List<string> SharedDialogue { get; set; } = [];
     }
 
+    /// <summary>
+    /// Represents a region in the generated world with its properties and connections.
+    /// </summary>
     public class GenWorldRegion
     {
+        /// <summary>
+        /// Gets or sets the ID reference to the region name in the string pool.
+        /// </summary>
         public int NameId { get; set; }          // Reference to string pool
+        /// <summary>
+        /// Gets or sets the ID reference to the region description in the string pool.
+        /// </summary>
         public int DescriptionId { get; set; }   // Reference to string pool
-        public List<int> Connections { get; set; } = new();  // GenWorldRegion indices
-        public List<int> NPCs { get; set; } = new();        // NPC indices
-        public List<int> Items { get; set; } = new();       // Item indices
+        /// <summary>
+        /// Gets or sets the list of indices referencing connected regions.
+        /// </summary>
+        public List<int> Connections { get; set; } = [];  // GenWorldRegion indices
+        /// <summary>
+        /// Gets or sets the list of indices referencing NPCs present in this region.
+        /// </summary>
+        public List<int> NPCs { get; set; } = [];        // NPC indices
+        /// <summary>
+        /// Gets or sets the list of indices referencing items found in this region.
+        /// </summary>
+        public List<int> Items { get; set; } = [];       // Item indices
+        /// <summary>
+        /// Gets or sets the 2D position of this region in the world.
+        /// </summary>
         public Vector2 Position { get; set; } = new();
-        public List<Location> Locations { get; set; } = new();
-        public Dictionary<int, List<RoutePoint>> Routes { get; set; } = new();
+        /// <summary>
+        /// Gets or sets the list of locations within this region.
+        /// </summary>
+        public List<Location> Locations { get; set; } = [];
+        /// <summary>
+        /// Gets or sets the dictionary mapping region indices to their route points.
+        /// </summary>
+        public Dictionary<int, List<RoutePoint>> Routes { get; set; } = [];
     }
 
+    /// <summary>
+    /// Represents a location within a region in the world.
+    /// </summary>
     public class Location
     {
+        /// <summary>
+        /// Gets or sets the ID reference to the location name in the string pool.
+        /// </summary>
         public int NameId { get; set; }
+        /// <summary>
+        /// Gets or sets the ID reference to the location type in the string pool.
+        /// </summary>
         public int TypeId { get; set; }
+        /// <summary>
+        /// Gets or sets the ID reference to the location description in the string pool.
+        /// </summary>
         public int DescriptionId { get; set; }
-        public List<int> NPCs { get; set; } = new();
-        public List<int> Items { get; set; } = new();
+        /// <summary>
+        /// Gets or sets the list of indices referencing NPCs present at this location.
+        /// </summary>
+        public List<int> NPCs { get; set; } = [];
+        /// <summary>
+        /// Gets or sets the list of indices referencing items found at this location.
+        /// </summary>
+        public List<int> Items { get; set; } = [];
     }
 
+    /// <summary>
+    /// Represents an entity in the game world, such as an NPC or creature.
+    /// </summary>
     public class Entity
     {
+        /// <summary>
+        /// Gets or sets the ID reference to the entity's name in the string pool.
+        /// </summary>
         public int NameId { get; set; }          // Reference to string pool
+        /// <summary>
+        /// Gets or sets the experience level of the entity.
+        /// </summary>
         public int Level { get; set; }
+        /// <summary>
+        /// Gets or sets the current hit points of the entity.
+        /// </summary>
         public int HP { get; set; }
-        public List<int> DialogueRefs { get; set; } = new(); // References to shared dialogue
+        /// <summary>
+        /// Gets or sets the list of dialogue reference IDs available to this entity.
+        /// </summary>
+        public List<int> DialogueRefs { get; set; } = []; // References to shared dialogue
+        /// <summary>
+        /// Gets or sets the base statistics for this entity.
+        /// </summary>
         public EntityStats Stats { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents an item in the game world with its properties and statistics.
+    /// </summary>
     public class Item
     {
+        /// <summary>
+        /// Gets or sets the ID reference to the item's name in the string pool.
+        /// </summary>
         public int NameId { get; set; }          // Reference to string pool
+        /// <summary>
+        /// Gets or sets the ID reference to the item's description in the string pool.
+        /// </summary>
         public int DescriptionId { get; set; }   // Reference to string pool
+        /// <summary>
+        /// Gets or sets the statistics and attributes of the item.
+        /// </summary>
         public ItemStats Stats { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents a two-dimensional vector with X and Y coordinates.
+    /// </summary>
     public class Vector2
     {
+        /// <summary>
+        /// Gets or sets the X coordinate of the vector.
+        /// </summary>
         public float X { get; set; }
+        /// <summary>
+        /// Gets or sets the Y coordinate of the vector.
+        /// </summary>
         public float Y { get; set; }
     }
 
+    /// <summary>
+    /// Represents the base statistics for an entity in the game world.
+    /// </summary>
     public class EntityStats
     {
+        /// <summary>
+        /// Gets or sets the physical power and melee damage capability of the entity.
+        /// </summary>
         public int Strength { get; set; }
+        /// <summary>
+        /// Gets or sets the agility and precision of the entity.
+        /// </summary>
         public int Dexterity { get; set; }
+        /// <summary>
+        /// Gets or sets the mental capacity and magical ability of the entity.
+        /// </summary>
         public int Intelligence { get; set; }
+        /// <summary>
+        /// Gets or sets the damage resistance capability of the entity.
+        /// </summary>
         public int Defense { get; set; }
     }
 
+    /// <summary>
+    /// Represents the statistical properties of an item in the game world.
+    /// </summary>
     public class ItemStats
     {
+        /// <summary>
+        /// Gets or sets the monetary value of the item.
+        /// </summary>
         public int Value { get; set; }
+        /// <summary>
+        /// Gets or sets the weight of the item in arbitrary units.
+        /// </summary>
         public int Weight { get; set; }
+        /// <summary>
+        /// Gets or sets the durability rating of the item.
+        /// </summary>
         public int Durability { get; set; }
+        /// <summary>
+        /// Gets or sets the categorical type of the item.
+        /// </summary>
         public ItemType Type { get; set; }
     }
 
+    /// <summary>
+    /// Defines the different types of items that can exist in the game world.
+    /// </summary>
     public enum ItemType
     {
+        /// <summary>
+        /// Represents items that can be used to deal damage.
+        /// </summary>
         Weapon,
+        /// <summary>
+        /// Represents items that can be equipped for protection.
+        /// </summary>
         Armor,
+        /// <summary>
+        /// Represents items that can be used once for their effects.
+        /// </summary>
         Consumable,
+        /// <summary>
+        /// Represents items that are related to quests or missions.
+        /// </summary>
         Quest,
+        /// <summary>
+        /// Represents miscellaneous items that don't fit other categories.
+        /// </summary>
         Misc
     }
 }

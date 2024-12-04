@@ -1,0 +1,15 @@
+image: mcr.microsoft.com/dotnet/sdk:7.0
+
+variables:
+  GIT_DEPTH: "1"
+
+pages:
+  stage: deploy
+  script:
+    - dotnet tool install -g docfx
+    - pwsh ./build_docs.ps1 -Environment gitlab
+  artifacts:
+    paths:
+      - public
+  only:
+    - main

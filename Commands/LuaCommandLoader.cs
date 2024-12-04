@@ -1,48 +1,45 @@
 using NLua;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace RPG.Commands
 {
+    /// <summary>
+    /// Lua command loader, in charge of loading user and system commands from Lua scripts.
+    /// </summary>
     public class LuaCommandLoader
     {
         private readonly GameState _state;
-        private readonly LuaGameAPI _gameApi;
         private readonly Lua _lua;
         private readonly Assembly _assembly;
         private readonly string _userScriptsPath;
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="LuaCommandLoader"/> class.
+        /// </summary>
+        /// <param name="state">The current game state.</param>
         public LuaCommandLoader(GameState state)
         {
             _state = state;
             _lua = new Lua();
             _assembly = Assembly.GetExecutingAssembly();
-            
-            // Cross-platform app data path
-            string appDataPath = Environment.GetFolderPath(
-                Environment.OSVersion.Platform == PlatformID.Unix || 
-                Environment.OSVersion.Platform == PlatformID.MacOSX
-                    ? Environment.SpecialFolder.Personal
-                    : Environment.SpecialFolder.ApplicationData
-            );
-            
+
             _userScriptsPath = Path.Combine(
-                appDataPath,
-                Environment.OSVersion.Platform == PlatformID.Unix || 
-                Environment.OSVersion.Platform == PlatformID.MacOSX
-                    ? "Library/Application Support/DemoRPG/Scripts"
-                    : "DemoRPG/Scripts"
+                GetApplicationFolder(),
+                "Scripts"
             );
-            
-            // Create game API with our Lua instance
-            _gameApi = new LuaGameAPI(_state, _lua);
-            
-            // Register game API and types
+
+            LuaGameApi gameApi = new(_state, _lua);
+
             _lua.LoadCLRPackage();
-            _lua["game"] = _gameApi;
+            _lua["game"] = gameApi;
             _lua["KeepClrObject"] = true;
 
             // Load core library first
-            var coreScript = GetEmbeddedScript("core.lua");
+            string? coreScript = GetEmbeddedScript("core.lua");
             if (coreScript != null)
             {
                 _lua["core"] = _lua.DoString(coreScript)[0];
@@ -92,14 +89,30 @@ namespace RPG.Commands
             ");
         }
 
-        private string GetEmbeddedScript(string filename)
+        private static string GetApplicationFolder()
         {
-            var resourcePath = _assembly.GetManifestResourceNames().FirstOrDefault(r => r.EndsWith(filename));
+            return Environment.OSVersion.Platform switch
+            {
+                PlatformID.Unix => "demorpg",
+                PlatformID.MacOSX => "Library/Application Support/DemoRPG",
+                PlatformID.Win32NT => "DemoRPG",
+                PlatformID.Win32Windows => "DemoRPG",
+                PlatformID.Win32S => throw new PlatformNotSupportedException("Win32s is not supported"),
+                PlatformID.WinCE => throw new PlatformNotSupportedException("Windows CE is not supported"),
+                PlatformID.Xbox => throw new PlatformNotSupportedException("Xbox is not supported"),
+                PlatformID.Other => throw new PlatformNotSupportedException("Unknown platform"),
+                _ => throw new PlatformNotSupportedException("Unknown platform"),
+            };
+        }
+
+        private string? GetEmbeddedScript(string filename)
+        {
+            string? resourcePath = Array.Find(_assembly.GetManifestResourceNames(), r => r.EndsWith(filename));
             if (resourcePath == null) return null;
-            
-            using var stream = _assembly.GetManifestResourceStream(resourcePath);
+
+            using Stream? stream = _assembly.GetManifestResourceStream(resourcePath);
             if (stream == null) return null;
-            using var reader = new StreamReader(stream);
+            using StreamReader reader = new(stream);
             return reader.ReadToEnd();
         }
 
@@ -111,48 +124,69 @@ namespace RPG.Commands
                 yield break;
             }
 
-            foreach (var file in Directory.GetFiles(_userScriptsPath, "*.lua"))
+            foreach (string file in Directory.GetFiles(_userScriptsPath, "*.lua"))
             {
-                LuaTable chunk = null;
+                LuaCommand? command = null;
                 try
                 {
-                    chunk = _lua.DoFile(file)[0] as LuaTable;
+                    if (_lua.DoFile(file)[0] is not LuaTable chunk) continue;
+
+                    if (chunk["execute"] is not LuaFunction executeFunction) continue;
+
+                    command = new LuaCommand(
+                        chunk["name"] as string ?? "",
+                        chunk["description"] as string ?? "",
+                        executeFunction,
+                        (chunk["aliases"] as LuaTable)?.Values.Cast<string>().ToArray() ?? [],
+                        chunk["usage"] as string ?? "",
+                        chunk["category"] as string ?? "User Commands"
+                    );
                 }
                 catch (Exception ex)
                 {
                     _state.GameLog.Add($"Error loading user command {Path.GetFileName(file)}: {ex.Message}");
                 }
 
-                if (chunk != null)
+                if (command != null)
                 {
-                    yield return new LuaCommand(
-                        chunk["name"] as string ?? "",
-                        chunk["description"] as string ?? "",
-                        chunk["execute"] as LuaFunction,
-                        (chunk["aliases"] as LuaTable)?.Values.Cast<string>().ToArray() ?? Array.Empty<string>(),
-                        chunk["usage"] as string ?? "",
-                        chunk["category"] as string ?? "User Commands"
-                    );
+                    yield return command;
                 }
             }
         }
 
+        /// <summary>
+        /// Loads all available commands from embedded and user scripts.
+        /// </summary>
+        /// <returns>An enumerable collection of commands.</returns>
         public IEnumerable<ICommand> LoadCommands()
         {
             // Load embedded system commands
-            var resources = _assembly.GetManifestResourceNames()
+            IEnumerable<string> resources = _assembly.GetManifestResourceNames()
                 .Where(r => r.EndsWith(".lua"))
                 .Where(r => !r.EndsWith("core.lua"));
 
-            foreach (var resource in resources)
+            foreach (string resource in resources)
             {
-                LuaTable chunk = null;
+                LuaTable? chunk = null;
+                LuaCommand? command = null;
                 try
                 {
-                    string script = GetEmbeddedScript(Path.GetFileName(resource));
+                    string? script = GetEmbeddedScript(Path.GetFileName(resource));
                     if (script != null)
                     {
                         chunk = _lua.DoString(script)[0] as LuaTable;
+                        if (chunk == null) continue;
+
+                        if (chunk["execute"] is not LuaFunction executeFunction) continue;
+
+                        command = new LuaCommand(
+                            chunk["name"] as string ?? "",
+                            chunk["description"] as string ?? "",
+                            executeFunction,
+                            (chunk["aliases"] as LuaTable)?.Values.Cast<string>().ToArray() ?? [],
+                            chunk["usage"] as string ?? "",
+                            chunk["category"] as string ?? "General"
+                        );
                     }
                 }
                 catch (Exception ex)
@@ -160,21 +194,14 @@ namespace RPG.Commands
                     _state.GameLog.Add($"Error loading Lua command {resource}: {ex.Message}");
                 }
 
-                if (chunk != null)
+                if (command != null)
                 {
-                    yield return new LuaCommand(
-                        chunk["name"] as string ?? "",
-                        chunk["description"] as string ?? "",
-                        chunk["execute"] as LuaFunction,
-                        (chunk["aliases"] as LuaTable)?.Values.Cast<string>().ToArray() ?? Array.Empty<string>(),
-                        chunk["usage"] as string ?? "",
-                        chunk["category"] as string ?? "General"
-                    );
+                    yield return command;
                 }
             }
 
             // Load user commands
-            foreach (var command in LoadUserCommands())
+            foreach (ICommand command in LoadUserCommands())
             {
                 yield return command;
             }
