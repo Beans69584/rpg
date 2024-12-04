@@ -2,6 +2,7 @@ image: mcr.microsoft.com/dotnet/sdk:9.0
 
 variables:
   GIT_DEPTH: "1"
+  DOTNET_CLI_HOME: "/tmp"
 
 pages:
   stage: deploy
@@ -10,6 +11,8 @@ pages:
   script:
     - dotnet tool install -g docfx
     - pwsh ./build_docs.ps1 -Environment gitlab
+    - mkdir -p public
+    - mv ./_site/* public/
   artifacts:
     paths:
       - public
