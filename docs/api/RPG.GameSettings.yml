@@ -1,0 +1,727 @@
+### YamlMime:ManagedReference
+items:
+- uid: RPG.GameSettings
+  commentId: T:RPG.GameSettings
+  id: GameSettings
+  parent: RPG
+  children:
+  - RPG.GameSettings.#ctor
+  - RPG.GameSettings.CurrentLanguage
+  - RPG.GameSettings.Display
+  - RPG.GameSettings.FullScreen
+  - RPG.GameSettings.Instance
+  - RPG.GameSettings.Language
+  - RPG.GameSettings.Save
+  - RPG.GameSettings.UpdateLanguage(System.String)
+  - RPG.GameSettings.WindowHeight
+  - RPG.GameSettings.WindowWidth
+  langs:
+  - csharp
+  - vb
+  name: GameSettings
+  nameWithType: GameSettings
+  fullName: RPG.GameSettings
+  type: Class
+  source:
+    remote:
+      path: GameSettings.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GameSettings
+    path: ../GameSettings.cs
+    startLine: 48
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Game settings for the RPG game.
+  remarks: Initializes a new instance of the <xref href="RPG.GameSettings" data-throw-if-not-resolved="false"></xref> class.
+  example: []
+  syntax:
+    content: public class GameSettings
+    content.vb: Public Class GameSettings
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+- uid: RPG.GameSettings.#ctor
+  commentId: M:RPG.GameSettings.#ctor
+  id: '#ctor'
+  parent: RPG.GameSettings
+  langs:
+  - csharp
+  - vb
+  name: GameSettings()
+  nameWithType: GameSettings.GameSettings()
+  fullName: RPG.GameSettings.GameSettings()
+  type: Constructor
+  source:
+    remote:
+      path: GameSettings.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: .ctor
+    path: ../GameSettings.cs
+    startLine: 48
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Game settings for the RPG game.
+  remarks: Initializes a new instance of the <xref href="RPG.GameSettings" data-throw-if-not-resolved="false"></xref> class.
+  example: []
+  syntax:
+    content: >-
+      [JsonConstructor]
+
+      public GameSettings()
+    content.vb: >-
+      <JsonConstructor>
+
+      Public Sub New()
+  overload: RPG.GameSettings.#ctor*
+  attributes:
+  - type: System.Text.Json.Serialization.JsonConstructorAttribute
+    ctor: System.Text.Json.Serialization.JsonConstructorAttribute.#ctor
+    arguments: []
+  nameWithType.vb: GameSettings.New()
+  fullName.vb: RPG.GameSettings.New()
+  name.vb: New()
+- uid: RPG.GameSettings.Language
+  commentId: P:RPG.GameSettings.Language
+  id: Language
+  parent: RPG.GameSettings
+  langs:
+  - csharp
+  - vb
+  name: Language
+  nameWithType: GameSettings.Language
+  fullName: RPG.GameSettings.Language
+  type: Property
+  source:
+    remote:
+      path: GameSettings.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Language
+    path: ../GameSettings.cs
+    startLine: 82
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: The language code for the game.
+  example: []
+  syntax:
+    content: public string Language { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: Public Property Language As String
+  overload: RPG.GameSettings.Language*
+- uid: RPG.GameSettings.WindowWidth
+  commentId: P:RPG.GameSettings.WindowWidth
+  id: WindowWidth
+  parent: RPG.GameSettings
+  langs:
+  - csharp
+  - vb
+  name: WindowWidth
+  nameWithType: GameSettings.WindowWidth
+  fullName: RPG.GameSettings.WindowWidth
+  type: Property
+  source:
+    remote:
+      path: GameSettings.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: WindowWidth
+    path: ../GameSettings.cs
+    startLine: 86
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: The width of the game window.
+  example: []
+  syntax:
+    content: public int WindowWidth { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public Property WindowWidth As Integer
+  overload: RPG.GameSettings.WindowWidth*
+- uid: RPG.GameSettings.WindowHeight
+  commentId: P:RPG.GameSettings.WindowHeight
+  id: WindowHeight
+  parent: RPG.GameSettings
+  langs:
+  - csharp
+  - vb
+  name: WindowHeight
+  nameWithType: GameSettings.WindowHeight
+  fullName: RPG.GameSettings.WindowHeight
+  type: Property
+  source:
+    remote:
+      path: GameSettings.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: WindowHeight
+    path: ../GameSettings.cs
+    startLine: 90
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: The height of the game window.
+  example: []
+  syntax:
+    content: public int WindowHeight { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public Property WindowHeight As Integer
+  overload: RPG.GameSettings.WindowHeight*
+- uid: RPG.GameSettings.FullScreen
+  commentId: P:RPG.GameSettings.FullScreen
+  id: FullScreen
+  parent: RPG.GameSettings
+  langs:
+  - csharp
+  - vb
+  name: FullScreen
+  nameWithType: GameSettings.FullScreen
+  fullName: RPG.GameSettings.FullScreen
+  type: Property
+  source:
+    remote:
+      path: GameSettings.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: FullScreen
+    path: ../GameSettings.cs
+    startLine: 94
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Whether to run the game in full-screen mode.
+  example: []
+  syntax:
+    content: public bool FullScreen { get; set; }
+    parameters: []
+    return:
+      type: System.Boolean
+    content.vb: Public Property FullScreen As Boolean
+  overload: RPG.GameSettings.FullScreen*
+- uid: RPG.GameSettings.Display
+  commentId: P:RPG.GameSettings.Display
+  id: Display
+  parent: RPG.GameSettings
+  langs:
+  - csharp
+  - vb
+  name: Display
+  nameWithType: GameSettings.Display
+  fullName: RPG.GameSettings.Display
+  type: Property
+  source:
+    remote:
+      path: GameSettings.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Display
+    path: ../GameSettings.cs
+    startLine: 98
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: The display configuration for the game.
+  example: []
+  syntax:
+    content: public ConsoleDisplayConfig Display { get; set; }
+    parameters: []
+    return:
+      type: RPG.ConsoleDisplayConfig
+    content.vb: Public Property Display As ConsoleDisplayConfig
+  overload: RPG.GameSettings.Display*
+- uid: RPG.GameSettings.Instance
+  commentId: P:RPG.GameSettings.Instance
+  id: Instance
+  parent: RPG.GameSettings
+  langs:
+  - csharp
+  - vb
+  name: Instance
+  nameWithType: GameSettings.Instance
+  fullName: RPG.GameSettings.Instance
+  type: Property
+  source:
+    remote:
+      path: GameSettings.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Instance
+    path: ../GameSettings.cs
+    startLine: 104
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets the singleton instance of the <xref href="RPG.GameSettings" data-throw-if-not-resolved="false"></xref> class.
+  example: []
+  syntax:
+    content: public static GameSettings Instance { get; }
+    parameters: []
+    return:
+      type: RPG.GameSettings
+    content.vb: Public Shared ReadOnly Property Instance As GameSettings
+  overload: RPG.GameSettings.Instance*
+- uid: RPG.GameSettings.Save
+  commentId: M:RPG.GameSettings.Save
+  id: Save
+  parent: RPG.GameSettings
+  langs:
+  - csharp
+  - vb
+  name: Save()
+  nameWithType: GameSettings.Save()
+  fullName: RPG.GameSettings.Save()
+  type: Method
+  source:
+    remote:
+      path: GameSettings.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Save
+    path: ../GameSettings.cs
+    startLine: 116
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Saves the game settings to disk.
+  example: []
+  syntax:
+    content: public void Save()
+    content.vb: Public Sub Save()
+  overload: RPG.GameSettings.Save*
+- uid: RPG.GameSettings.CurrentLanguage
+  commentId: P:RPG.GameSettings.CurrentLanguage
+  id: CurrentLanguage
+  parent: RPG.GameSettings
+  langs:
+  - csharp
+  - vb
+  name: CurrentLanguage
+  nameWithType: GameSettings.CurrentLanguage
+  fullName: RPG.GameSettings.CurrentLanguage
+  type: Property
+  source:
+    remote:
+      path: GameSettings.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: CurrentLanguage
+    path: ../GameSettings.cs
+    startLine: 161
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the current language for the game.
+  example: []
+  syntax:
+    content: public static string CurrentLanguage { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: Public Shared Property CurrentLanguage As String
+  overload: RPG.GameSettings.CurrentLanguage*
+- uid: RPG.GameSettings.UpdateLanguage(System.String)
+  commentId: M:RPG.GameSettings.UpdateLanguage(System.String)
+  id: UpdateLanguage(System.String)
+  parent: RPG.GameSettings
+  langs:
+  - csharp
+  - vb
+  name: UpdateLanguage(string)
+  nameWithType: GameSettings.UpdateLanguage(string)
+  fullName: RPG.GameSettings.UpdateLanguage(string)
+  type: Method
+  source:
+    remote:
+      path: GameSettings.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: UpdateLanguage
+    path: ../GameSettings.cs
+    startLine: 179
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Updates the language for the game settings.
+  example: []
+  syntax:
+    content: public void UpdateLanguage(string language)
+    parameters:
+    - id: language
+      type: System.String
+      description: ''
+    content.vb: Public Sub UpdateLanguage(language As String)
+  overload: RPG.GameSettings.UpdateLanguage*
+  nameWithType.vb: GameSettings.UpdateLanguage(String)
+  fullName.vb: RPG.GameSettings.UpdateLanguage(String)
+  name.vb: UpdateLanguage(String)
+references:
+- uid: RPG.GameSettings
+  commentId: T:RPG.GameSettings
+  parent: RPG
+  href: RPG.GameSettings.html
+  name: GameSettings
+  nameWithType: GameSettings
+  fullName: RPG.GameSettings
+- uid: RPG
+  commentId: N:RPG
+  href: RPG.html
+  name: RPG
+  nameWithType: RPG
+  fullName: RPG
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: RPG.GameSettings.#ctor*
+  commentId: Overload:RPG.GameSettings.#ctor
+  href: RPG.GameSettings.html#RPG_GameSettings__ctor
+  name: GameSettings
+  nameWithType: GameSettings.GameSettings
+  fullName: RPG.GameSettings.GameSettings
+  nameWithType.vb: GameSettings.New
+  fullName.vb: RPG.GameSettings.New
+  name.vb: New
+- uid: RPG.GameSettings.Language*
+  commentId: Overload:RPG.GameSettings.Language
+  href: RPG.GameSettings.html#RPG_GameSettings_Language
+  name: Language
+  nameWithType: GameSettings.Language
+  fullName: RPG.GameSettings.Language
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: RPG.GameSettings.WindowWidth*
+  commentId: Overload:RPG.GameSettings.WindowWidth
+  href: RPG.GameSettings.html#RPG_GameSettings_WindowWidth
+  name: WindowWidth
+  nameWithType: GameSettings.WindowWidth
+  fullName: RPG.GameSettings.WindowWidth
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int32
+  name: int
+  nameWithType: int
+  fullName: int
+  nameWithType.vb: Integer
+  fullName.vb: Integer
+  name.vb: Integer
+- uid: RPG.GameSettings.WindowHeight*
+  commentId: Overload:RPG.GameSettings.WindowHeight
+  href: RPG.GameSettings.html#RPG_GameSettings_WindowHeight
+  name: WindowHeight
+  nameWithType: GameSettings.WindowHeight
+  fullName: RPG.GameSettings.WindowHeight
+- uid: RPG.GameSettings.FullScreen*
+  commentId: Overload:RPG.GameSettings.FullScreen
+  href: RPG.GameSettings.html#RPG_GameSettings_FullScreen
+  name: FullScreen
+  nameWithType: GameSettings.FullScreen
+  fullName: RPG.GameSettings.FullScreen
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.boolean
+  name: bool
+  nameWithType: bool
+  fullName: bool
+  nameWithType.vb: Boolean
+  fullName.vb: Boolean
+  name.vb: Boolean
+- uid: RPG.GameSettings.Display*
+  commentId: Overload:RPG.GameSettings.Display
+  href: RPG.GameSettings.html#RPG_GameSettings_Display
+  name: Display
+  nameWithType: GameSettings.Display
+  fullName: RPG.GameSettings.Display
+- uid: RPG.ConsoleDisplayConfig
+  commentId: T:RPG.ConsoleDisplayConfig
+  parent: RPG
+  href: RPG.ConsoleDisplayConfig.html
+  name: ConsoleDisplayConfig
+  nameWithType: ConsoleDisplayConfig
+  fullName: RPG.ConsoleDisplayConfig
+- uid: RPG.GameSettings.Instance*
+  commentId: Overload:RPG.GameSettings.Instance
+  href: RPG.GameSettings.html#RPG_GameSettings_Instance
+  name: Instance
+  nameWithType: GameSettings.Instance
+  fullName: RPG.GameSettings.Instance
+- uid: RPG.GameSettings.Save*
+  commentId: Overload:RPG.GameSettings.Save
+  href: RPG.GameSettings.html#RPG_GameSettings_Save
+  name: Save
+  nameWithType: GameSettings.Save
+  fullName: RPG.GameSettings.Save
+- uid: RPG.GameSettings.CurrentLanguage*
+  commentId: Overload:RPG.GameSettings.CurrentLanguage
+  href: RPG.GameSettings.html#RPG_GameSettings_CurrentLanguage
+  name: CurrentLanguage
+  nameWithType: GameSettings.CurrentLanguage
+  fullName: RPG.GameSettings.CurrentLanguage
+- uid: RPG.GameSettings.UpdateLanguage*
+  commentId: Overload:RPG.GameSettings.UpdateLanguage
+  href: RPG.GameSettings.html#RPG_GameSettings_UpdateLanguage_System_String_
+  name: UpdateLanguage
+  nameWithType: GameSettings.UpdateLanguage
+  fullName: RPG.GameSettings.UpdateLanguage

@@ -1,0 +1,621 @@
+### YamlMime:ManagedReference
+items:
+- uid: RPG.Header
+  commentId: T:RPG.Header
+  id: Header
+  parent: RPG
+  children:
+  - RPG.Header.CreatedAt
+  - RPG.Header.Description
+  - RPG.Header.ItemCount
+  - RPG.Header.Magic
+  - RPG.Header.NPCCount
+  - RPG.Header.Name
+  - RPG.Header.RegionCount
+  - RPG.Header.Version
+  langs:
+  - csharp
+  - vb
+  name: Header
+  nameWithType: Header
+  fullName: RPG.Header
+  type: Class
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Header
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 977
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Represents the header information for a generated world file.
+  example: []
+  syntax:
+    content: public class Header
+    content.vb: Public Class Header
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+- uid: RPG.Header.Magic
+  commentId: P:RPG.Header.Magic
+  id: Magic
+  parent: RPG.Header
+  langs:
+  - csharp
+  - vb
+  name: Magic
+  nameWithType: Header.Magic
+  fullName: RPG.Header.Magic
+  type: Property
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Magic
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 982
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the magic number identifying the file format.
+  example: []
+  syntax:
+    content: public string Magic { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: Public Property Magic As String
+  overload: RPG.Header.Magic*
+- uid: RPG.Header.Name
+  commentId: P:RPG.Header.Name
+  id: Name
+  parent: RPG.Header
+  langs:
+  - csharp
+  - vb
+  name: Name
+  nameWithType: Header.Name
+  fullName: RPG.Header.Name
+  type: Property
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Name
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 987
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the name of the world.
+  example: []
+  syntax:
+    content: public string Name { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: Public Property Name As String
+  overload: RPG.Header.Name*
+- uid: RPG.Header.Description
+  commentId: P:RPG.Header.Description
+  id: Description
+  parent: RPG.Header
+  langs:
+  - csharp
+  - vb
+  name: Description
+  nameWithType: Header.Description
+  fullName: RPG.Header.Description
+  type: Property
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Description
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 992
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the description of the world.
+  example: []
+  syntax:
+    content: public string Description { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: Public Property Description As String
+  overload: RPG.Header.Description*
+- uid: RPG.Header.Version
+  commentId: P:RPG.Header.Version
+  id: Version
+  parent: RPG.Header
+  langs:
+  - csharp
+  - vb
+  name: Version
+  nameWithType: Header.Version
+  fullName: RPG.Header.Version
+  type: Property
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Version
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 997
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the version of the world format.
+  example: []
+  syntax:
+    content: public string Version { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: Public Property Version As String
+  overload: RPG.Header.Version*
+- uid: RPG.Header.CreatedAt
+  commentId: P:RPG.Header.CreatedAt
+  id: CreatedAt
+  parent: RPG.Header
+  langs:
+  - csharp
+  - vb
+  name: CreatedAt
+  nameWithType: Header.CreatedAt
+  fullName: RPG.Header.CreatedAt
+  type: Property
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: CreatedAt
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 1002
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the creation timestamp of the world.
+  example: []
+  syntax:
+    content: public DateTime CreatedAt { get; set; }
+    parameters: []
+    return:
+      type: System.DateTime
+    content.vb: Public Property CreatedAt As Date
+  overload: RPG.Header.CreatedAt*
+- uid: RPG.Header.RegionCount
+  commentId: P:RPG.Header.RegionCount
+  id: RegionCount
+  parent: RPG.Header
+  langs:
+  - csharp
+  - vb
+  name: RegionCount
+  nameWithType: Header.RegionCount
+  fullName: RPG.Header.RegionCount
+  type: Property
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: RegionCount
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 1007
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the total number of regions in the world.
+  example: []
+  syntax:
+    content: public int RegionCount { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public Property RegionCount As Integer
+  overload: RPG.Header.RegionCount*
+- uid: RPG.Header.NPCCount
+  commentId: P:RPG.Header.NPCCount
+  id: NPCCount
+  parent: RPG.Header
+  langs:
+  - csharp
+  - vb
+  name: NPCCount
+  nameWithType: Header.NPCCount
+  fullName: RPG.Header.NPCCount
+  type: Property
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: NPCCount
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 1012
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the total number of NPCs in the world.
+  example: []
+  syntax:
+    content: public int NPCCount { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public Property NPCCount As Integer
+  overload: RPG.Header.NPCCount*
+- uid: RPG.Header.ItemCount
+  commentId: P:RPG.Header.ItemCount
+  id: ItemCount
+  parent: RPG.Header
+  langs:
+  - csharp
+  - vb
+  name: ItemCount
+  nameWithType: Header.ItemCount
+  fullName: RPG.Header.ItemCount
+  type: Property
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: ItemCount
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 1017
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the total number of items in the world.
+  example: []
+  syntax:
+    content: public int ItemCount { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public Property ItemCount As Integer
+  overload: RPG.Header.ItemCount*
+references:
+- uid: RPG
+  commentId: N:RPG
+  href: RPG.html
+  name: RPG
+  nameWithType: RPG
+  fullName: RPG
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: RPG.Header.Magic*
+  commentId: Overload:RPG.Header.Magic
+  href: RPG.Header.html#RPG_Header_Magic
+  name: Magic
+  nameWithType: Header.Magic
+  fullName: RPG.Header.Magic
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: RPG.Header.Name*
+  commentId: Overload:RPG.Header.Name
+  href: RPG.Header.html#RPG_Header_Name
+  name: Name
+  nameWithType: Header.Name
+  fullName: RPG.Header.Name
+- uid: RPG.Header.Description*
+  commentId: Overload:RPG.Header.Description
+  href: RPG.Header.html#RPG_Header_Description
+  name: Description
+  nameWithType: Header.Description
+  fullName: RPG.Header.Description
+- uid: RPG.Header.Version*
+  commentId: Overload:RPG.Header.Version
+  href: RPG.Header.html#RPG_Header_Version
+  name: Version
+  nameWithType: Header.Version
+  fullName: RPG.Header.Version
+- uid: RPG.Header.CreatedAt*
+  commentId: Overload:RPG.Header.CreatedAt
+  href: RPG.Header.html#RPG_Header_CreatedAt
+  name: CreatedAt
+  nameWithType: Header.CreatedAt
+  fullName: RPG.Header.CreatedAt
+- uid: System.DateTime
+  commentId: T:System.DateTime
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.datetime
+  name: DateTime
+  nameWithType: DateTime
+  fullName: System.DateTime
+  nameWithType.vb: Date
+  fullName.vb: Date
+  name.vb: Date
+- uid: RPG.Header.RegionCount*
+  commentId: Overload:RPG.Header.RegionCount
+  href: RPG.Header.html#RPG_Header_RegionCount
+  name: RegionCount
+  nameWithType: Header.RegionCount
+  fullName: RPG.Header.RegionCount
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int32
+  name: int
+  nameWithType: int
+  fullName: int
+  nameWithType.vb: Integer
+  fullName.vb: Integer
+  name.vb: Integer
+- uid: RPG.Header.NPCCount*
+  commentId: Overload:RPG.Header.NPCCount
+  href: RPG.Header.html#RPG_Header_NPCCount
+  name: NPCCount
+  nameWithType: Header.NPCCount
+  fullName: RPG.Header.NPCCount
+- uid: RPG.Header.ItemCount*
+  commentId: Overload:RPG.Header.ItemCount
+  href: RPG.Header.html#RPG_Header_ItemCount
+  name: ItemCount
+  nameWithType: Header.ItemCount
+  fullName: RPG.Header.ItemCount

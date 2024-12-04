@@ -1,0 +1,518 @@
+### YamlMime:ManagedReference
+items:
+- uid: RPG.ColoredText
+  commentId: T:RPG.ColoredText
+  id: ColoredText
+  parent: RPG
+  children:
+  - RPG.ColoredText.#ctor(System.String,System.ConsoleColor)
+  - RPG.ColoredText.Color
+  - RPG.ColoredText.Text
+  - RPG.ColoredText.op_Implicit(System.String)~RPG.ColoredText
+  langs:
+  - csharp
+  - vb
+  name: ColoredText
+  nameWithType: ColoredText
+  fullName: RPG.ColoredText
+  type: Struct
+  source:
+    remote:
+      path: GameState.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: ColoredText
+    path: ../GameState.cs
+    startLine: 9
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Represents a colored text entry in the game log.
+  example: []
+  syntax:
+    content: 'public record struct ColoredText : IEquatable<ColoredText>'
+    content.vb: Public Structure ColoredText Implements IEquatable(Of ColoredText)
+  implements:
+  - System.IEquatable{RPG.ColoredText}
+  inheritedMembers:
+  - System.ValueType.Equals(System.Object)
+  - System.ValueType.GetHashCode
+  - System.ValueType.ToString
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetType
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+- uid: RPG.ColoredText.#ctor(System.String,System.ConsoleColor)
+  commentId: M:RPG.ColoredText.#ctor(System.String,System.ConsoleColor)
+  id: '#ctor(System.String,System.ConsoleColor)'
+  parent: RPG.ColoredText
+  langs:
+  - csharp
+  - vb
+  name: ColoredText(string, ConsoleColor)
+  nameWithType: ColoredText.ColoredText(string, ConsoleColor)
+  fullName: RPG.ColoredText.ColoredText(string, System.ConsoleColor)
+  type: Constructor
+  source:
+    remote:
+      path: GameState.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: .ctor
+    path: ../GameState.cs
+    startLine: 9
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Represents a colored text entry in the game log.
+  example: []
+  syntax:
+    content: public ColoredText(string Text, ConsoleColor Color = ConsoleColor.Gray)
+    parameters:
+    - id: Text
+      type: System.String
+    - id: Color
+      type: System.ConsoleColor
+    content.vb: Public Sub New(Text As String, Color As ConsoleColor = ConsoleColor.Gray)
+  overload: RPG.ColoredText.#ctor*
+  nameWithType.vb: ColoredText.New(String, ConsoleColor)
+  fullName.vb: RPG.ColoredText.New(String, System.ConsoleColor)
+  name.vb: New(String, ConsoleColor)
+- uid: RPG.ColoredText.Text
+  commentId: P:RPG.ColoredText.Text
+  id: Text
+  parent: RPG.ColoredText
+  langs:
+  - csharp
+  - vb
+  name: Text
+  nameWithType: ColoredText.Text
+  fullName: RPG.ColoredText.Text
+  type: Property
+  source:
+    remote:
+      path: GameState.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Text
+    path: ../GameState.cs
+    startLine: 9
+  assemblies:
+  - RPG
+  namespace: RPG
+  syntax:
+    content: public string Text { readonly get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: Public Property Text As String
+  overload: RPG.ColoredText.Text*
+- uid: RPG.ColoredText.Color
+  commentId: P:RPG.ColoredText.Color
+  id: Color
+  parent: RPG.ColoredText
+  langs:
+  - csharp
+  - vb
+  name: Color
+  nameWithType: ColoredText.Color
+  fullName: RPG.ColoredText.Color
+  type: Property
+  source:
+    remote:
+      path: GameState.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Color
+    path: ../GameState.cs
+    startLine: 9
+  assemblies:
+  - RPG
+  namespace: RPG
+  syntax:
+    content: public ConsoleColor Color { readonly get; set; }
+    parameters: []
+    return:
+      type: System.ConsoleColor
+    content.vb: Public Property Color As ConsoleColor
+  overload: RPG.ColoredText.Color*
+- uid: RPG.ColoredText.op_Implicit(System.String)~RPG.ColoredText
+  commentId: M:RPG.ColoredText.op_Implicit(System.String)~RPG.ColoredText
+  id: op_Implicit(System.String)~RPG.ColoredText
+  parent: RPG.ColoredText
+  langs:
+  - csharp
+  - vb
+  name: implicit operator ColoredText(string)
+  nameWithType: ColoredText.implicit operator ColoredText(string)
+  fullName: RPG.ColoredText.implicit operator RPG.ColoredText(string)
+  type: Operator
+  source:
+    remote:
+      path: GameState.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: op_Implicit
+    path: ../GameState.cs
+    startLine: 15
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Implicitly converts a string to ColoredText with default color.
+  example: []
+  syntax:
+    content: public static implicit operator ColoredText(string text)
+    parameters:
+    - id: text
+      type: System.String
+      description: The text to convert.
+    return:
+      type: RPG.ColoredText
+    content.vb: Public Shared Widening Operator CType(text As String) As ColoredText
+  overload: RPG.ColoredText.op_Implicit*
+  nameWithType.vb: ColoredText.CType(String)
+  fullName.vb: RPG.ColoredText.CType(String)
+  name.vb: CType(String)
+references:
+- uid: RPG
+  commentId: N:RPG
+  href: RPG.html
+  name: RPG
+  nameWithType: RPG
+  fullName: RPG
+- uid: System.IEquatable{RPG.ColoredText}
+  commentId: T:System.IEquatable{RPG.ColoredText}
+  parent: System
+  definition: System.IEquatable`1
+  href: https://learn.microsoft.com/dotnet/api/system.iequatable-1
+  name: IEquatable<ColoredText>
+  nameWithType: IEquatable<ColoredText>
+  fullName: System.IEquatable<RPG.ColoredText>
+  nameWithType.vb: IEquatable(Of ColoredText)
+  fullName.vb: System.IEquatable(Of RPG.ColoredText)
+  name.vb: IEquatable(Of ColoredText)
+  spec.csharp:
+  - uid: System.IEquatable`1
+    name: IEquatable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.iequatable-1
+  - name: <
+  - uid: RPG.ColoredText
+    name: ColoredText
+    href: RPG.ColoredText.html
+  - name: '>'
+  spec.vb:
+  - uid: System.IEquatable`1
+    name: IEquatable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.iequatable-1
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: RPG.ColoredText
+    name: ColoredText
+    href: RPG.ColoredText.html
+  - name: )
+- uid: System.ValueType.Equals(System.Object)
+  commentId: M:System.ValueType.Equals(System.Object)
+  parent: System.ValueType
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.valuetype.equals
+  name: Equals(object)
+  nameWithType: ValueType.Equals(object)
+  fullName: System.ValueType.Equals(object)
+  nameWithType.vb: ValueType.Equals(Object)
+  fullName.vb: System.ValueType.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.ValueType.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.valuetype.equals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.ValueType.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.valuetype.equals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.ValueType.GetHashCode
+  commentId: M:System.ValueType.GetHashCode
+  parent: System.ValueType
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.valuetype.gethashcode
+  name: GetHashCode()
+  nameWithType: ValueType.GetHashCode()
+  fullName: System.ValueType.GetHashCode()
+  spec.csharp:
+  - uid: System.ValueType.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.valuetype.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.ValueType.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.valuetype.gethashcode
+  - name: (
+  - name: )
+- uid: System.ValueType.ToString
+  commentId: M:System.ValueType.ToString
+  parent: System.ValueType
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.valuetype.tostring
+  name: ToString()
+  nameWithType: ValueType.ToString()
+  fullName: System.ValueType.ToString()
+  spec.csharp:
+  - uid: System.ValueType.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.valuetype.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.ValueType.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.valuetype.tostring
+  - name: (
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.IEquatable`1
+  commentId: T:System.IEquatable`1
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.iequatable-1
+  name: IEquatable<T>
+  nameWithType: IEquatable<T>
+  fullName: System.IEquatable<T>
+  nameWithType.vb: IEquatable(Of T)
+  fullName.vb: System.IEquatable(Of T)
+  name.vb: IEquatable(Of T)
+  spec.csharp:
+  - uid: System.IEquatable`1
+    name: IEquatable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.iequatable-1
+  - name: <
+  - name: T
+  - name: '>'
+  spec.vb:
+  - uid: System.IEquatable`1
+    name: IEquatable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.iequatable-1
+  - name: (
+  - name: Of
+  - name: " "
+  - name: T
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: System.ValueType
+  commentId: T:System.ValueType
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.valuetype
+  name: ValueType
+  nameWithType: ValueType
+  fullName: System.ValueType
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: RPG.ColoredText.#ctor*
+  commentId: Overload:RPG.ColoredText.#ctor
+  href: RPG.ColoredText.html#RPG_ColoredText__ctor_System_String_System_ConsoleColor_
+  name: ColoredText
+  nameWithType: ColoredText.ColoredText
+  fullName: RPG.ColoredText.ColoredText
+  nameWithType.vb: ColoredText.New
+  fullName.vb: RPG.ColoredText.New
+  name.vb: New
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: System.ConsoleColor
+  commentId: T:System.ConsoleColor
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.consolecolor
+  name: ConsoleColor
+  nameWithType: ConsoleColor
+  fullName: System.ConsoleColor
+- uid: RPG.ColoredText.Text*
+  commentId: Overload:RPG.ColoredText.Text
+  href: RPG.ColoredText.html#RPG_ColoredText_Text
+  name: Text
+  nameWithType: ColoredText.Text
+  fullName: RPG.ColoredText.Text
+- uid: RPG.ColoredText.Color*
+  commentId: Overload:RPG.ColoredText.Color
+  href: RPG.ColoredText.html#RPG_ColoredText_Color
+  name: Color
+  nameWithType: ColoredText.Color
+  fullName: RPG.ColoredText.Color
+- uid: RPG.ColoredText.op_Implicit*
+  commentId: Overload:RPG.ColoredText.op_Implicit
+  name: implicit operator
+  nameWithType: ColoredText.implicit operator
+  fullName: RPG.ColoredText.implicit operator
+  nameWithType.vb: ColoredText.CType
+  fullName.vb: RPG.ColoredText.CType
+  name.vb: CType
+  spec.csharp:
+  - name: implicit
+  - name: " "
+  - name: operator
+- uid: RPG.ColoredText
+  commentId: T:RPG.ColoredText
+  parent: RPG
+  href: RPG.ColoredText.html
+  name: ColoredText
+  nameWithType: ColoredText
+  fullName: RPG.ColoredText

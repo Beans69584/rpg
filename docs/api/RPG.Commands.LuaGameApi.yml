@@ -1,0 +1,1794 @@
+### YamlMime:ManagedReference
+items:
+- uid: RPG.Commands.LuaGameApi
+  commentId: T:RPG.Commands.LuaGameApi
+  id: LuaGameApi
+  parent: RPG.Commands
+  children:
+  - RPG.Commands.LuaGameApi.#ctor(RPG.GameState,NLua.Lua)
+  - RPG.Commands.LuaGameApi.AskQuestion(System.String)
+  - RPG.Commands.LuaGameApi.CalculateTravelTime(RPG.Commands.RegionWrapper,RPG.Commands.RegionWrapper)
+  - RPG.Commands.LuaGameApi.ClearLog
+  - RPG.Commands.LuaGameApi.GetConnectedRegions
+  - RPG.Commands.LuaGameApi.GetConnectedRegions(RPG.WorldRegion)
+  - RPG.Commands.LuaGameApi.GetCurrentLocation
+  - RPG.Commands.LuaGameApi.GetCurrentRegion
+  - RPG.Commands.LuaGameApi.GetDistanceBetweenRegions(RPG.Commands.RegionWrapper,RPG.Commands.RegionWrapper)
+  - RPG.Commands.LuaGameApi.GetLocationsInRegion
+  - RPG.Commands.LuaGameApi.GetPlayerHP
+  - RPG.Commands.LuaGameApi.GetPlayerLevel
+  - RPG.Commands.LuaGameApi.GetPlayerMaxHP
+  - RPG.Commands.LuaGameApi.GetPlayerName
+  - RPG.Commands.LuaGameApi.GetRandomNumber(System.Int32,System.Int32)
+  - RPG.Commands.LuaGameApi.GetRegionDescription(RPG.WorldRegion)
+  - RPG.Commands.LuaGameApi.GetRegionName(RPG.WorldRegion)
+  - RPG.Commands.LuaGameApi.GetRegionPosition(RPG.Commands.RegionWrapper)
+  - RPG.Commands.LuaGameApi.LocationNameMatches(RPG.Commands.LocationWrapper,System.String)
+  - RPG.Commands.LuaGameApi.Log(System.String)
+  - RPG.Commands.LuaGameApi.LogColor(System.String,System.String)
+  - RPG.Commands.LuaGameApi.NavigateToLocation(RPG.Commands.LocationWrapper)
+  - RPG.Commands.LuaGameApi.RegionNameMatches(RPG.Commands.RegionWrapper,System.String)
+  - RPG.Commands.LuaGameApi.RollDice(System.Int32)
+  - RPG.Commands.LuaGameApi.SetCurrentLocation(RPG.Commands.LocationWrapper)
+  - RPG.Commands.LuaGameApi.SetCurrentRegion(RPG.Commands.RegionWrapper)
+  - RPG.Commands.LuaGameApi.SetPlayerHP(System.Int32)
+  - RPG.Commands.LuaGameApi.SetPlayerLevel(System.Int32)
+  - RPG.Commands.LuaGameApi.SetPlayerMaxHP(System.Int32)
+  - RPG.Commands.LuaGameApi.SetPlayerName(System.String)
+  - RPG.Commands.LuaGameApi.SimulateTravelTime(System.Int32)
+  - RPG.Commands.LuaGameApi.SimulateTravelTimeWithProgress(System.Int32,System.Single)
+  - RPG.Commands.LuaGameApi.Sleep(System.Int32)
+  langs:
+  - csharp
+  - vb
+  name: LuaGameApi
+  nameWithType: LuaGameApi
+  fullName: RPG.Commands.LuaGameApi
+  type: Class
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: LuaGameApi
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 17
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Represents a Lua game API that abstracts game state and provides helper methods for Lua scripts.
+  remarks: Initialises a new instance of the <xref href="RPG.Commands.LuaGameApi" data-throw-if-not-resolved="false"></xref> class.
+  example: []
+  syntax:
+    content: public class LuaGameApi
+    content.vb: Public Class LuaGameApi
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+- uid: RPG.Commands.LuaGameApi.#ctor(RPG.GameState,NLua.Lua)
+  commentId: M:RPG.Commands.LuaGameApi.#ctor(RPG.GameState,NLua.Lua)
+  id: '#ctor(RPG.GameState,NLua.Lua)'
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: LuaGameApi(GameState, Lua)
+  nameWithType: LuaGameApi.LuaGameApi(GameState, Lua)
+  fullName: RPG.Commands.LuaGameApi.LuaGameApi(RPG.GameState, NLua.Lua)
+  type: Constructor
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: .ctor
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 17
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Represents a Lua game API that abstracts game state and provides helper methods for Lua scripts.
+  remarks: Initialises a new instance of the <xref href="RPG.Commands.LuaGameApi" data-throw-if-not-resolved="false"></xref> class.
+  example: []
+  syntax:
+    content: public LuaGameApi(GameState state, Lua lua)
+    parameters:
+    - id: state
+      type: RPG.GameState
+      description: The current game state.
+    - id: lua
+      type: NLua.Lua
+      description: The Lua interpreter to use.
+    content.vb: Public Sub New(state As GameState, lua As Lua)
+  overload: RPG.Commands.LuaGameApi.#ctor*
+  nameWithType.vb: LuaGameApi.New(GameState, Lua)
+  fullName.vb: RPG.Commands.LuaGameApi.New(RPG.GameState, NLua.Lua)
+  name.vb: New(GameState, Lua)
+- uid: RPG.Commands.LuaGameApi.Log(System.String)
+  commentId: M:RPG.Commands.LuaGameApi.Log(System.String)
+  id: Log(System.String)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: Log(string)
+  nameWithType: LuaGameApi.Log(string)
+  fullName: RPG.Commands.LuaGameApi.Log(string)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Log
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 28
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Logs a message to the game log.
+  example: []
+  syntax:
+    content: public void Log(string message)
+    parameters:
+    - id: message
+      type: System.String
+      description: The message to log.
+    content.vb: Public Sub Log(message As String)
+  overload: RPG.Commands.LuaGameApi.Log*
+  nameWithType.vb: LuaGameApi.Log(String)
+  fullName.vb: RPG.Commands.LuaGameApi.Log(String)
+  name.vb: Log(String)
+- uid: RPG.Commands.LuaGameApi.LogColor(System.String,System.String)
+  commentId: M:RPG.Commands.LuaGameApi.LogColor(System.String,System.String)
+  id: LogColor(System.String,System.String)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: LogColor(string, string)
+  nameWithType: LuaGameApi.LogColor(string, string)
+  fullName: RPG.Commands.LuaGameApi.LogColor(string, string)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: LogColor
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 38
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Logs a message to the game log with a specified color.
+  example: []
+  syntax:
+    content: public void LogColor(string message, string color)
+    parameters:
+    - id: message
+      type: System.String
+      description: The message to log.
+    - id: color
+      type: System.String
+      description: The color name (e.g., "red", "blue", "green", etc.)
+    content.vb: Public Sub LogColor(message As String, color As String)
+  overload: RPG.Commands.LuaGameApi.LogColor*
+  nameWithType.vb: LuaGameApi.LogColor(String, String)
+  fullName.vb: RPG.Commands.LuaGameApi.LogColor(String, String)
+  name.vb: LogColor(String, String)
+- uid: RPG.Commands.LuaGameApi.ClearLog
+  commentId: M:RPG.Commands.LuaGameApi.ClearLog
+  id: ClearLog
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: ClearLog()
+  nameWithType: LuaGameApi.ClearLog()
+  fullName: RPG.Commands.LuaGameApi.ClearLog()
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: ClearLog
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 60
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Clears the game log.
+  example: []
+  syntax:
+    content: public void ClearLog()
+    content.vb: Public Sub ClearLog()
+  overload: RPG.Commands.LuaGameApi.ClearLog*
+- uid: RPG.Commands.LuaGameApi.GetPlayerName
+  commentId: M:RPG.Commands.LuaGameApi.GetPlayerName
+  id: GetPlayerName
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: GetPlayerName()
+  nameWithType: LuaGameApi.GetPlayerName()
+  fullName: RPG.Commands.LuaGameApi.GetPlayerName()
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetPlayerName
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 68
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the player's name.
+  example: []
+  syntax:
+    content: public string GetPlayerName()
+    return:
+      type: System.String
+    content.vb: Public Function GetPlayerName() As String
+  overload: RPG.Commands.LuaGameApi.GetPlayerName*
+- uid: RPG.Commands.LuaGameApi.SetPlayerName(System.String)
+  commentId: M:RPG.Commands.LuaGameApi.SetPlayerName(System.String)
+  id: SetPlayerName(System.String)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: SetPlayerName(string)
+  nameWithType: LuaGameApi.SetPlayerName(string)
+  fullName: RPG.Commands.LuaGameApi.SetPlayerName(string)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: SetPlayerName
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 76
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Sets the player's name.
+  example: []
+  syntax:
+    content: public void SetPlayerName(string name)
+    parameters:
+    - id: name
+      type: System.String
+    content.vb: Public Sub SetPlayerName(name As String)
+  overload: RPG.Commands.LuaGameApi.SetPlayerName*
+  nameWithType.vb: LuaGameApi.SetPlayerName(String)
+  fullName.vb: RPG.Commands.LuaGameApi.SetPlayerName(String)
+  name.vb: SetPlayerName(String)
+- uid: RPG.Commands.LuaGameApi.GetPlayerHP
+  commentId: M:RPG.Commands.LuaGameApi.GetPlayerHP
+  id: GetPlayerHP
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: GetPlayerHP()
+  nameWithType: LuaGameApi.GetPlayerHP()
+  fullName: RPG.Commands.LuaGameApi.GetPlayerHP()
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetPlayerHP
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 84
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the player's health points.
+  example: []
+  syntax:
+    content: public int GetPlayerHP()
+    return:
+      type: System.Int32
+    content.vb: Public Function GetPlayerHP() As Integer
+  overload: RPG.Commands.LuaGameApi.GetPlayerHP*
+- uid: RPG.Commands.LuaGameApi.SetPlayerHP(System.Int32)
+  commentId: M:RPG.Commands.LuaGameApi.SetPlayerHP(System.Int32)
+  id: SetPlayerHP(System.Int32)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: SetPlayerHP(int)
+  nameWithType: LuaGameApi.SetPlayerHP(int)
+  fullName: RPG.Commands.LuaGameApi.SetPlayerHP(int)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: SetPlayerHP
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 92
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Sets the player's health points.
+  example: []
+  syntax:
+    content: public void SetPlayerHP(int hp)
+    parameters:
+    - id: hp
+      type: System.Int32
+    content.vb: Public Sub SetPlayerHP(hp As Integer)
+  overload: RPG.Commands.LuaGameApi.SetPlayerHP*
+  nameWithType.vb: LuaGameApi.SetPlayerHP(Integer)
+  fullName.vb: RPG.Commands.LuaGameApi.SetPlayerHP(Integer)
+  name.vb: SetPlayerHP(Integer)
+- uid: RPG.Commands.LuaGameApi.GetPlayerMaxHP
+  commentId: M:RPG.Commands.LuaGameApi.GetPlayerMaxHP
+  id: GetPlayerMaxHP
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: GetPlayerMaxHP()
+  nameWithType: LuaGameApi.GetPlayerMaxHP()
+  fullName: RPG.Commands.LuaGameApi.GetPlayerMaxHP()
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetPlayerMaxHP
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 101
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the player's maximum health points.
+  example: []
+  syntax:
+    content: public int GetPlayerMaxHP()
+    return:
+      type: System.Int32
+      description: The player's maximum health points.
+    content.vb: Public Function GetPlayerMaxHP() As Integer
+  overload: RPG.Commands.LuaGameApi.GetPlayerMaxHP*
+- uid: RPG.Commands.LuaGameApi.SetPlayerMaxHP(System.Int32)
+  commentId: M:RPG.Commands.LuaGameApi.SetPlayerMaxHP(System.Int32)
+  id: SetPlayerMaxHP(System.Int32)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: SetPlayerMaxHP(int)
+  nameWithType: LuaGameApi.SetPlayerMaxHP(int)
+  fullName: RPG.Commands.LuaGameApi.SetPlayerMaxHP(int)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: SetPlayerMaxHP
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 110
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Sets the player's maximum health points.
+  example: []
+  syntax:
+    content: public void SetPlayerMaxHP(int maxHp)
+    parameters:
+    - id: maxHp
+      type: System.Int32
+      description: The maximum health points to set.
+    content.vb: Public Sub SetPlayerMaxHP(maxHp As Integer)
+  overload: RPG.Commands.LuaGameApi.SetPlayerMaxHP*
+  nameWithType.vb: LuaGameApi.SetPlayerMaxHP(Integer)
+  fullName.vb: RPG.Commands.LuaGameApi.SetPlayerMaxHP(Integer)
+  name.vb: SetPlayerMaxHP(Integer)
+- uid: RPG.Commands.LuaGameApi.GetPlayerLevel
+  commentId: M:RPG.Commands.LuaGameApi.GetPlayerLevel
+  id: GetPlayerLevel
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: GetPlayerLevel()
+  nameWithType: LuaGameApi.GetPlayerLevel()
+  fullName: RPG.Commands.LuaGameApi.GetPlayerLevel()
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetPlayerLevel
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 119
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the player's level.
+  example: []
+  syntax:
+    content: public int GetPlayerLevel()
+    return:
+      type: System.Int32
+      description: The player's level.
+    content.vb: Public Function GetPlayerLevel() As Integer
+  overload: RPG.Commands.LuaGameApi.GetPlayerLevel*
+- uid: RPG.Commands.LuaGameApi.SetPlayerLevel(System.Int32)
+  commentId: M:RPG.Commands.LuaGameApi.SetPlayerLevel(System.Int32)
+  id: SetPlayerLevel(System.Int32)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: SetPlayerLevel(int)
+  nameWithType: LuaGameApi.SetPlayerLevel(int)
+  fullName: RPG.Commands.LuaGameApi.SetPlayerLevel(int)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: SetPlayerLevel
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 128
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Sets the player's level.
+  example: []
+  syntax:
+    content: public void SetPlayerLevel(int level)
+    parameters:
+    - id: level
+      type: System.Int32
+      description: The level to set.
+    content.vb: Public Sub SetPlayerLevel(level As Integer)
+  overload: RPG.Commands.LuaGameApi.SetPlayerLevel*
+  nameWithType.vb: LuaGameApi.SetPlayerLevel(Integer)
+  fullName.vb: RPG.Commands.LuaGameApi.SetPlayerLevel(Integer)
+  name.vb: SetPlayerLevel(Integer)
+- uid: RPG.Commands.LuaGameApi.Sleep(System.Int32)
+  commentId: M:RPG.Commands.LuaGameApi.Sleep(System.Int32)
+  id: Sleep(System.Int32)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: Sleep(int)
+  nameWithType: LuaGameApi.Sleep(int)
+  fullName: RPG.Commands.LuaGameApi.Sleep(int)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Sleep
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 137
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the player's experience points.
+  example: []
+  syntax:
+    content: public static void Sleep(int milliseconds)
+    parameters:
+    - id: milliseconds
+      type: System.Int32
+      description: The number of milliseconds to sleep.
+    content.vb: Public Shared Sub Sleep(milliseconds As Integer)
+  overload: RPG.Commands.LuaGameApi.Sleep*
+  nameWithType.vb: LuaGameApi.Sleep(Integer)
+  fullName.vb: RPG.Commands.LuaGameApi.Sleep(Integer)
+  name.vb: Sleep(Integer)
+- uid: RPG.Commands.LuaGameApi.AskQuestion(System.String)
+  commentId: M:RPG.Commands.LuaGameApi.AskQuestion(System.String)
+  id: AskQuestion(System.String)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: AskQuestion(string)
+  nameWithType: LuaGameApi.AskQuestion(string)
+  fullName: RPG.Commands.LuaGameApi.AskQuestion(string)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: AskQuestion
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 147
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Asks the player a question and waits for their response.
+  example: []
+  syntax:
+    content: public string AskQuestion(string question)
+    parameters:
+    - id: question
+      type: System.String
+      description: The question to ask the player.
+    return:
+      type: System.String
+      description: The player's answer.
+    content.vb: Public Function AskQuestion(question As String) As String
+  overload: RPG.Commands.LuaGameApi.AskQuestion*
+  nameWithType.vb: LuaGameApi.AskQuestion(String)
+  fullName.vb: RPG.Commands.LuaGameApi.AskQuestion(String)
+  name.vb: AskQuestion(String)
+- uid: RPG.Commands.LuaGameApi.RollDice(System.Int32)
+  commentId: M:RPG.Commands.LuaGameApi.RollDice(System.Int32)
+  id: RollDice(System.Int32)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: RollDice(int)
+  nameWithType: LuaGameApi.RollDice(int)
+  fullName: RPG.Commands.LuaGameApi.RollDice(int)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: RollDice
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 210
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the player's experience points.
+  example: []
+  syntax:
+    content: public static bool RollDice(int sides)
+    parameters:
+    - id: sides
+      type: System.Int32
+      description: The number of sides on the dice.
+    return:
+      type: System.Boolean
+      description: True if the dice roll is successful, false otherwise.
+    content.vb: Public Shared Function RollDice(sides As Integer) As Boolean
+  overload: RPG.Commands.LuaGameApi.RollDice*
+  nameWithType.vb: LuaGameApi.RollDice(Integer)
+  fullName.vb: RPG.Commands.LuaGameApi.RollDice(Integer)
+  name.vb: RollDice(Integer)
+- uid: RPG.Commands.LuaGameApi.GetRandomNumber(System.Int32,System.Int32)
+  commentId: M:RPG.Commands.LuaGameApi.GetRandomNumber(System.Int32,System.Int32)
+  id: GetRandomNumber(System.Int32,System.Int32)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: GetRandomNumber(int, int)
+  nameWithType: LuaGameApi.GetRandomNumber(int, int)
+  fullName: RPG.Commands.LuaGameApi.GetRandomNumber(int, int)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetRandomNumber
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 221
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the player's experience points.
+  example: []
+  syntax:
+    content: public static int GetRandomNumber(int min, int max)
+    parameters:
+    - id: min
+      type: System.Int32
+      description: The minimum value of the random number.
+    - id: max
+      type: System.Int32
+      description: The maximum value of the random number.
+    return:
+      type: System.Int32
+      description: A random number between the specified range.
+    content.vb: Public Shared Function GetRandomNumber(min As Integer, max As Integer) As Integer
+  overload: RPG.Commands.LuaGameApi.GetRandomNumber*
+  nameWithType.vb: LuaGameApi.GetRandomNumber(Integer, Integer)
+  fullName.vb: RPG.Commands.LuaGameApi.GetRandomNumber(Integer, Integer)
+  name.vb: GetRandomNumber(Integer, Integer)
+- uid: RPG.Commands.LuaGameApi.GetRegionName(RPG.WorldRegion)
+  commentId: M:RPG.Commands.LuaGameApi.GetRegionName(RPG.WorldRegion)
+  id: GetRegionName(RPG.WorldRegion)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: GetRegionName(WorldRegion)
+  nameWithType: LuaGameApi.GetRegionName(WorldRegion)
+  fullName: RPG.Commands.LuaGameApi.GetRegionName(RPG.WorldRegion)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetRegionName
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 231
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the player's experience points.
+  example: []
+  syntax:
+    content: public string GetRegionName(WorldRegion region)
+    parameters:
+    - id: region
+      type: RPG.WorldRegion
+      description: The region to get the name of.
+    return:
+      type: System.String
+      description: The name of the region.
+    content.vb: Public Function GetRegionName(region As WorldRegion) As String
+  overload: RPG.Commands.LuaGameApi.GetRegionName*
+- uid: RPG.Commands.LuaGameApi.GetRegionDescription(RPG.WorldRegion)
+  commentId: M:RPG.Commands.LuaGameApi.GetRegionDescription(RPG.WorldRegion)
+  id: GetRegionDescription(RPG.WorldRegion)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: GetRegionDescription(WorldRegion)
+  nameWithType: LuaGameApi.GetRegionDescription(WorldRegion)
+  fullName: RPG.Commands.LuaGameApi.GetRegionDescription(RPG.WorldRegion)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetRegionDescription
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 241
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the player's experience points.
+  example: []
+  syntax:
+    content: public string GetRegionDescription(WorldRegion region)
+    parameters:
+    - id: region
+      type: RPG.WorldRegion
+      description: The region to get the description of.
+    return:
+      type: System.String
+      description: The description of the region.
+    content.vb: Public Function GetRegionDescription(region As WorldRegion) As String
+  overload: RPG.Commands.LuaGameApi.GetRegionDescription*
+- uid: RPG.Commands.LuaGameApi.GetCurrentRegion
+  commentId: M:RPG.Commands.LuaGameApi.GetCurrentRegion
+  id: GetCurrentRegion
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: GetCurrentRegion()
+  nameWithType: LuaGameApi.GetCurrentRegion()
+  fullName: RPG.Commands.LuaGameApi.GetCurrentRegion()
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetCurrentRegion
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 250
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Checks if a region name matches.
+  example: []
+  syntax:
+    content: public RegionWrapper? GetCurrentRegion()
+    return:
+      type: RPG.Commands.RegionWrapper
+      description: True if the names match, false otherwise.
+    content.vb: Public Function GetCurrentRegion() As RegionWrapper
+  overload: RPG.Commands.LuaGameApi.GetCurrentRegion*
+- uid: RPG.Commands.LuaGameApi.SetCurrentRegion(RPG.Commands.RegionWrapper)
+  commentId: M:RPG.Commands.LuaGameApi.SetCurrentRegion(RPG.Commands.RegionWrapper)
+  id: SetCurrentRegion(RPG.Commands.RegionWrapper)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: SetCurrentRegion(RegionWrapper)
+  nameWithType: LuaGameApi.SetCurrentRegion(RegionWrapper)
+  fullName: RPG.Commands.LuaGameApi.SetCurrentRegion(RPG.Commands.RegionWrapper)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: SetCurrentRegion
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 259
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Sets the current region.
+  example: []
+  syntax:
+    content: public void SetCurrentRegion(RegionWrapper region)
+    parameters:
+    - id: region
+      type: RPG.Commands.RegionWrapper
+      description: The region to set.
+    content.vb: Public Sub SetCurrentRegion(region As RegionWrapper)
+  overload: RPG.Commands.LuaGameApi.SetCurrentRegion*
+- uid: RPG.Commands.LuaGameApi.GetConnectedRegions
+  commentId: M:RPG.Commands.LuaGameApi.GetConnectedRegions
+  id: GetConnectedRegions
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: GetConnectedRegions()
+  nameWithType: LuaGameApi.GetConnectedRegions()
+  fullName: RPG.Commands.LuaGameApi.GetConnectedRegions()
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetConnectedRegions
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 269
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the connected regions to the current region.
+  example: []
+  syntax:
+    content: public LuaTable GetConnectedRegions()
+    return:
+      type: NLua.LuaTable
+      description: A table of connected regions.
+    content.vb: Public Function GetConnectedRegions() As LuaTable
+  overload: RPG.Commands.LuaGameApi.GetConnectedRegions*
+- uid: RPG.Commands.LuaGameApi.GetConnectedRegions(RPG.WorldRegion)
+  commentId: M:RPG.Commands.LuaGameApi.GetConnectedRegions(RPG.WorldRegion)
+  id: GetConnectedRegions(RPG.WorldRegion)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: GetConnectedRegions(WorldRegion)
+  nameWithType: LuaGameApi.GetConnectedRegions(WorldRegion)
+  fullName: RPG.Commands.LuaGameApi.GetConnectedRegions(RPG.WorldRegion)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetConnectedRegions
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 285
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the connected regions to a specified region.
+  example: []
+  syntax:
+    content: public LuaTable? GetConnectedRegions(WorldRegion region)
+    parameters:
+    - id: region
+      type: RPG.WorldRegion
+      description: The region to get connected regions for.
+    return:
+      type: NLua.LuaTable
+      description: A table of connected regions.
+    content.vb: Public Function GetConnectedRegions(region As WorldRegion) As LuaTable
+  overload: RPG.Commands.LuaGameApi.GetConnectedRegions*
+- uid: RPG.Commands.LuaGameApi.RegionNameMatches(RPG.Commands.RegionWrapper,System.String)
+  commentId: M:RPG.Commands.LuaGameApi.RegionNameMatches(RPG.Commands.RegionWrapper,System.String)
+  id: RegionNameMatches(RPG.Commands.RegionWrapper,System.String)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: RegionNameMatches(RegionWrapper, string)
+  nameWithType: LuaGameApi.RegionNameMatches(RegionWrapper, string)
+  fullName: RPG.Commands.LuaGameApi.RegionNameMatches(RPG.Commands.RegionWrapper, string)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: RegionNameMatches
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 311
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Checks if a region name matches.
+  example: []
+  syntax:
+    content: public static bool RegionNameMatches(RegionWrapper region, string name)
+    parameters:
+    - id: region
+      type: RPG.Commands.RegionWrapper
+      description: The region to check.
+    - id: name
+      type: System.String
+      description: The name to check against.
+    return:
+      type: System.Boolean
+      description: True if the names match, false otherwise.
+    content.vb: Public Shared Function RegionNameMatches(region As RegionWrapper, name As String) As Boolean
+  overload: RPG.Commands.LuaGameApi.RegionNameMatches*
+  nameWithType.vb: LuaGameApi.RegionNameMatches(RegionWrapper, String)
+  fullName.vb: RPG.Commands.LuaGameApi.RegionNameMatches(RPG.Commands.RegionWrapper, String)
+  name.vb: RegionNameMatches(RegionWrapper, String)
+- uid: RPG.Commands.LuaGameApi.GetCurrentLocation
+  commentId: M:RPG.Commands.LuaGameApi.GetCurrentLocation
+  id: GetCurrentLocation
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: GetCurrentLocation()
+  nameWithType: LuaGameApi.GetCurrentLocation()
+  fullName: RPG.Commands.LuaGameApi.GetCurrentLocation()
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetCurrentLocation
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 320
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Navigates to a region.
+  example: []
+  syntax:
+    content: public LocationWrapper? GetCurrentLocation()
+    return:
+      type: RPG.Commands.LocationWrapper
+      description: The region to navigate to.
+    content.vb: Public Function GetCurrentLocation() As LocationWrapper
+  overload: RPG.Commands.LuaGameApi.GetCurrentLocation*
+- uid: RPG.Commands.LuaGameApi.SetCurrentLocation(RPG.Commands.LocationWrapper)
+  commentId: M:RPG.Commands.LuaGameApi.SetCurrentLocation(RPG.Commands.LocationWrapper)
+  id: SetCurrentLocation(RPG.Commands.LocationWrapper)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: SetCurrentLocation(LocationWrapper)
+  nameWithType: LuaGameApi.SetCurrentLocation(LocationWrapper)
+  fullName: RPG.Commands.LuaGameApi.SetCurrentLocation(RPG.Commands.LocationWrapper)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: SetCurrentLocation
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 329
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Sets the current location.
+  example: []
+  syntax:
+    content: public void SetCurrentLocation(LocationWrapper location)
+    parameters:
+    - id: location
+      type: RPG.Commands.LocationWrapper
+      description: The location to set.
+    content.vb: Public Sub SetCurrentLocation(location As LocationWrapper)
+  overload: RPG.Commands.LuaGameApi.SetCurrentLocation*
+- uid: RPG.Commands.LuaGameApi.GetLocationsInRegion
+  commentId: M:RPG.Commands.LuaGameApi.GetLocationsInRegion
+  id: GetLocationsInRegion
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: GetLocationsInRegion()
+  nameWithType: LuaGameApi.GetLocationsInRegion()
+  fullName: RPG.Commands.LuaGameApi.GetLocationsInRegion()
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetLocationsInRegion
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 338
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the locations in the current region.
+  example: []
+  syntax:
+    content: public LuaTable GetLocationsInRegion()
+    return:
+      type: NLua.LuaTable
+      description: A table of locations in the current region.
+    content.vb: Public Function GetLocationsInRegion() As LuaTable
+  overload: RPG.Commands.LuaGameApi.GetLocationsInRegion*
+- uid: RPG.Commands.LuaGameApi.LocationNameMatches(RPG.Commands.LocationWrapper,System.String)
+  commentId: M:RPG.Commands.LuaGameApi.LocationNameMatches(RPG.Commands.LocationWrapper,System.String)
+  id: LocationNameMatches(RPG.Commands.LocationWrapper,System.String)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: LocationNameMatches(LocationWrapper, string)
+  nameWithType: LuaGameApi.LocationNameMatches(LocationWrapper, string)
+  fullName: RPG.Commands.LuaGameApi.LocationNameMatches(RPG.Commands.LocationWrapper, string)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: LocationNameMatches
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 355
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Checks if a location name matches.
+  example: []
+  syntax:
+    content: public static bool LocationNameMatches(LocationWrapper location, string name)
+    parameters:
+    - id: location
+      type: RPG.Commands.LocationWrapper
+      description: The location to check.
+    - id: name
+      type: System.String
+      description: The name to check against.
+    return:
+      type: System.Boolean
+      description: True if the names match, false otherwise.
+    content.vb: Public Shared Function LocationNameMatches(location As LocationWrapper, name As String) As Boolean
+  overload: RPG.Commands.LuaGameApi.LocationNameMatches*
+  nameWithType.vb: LuaGameApi.LocationNameMatches(LocationWrapper, String)
+  fullName.vb: RPG.Commands.LuaGameApi.LocationNameMatches(RPG.Commands.LocationWrapper, String)
+  name.vb: LocationNameMatches(LocationWrapper, String)
+- uid: RPG.Commands.LuaGameApi.NavigateToLocation(RPG.Commands.LocationWrapper)
+  commentId: M:RPG.Commands.LuaGameApi.NavigateToLocation(RPG.Commands.LocationWrapper)
+  id: NavigateToLocation(RPG.Commands.LocationWrapper)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: NavigateToLocation(LocationWrapper)
+  nameWithType: LuaGameApi.NavigateToLocation(LocationWrapper)
+  fullName: RPG.Commands.LuaGameApi.NavigateToLocation(RPG.Commands.LocationWrapper)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: NavigateToLocation
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 364
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Navigates to a region.
+  example: []
+  syntax:
+    content: public void NavigateToLocation(LocationWrapper location)
+    parameters:
+    - id: location
+      type: RPG.Commands.LocationWrapper
+      description: The location to navigate to.
+    content.vb: Public Sub NavigateToLocation(location As LocationWrapper)
+  overload: RPG.Commands.LuaGameApi.NavigateToLocation*
+- uid: RPG.Commands.LuaGameApi.GetDistanceBetweenRegions(RPG.Commands.RegionWrapper,RPG.Commands.RegionWrapper)
+  commentId: M:RPG.Commands.LuaGameApi.GetDistanceBetweenRegions(RPG.Commands.RegionWrapper,RPG.Commands.RegionWrapper)
+  id: GetDistanceBetweenRegions(RPG.Commands.RegionWrapper,RPG.Commands.RegionWrapper)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: GetDistanceBetweenRegions(RegionWrapper, RegionWrapper)
+  nameWithType: LuaGameApi.GetDistanceBetweenRegions(RegionWrapper, RegionWrapper)
+  fullName: RPG.Commands.LuaGameApi.GetDistanceBetweenRegions(RPG.Commands.RegionWrapper, RPG.Commands.RegionWrapper)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetDistanceBetweenRegions
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 376
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the distance between two regions.
+  example: []
+  syntax:
+    content: public static double GetDistanceBetweenRegions(RegionWrapper from, RegionWrapper to)
+    parameters:
+    - id: from
+      type: RPG.Commands.RegionWrapper
+      description: The starting region.
+    - id: to
+      type: RPG.Commands.RegionWrapper
+      description: The destination region.
+    return:
+      type: System.Double
+      description: The distance between the regions.
+    content.vb: Public Shared Function GetDistanceBetweenRegions(from As RegionWrapper, [to] As RegionWrapper) As Double
+  overload: RPG.Commands.LuaGameApi.GetDistanceBetweenRegions*
+- uid: RPG.Commands.LuaGameApi.GetRegionPosition(RPG.Commands.RegionWrapper)
+  commentId: M:RPG.Commands.LuaGameApi.GetRegionPosition(RPG.Commands.RegionWrapper)
+  id: GetRegionPosition(RPG.Commands.RegionWrapper)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: GetRegionPosition(RegionWrapper)
+  nameWithType: LuaGameApi.GetRegionPosition(RegionWrapper)
+  fullName: RPG.Commands.LuaGameApi.GetRegionPosition(RPG.Commands.RegionWrapper)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetRegionPosition
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 390
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the position of a region.
+  example: []
+  syntax:
+    content: public static Vector2 GetRegionPosition(RegionWrapper region)
+    parameters:
+    - id: region
+      type: RPG.Commands.RegionWrapper
+      description: The region to get the position of.
+    return:
+      type: RPG.Vector2
+      description: The position of the region.
+    content.vb: Public Shared Function GetRegionPosition(region As RegionWrapper) As Vector2
+  overload: RPG.Commands.LuaGameApi.GetRegionPosition*
+- uid: RPG.Commands.LuaGameApi.CalculateTravelTime(RPG.Commands.RegionWrapper,RPG.Commands.RegionWrapper)
+  commentId: M:RPG.Commands.LuaGameApi.CalculateTravelTime(RPG.Commands.RegionWrapper,RPG.Commands.RegionWrapper)
+  id: CalculateTravelTime(RPG.Commands.RegionWrapper,RPG.Commands.RegionWrapper)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: CalculateTravelTime(RegionWrapper, RegionWrapper)
+  nameWithType: LuaGameApi.CalculateTravelTime(RegionWrapper, RegionWrapper)
+  fullName: RPG.Commands.LuaGameApi.CalculateTravelTime(RPG.Commands.RegionWrapper, RPG.Commands.RegionWrapper)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: CalculateTravelTime
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 401
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Calculates the travel time between two regions in minutes.
+  example: []
+  syntax:
+    content: public int CalculateTravelTime(RegionWrapper from, RegionWrapper to)
+    parameters:
+    - id: from
+      type: RPG.Commands.RegionWrapper
+      description: The starting region.
+    - id: to
+      type: RPG.Commands.RegionWrapper
+      description: The destination region.
+    return:
+      type: System.Int32
+      description: The travel time in minutes.
+    content.vb: Public Function CalculateTravelTime(from As RegionWrapper, [to] As RegionWrapper) As Integer
+  overload: RPG.Commands.LuaGameApi.CalculateTravelTime*
+- uid: RPG.Commands.LuaGameApi.SimulateTravelTime(System.Int32)
+  commentId: M:RPG.Commands.LuaGameApi.SimulateTravelTime(System.Int32)
+  id: SimulateTravelTime(System.Int32)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: SimulateTravelTime(int)
+  nameWithType: LuaGameApi.SimulateTravelTime(int)
+  fullName: RPG.Commands.LuaGameApi.SimulateTravelTime(int)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: SimulateTravelTime
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 411
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Simulates travel time in minutes.
+  example: []
+  syntax:
+    content: public static void SimulateTravelTime(int minutes)
+    parameters:
+    - id: minutes
+      type: System.Int32
+      description: ''
+    content.vb: Public Shared Sub SimulateTravelTime(minutes As Integer)
+  overload: RPG.Commands.LuaGameApi.SimulateTravelTime*
+  nameWithType.vb: LuaGameApi.SimulateTravelTime(Integer)
+  fullName.vb: RPG.Commands.LuaGameApi.SimulateTravelTime(Integer)
+  name.vb: SimulateTravelTime(Integer)
+- uid: RPG.Commands.LuaGameApi.SimulateTravelTimeWithProgress(System.Int32,System.Single)
+  commentId: M:RPG.Commands.LuaGameApi.SimulateTravelTimeWithProgress(System.Int32,System.Single)
+  id: SimulateTravelTimeWithProgress(System.Int32,System.Single)
+  parent: RPG.Commands.LuaGameApi
+  langs:
+  - csharp
+  - vb
+  name: SimulateTravelTimeWithProgress(int, float)
+  nameWithType: LuaGameApi.SimulateTravelTimeWithProgress(int, float)
+  fullName: RPG.Commands.LuaGameApi.SimulateTravelTimeWithProgress(int, float)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaGameAPI.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: SimulateTravelTimeWithProgress
+    path: ../Commands/LuaGameAPI.cs
+    startLine: 422
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Simulates travel time with a progress bar.
+  example: []
+  syntax:
+    content: public void SimulateTravelTimeWithProgress(int totalMinutes, float timeScale = 0.1)
+    parameters:
+    - id: totalMinutes
+      type: System.Int32
+      description: The total travel time in minutes.
+    - id: timeScale
+      type: System.Single
+      description: The time scale to use (default is 0.1).
+    content.vb: Public Sub SimulateTravelTimeWithProgress(totalMinutes As Integer, timeScale As Single = 0.1)
+  overload: RPG.Commands.LuaGameApi.SimulateTravelTimeWithProgress*
+  nameWithType.vb: LuaGameApi.SimulateTravelTimeWithProgress(Integer, Single)
+  fullName.vb: RPG.Commands.LuaGameApi.SimulateTravelTimeWithProgress(Integer, Single)
+  name.vb: SimulateTravelTimeWithProgress(Integer, Single)
+references:
+- uid: RPG.Commands.LuaGameApi
+  commentId: T:RPG.Commands.LuaGameApi
+  href: RPG.Commands.LuaGameApi.html
+  name: LuaGameApi
+  nameWithType: LuaGameApi
+  fullName: RPG.Commands.LuaGameApi
+- uid: RPG.Commands
+  commentId: N:RPG.Commands
+  href: RPG.html
+  name: RPG.Commands
+  nameWithType: RPG.Commands
+  fullName: RPG.Commands
+  spec.csharp:
+  - uid: RPG
+    name: RPG
+    href: RPG.html
+  - name: .
+  - uid: RPG.Commands
+    name: Commands
+    href: RPG.Commands.html
+  spec.vb:
+  - uid: RPG
+    name: RPG
+    href: RPG.html
+  - name: .
+  - uid: RPG.Commands
+    name: Commands
+    href: RPG.Commands.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: RPG.Commands.LuaGameApi.#ctor*
+  commentId: Overload:RPG.Commands.LuaGameApi.#ctor
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi__ctor_RPG_GameState_NLua_Lua_
+  name: LuaGameApi
+  nameWithType: LuaGameApi.LuaGameApi
+  fullName: RPG.Commands.LuaGameApi.LuaGameApi
+  nameWithType.vb: LuaGameApi.New
+  fullName.vb: RPG.Commands.LuaGameApi.New
+  name.vb: New
+- uid: RPG.GameState
+  commentId: T:RPG.GameState
+  parent: RPG
+  href: RPG.GameState.html
+  name: GameState
+  nameWithType: GameState
+  fullName: RPG.GameState
+- uid: NLua.Lua
+  commentId: T:NLua.Lua
+  parent: NLua
+  isExternal: true
+  name: Lua
+  nameWithType: Lua
+  fullName: NLua.Lua
+- uid: RPG
+  commentId: N:RPG
+  href: RPG.html
+  name: RPG
+  nameWithType: RPG
+  fullName: RPG
+- uid: NLua
+  commentId: N:NLua
+  isExternal: true
+  name: NLua
+  nameWithType: NLua
+  fullName: NLua
+- uid: RPG.Commands.LuaGameApi.Log*
+  commentId: Overload:RPG.Commands.LuaGameApi.Log
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_Log_System_String_
+  name: Log
+  nameWithType: LuaGameApi.Log
+  fullName: RPG.Commands.LuaGameApi.Log
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: RPG.Commands.LuaGameApi.LogColor*
+  commentId: Overload:RPG.Commands.LuaGameApi.LogColor
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_LogColor_System_String_System_String_
+  name: LogColor
+  nameWithType: LuaGameApi.LogColor
+  fullName: RPG.Commands.LuaGameApi.LogColor
+- uid: RPG.Commands.LuaGameApi.ClearLog*
+  commentId: Overload:RPG.Commands.LuaGameApi.ClearLog
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_ClearLog
+  name: ClearLog
+  nameWithType: LuaGameApi.ClearLog
+  fullName: RPG.Commands.LuaGameApi.ClearLog
+- uid: RPG.Commands.LuaGameApi.GetPlayerName*
+  commentId: Overload:RPG.Commands.LuaGameApi.GetPlayerName
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_GetPlayerName
+  name: GetPlayerName
+  nameWithType: LuaGameApi.GetPlayerName
+  fullName: RPG.Commands.LuaGameApi.GetPlayerName
+- uid: RPG.Commands.LuaGameApi.SetPlayerName*
+  commentId: Overload:RPG.Commands.LuaGameApi.SetPlayerName
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_SetPlayerName_System_String_
+  name: SetPlayerName
+  nameWithType: LuaGameApi.SetPlayerName
+  fullName: RPG.Commands.LuaGameApi.SetPlayerName
+- uid: RPG.Commands.LuaGameApi.GetPlayerHP*
+  commentId: Overload:RPG.Commands.LuaGameApi.GetPlayerHP
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_GetPlayerHP
+  name: GetPlayerHP
+  nameWithType: LuaGameApi.GetPlayerHP
+  fullName: RPG.Commands.LuaGameApi.GetPlayerHP
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int32
+  name: int
+  nameWithType: int
+  fullName: int
+  nameWithType.vb: Integer
+  fullName.vb: Integer
+  name.vb: Integer
+- uid: RPG.Commands.LuaGameApi.SetPlayerHP*
+  commentId: Overload:RPG.Commands.LuaGameApi.SetPlayerHP
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_SetPlayerHP_System_Int32_
+  name: SetPlayerHP
+  nameWithType: LuaGameApi.SetPlayerHP
+  fullName: RPG.Commands.LuaGameApi.SetPlayerHP
+- uid: RPG.Commands.LuaGameApi.GetPlayerMaxHP*
+  commentId: Overload:RPG.Commands.LuaGameApi.GetPlayerMaxHP
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_GetPlayerMaxHP
+  name: GetPlayerMaxHP
+  nameWithType: LuaGameApi.GetPlayerMaxHP
+  fullName: RPG.Commands.LuaGameApi.GetPlayerMaxHP
+- uid: RPG.Commands.LuaGameApi.SetPlayerMaxHP*
+  commentId: Overload:RPG.Commands.LuaGameApi.SetPlayerMaxHP
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_SetPlayerMaxHP_System_Int32_
+  name: SetPlayerMaxHP
+  nameWithType: LuaGameApi.SetPlayerMaxHP
+  fullName: RPG.Commands.LuaGameApi.SetPlayerMaxHP
+- uid: RPG.Commands.LuaGameApi.GetPlayerLevel*
+  commentId: Overload:RPG.Commands.LuaGameApi.GetPlayerLevel
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_GetPlayerLevel
+  name: GetPlayerLevel
+  nameWithType: LuaGameApi.GetPlayerLevel
+  fullName: RPG.Commands.LuaGameApi.GetPlayerLevel
+- uid: RPG.Commands.LuaGameApi.SetPlayerLevel*
+  commentId: Overload:RPG.Commands.LuaGameApi.SetPlayerLevel
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_SetPlayerLevel_System_Int32_
+  name: SetPlayerLevel
+  nameWithType: LuaGameApi.SetPlayerLevel
+  fullName: RPG.Commands.LuaGameApi.SetPlayerLevel
+- uid: RPG.Commands.LuaGameApi.Sleep*
+  commentId: Overload:RPG.Commands.LuaGameApi.Sleep
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_Sleep_System_Int32_
+  name: Sleep
+  nameWithType: LuaGameApi.Sleep
+  fullName: RPG.Commands.LuaGameApi.Sleep
+- uid: RPG.Commands.LuaGameApi.AskQuestion*
+  commentId: Overload:RPG.Commands.LuaGameApi.AskQuestion
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_AskQuestion_System_String_
+  name: AskQuestion
+  nameWithType: LuaGameApi.AskQuestion
+  fullName: RPG.Commands.LuaGameApi.AskQuestion
+- uid: RPG.Commands.LuaGameApi.RollDice*
+  commentId: Overload:RPG.Commands.LuaGameApi.RollDice
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_RollDice_System_Int32_
+  name: RollDice
+  nameWithType: LuaGameApi.RollDice
+  fullName: RPG.Commands.LuaGameApi.RollDice
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.boolean
+  name: bool
+  nameWithType: bool
+  fullName: bool
+  nameWithType.vb: Boolean
+  fullName.vb: Boolean
+  name.vb: Boolean
+- uid: RPG.Commands.LuaGameApi.GetRandomNumber*
+  commentId: Overload:RPG.Commands.LuaGameApi.GetRandomNumber
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_GetRandomNumber_System_Int32_System_Int32_
+  name: GetRandomNumber
+  nameWithType: LuaGameApi.GetRandomNumber
+  fullName: RPG.Commands.LuaGameApi.GetRandomNumber
+- uid: RPG.Commands.LuaGameApi.GetRegionName*
+  commentId: Overload:RPG.Commands.LuaGameApi.GetRegionName
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_GetRegionName_RPG_WorldRegion_
+  name: GetRegionName
+  nameWithType: LuaGameApi.GetRegionName
+  fullName: RPG.Commands.LuaGameApi.GetRegionName
+- uid: RPG.WorldRegion
+  commentId: T:RPG.WorldRegion
+  parent: RPG
+  href: RPG.WorldRegion.html
+  name: WorldRegion
+  nameWithType: WorldRegion
+  fullName: RPG.WorldRegion
+- uid: RPG.Commands.LuaGameApi.GetRegionDescription*
+  commentId: Overload:RPG.Commands.LuaGameApi.GetRegionDescription
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_GetRegionDescription_RPG_WorldRegion_
+  name: GetRegionDescription
+  nameWithType: LuaGameApi.GetRegionDescription
+  fullName: RPG.Commands.LuaGameApi.GetRegionDescription
+- uid: RPG.Commands.LuaGameApi.GetCurrentRegion*
+  commentId: Overload:RPG.Commands.LuaGameApi.GetCurrentRegion
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_GetCurrentRegion
+  name: GetCurrentRegion
+  nameWithType: LuaGameApi.GetCurrentRegion
+  fullName: RPG.Commands.LuaGameApi.GetCurrentRegion
+- uid: RPG.Commands.RegionWrapper
+  commentId: T:RPG.Commands.RegionWrapper
+  parent: RPG.Commands
+  href: RPG.Commands.RegionWrapper.html
+  name: RegionWrapper
+  nameWithType: RegionWrapper
+  fullName: RPG.Commands.RegionWrapper
+- uid: RPG.Commands.LuaGameApi.SetCurrentRegion*
+  commentId: Overload:RPG.Commands.LuaGameApi.SetCurrentRegion
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_SetCurrentRegion_RPG_Commands_RegionWrapper_
+  name: SetCurrentRegion
+  nameWithType: LuaGameApi.SetCurrentRegion
+  fullName: RPG.Commands.LuaGameApi.SetCurrentRegion
+- uid: RPG.Commands.LuaGameApi.GetConnectedRegions*
+  commentId: Overload:RPG.Commands.LuaGameApi.GetConnectedRegions
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_GetConnectedRegions
+  name: GetConnectedRegions
+  nameWithType: LuaGameApi.GetConnectedRegions
+  fullName: RPG.Commands.LuaGameApi.GetConnectedRegions
+- uid: NLua.LuaTable
+  commentId: T:NLua.LuaTable
+  parent: NLua
+  isExternal: true
+  name: LuaTable
+  nameWithType: LuaTable
+  fullName: NLua.LuaTable
+- uid: RPG.Commands.LuaGameApi.RegionNameMatches*
+  commentId: Overload:RPG.Commands.LuaGameApi.RegionNameMatches
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_RegionNameMatches_RPG_Commands_RegionWrapper_System_String_
+  name: RegionNameMatches
+  nameWithType: LuaGameApi.RegionNameMatches
+  fullName: RPG.Commands.LuaGameApi.RegionNameMatches
+- uid: RPG.Commands.LuaGameApi.GetCurrentLocation*
+  commentId: Overload:RPG.Commands.LuaGameApi.GetCurrentLocation
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_GetCurrentLocation
+  name: GetCurrentLocation
+  nameWithType: LuaGameApi.GetCurrentLocation
+  fullName: RPG.Commands.LuaGameApi.GetCurrentLocation
+- uid: RPG.Commands.LocationWrapper
+  commentId: T:RPG.Commands.LocationWrapper
+  parent: RPG.Commands
+  href: RPG.Commands.LocationWrapper.html
+  name: LocationWrapper
+  nameWithType: LocationWrapper
+  fullName: RPG.Commands.LocationWrapper
+- uid: RPG.Commands.LuaGameApi.SetCurrentLocation*
+  commentId: Overload:RPG.Commands.LuaGameApi.SetCurrentLocation
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_SetCurrentLocation_RPG_Commands_LocationWrapper_
+  name: SetCurrentLocation
+  nameWithType: LuaGameApi.SetCurrentLocation
+  fullName: RPG.Commands.LuaGameApi.SetCurrentLocation
+- uid: RPG.Commands.LuaGameApi.GetLocationsInRegion*
+  commentId: Overload:RPG.Commands.LuaGameApi.GetLocationsInRegion
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_GetLocationsInRegion
+  name: GetLocationsInRegion
+  nameWithType: LuaGameApi.GetLocationsInRegion
+  fullName: RPG.Commands.LuaGameApi.GetLocationsInRegion
+- uid: RPG.Commands.LuaGameApi.LocationNameMatches*
+  commentId: Overload:RPG.Commands.LuaGameApi.LocationNameMatches
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_LocationNameMatches_RPG_Commands_LocationWrapper_System_String_
+  name: LocationNameMatches
+  nameWithType: LuaGameApi.LocationNameMatches
+  fullName: RPG.Commands.LuaGameApi.LocationNameMatches
+- uid: RPG.Commands.LuaGameApi.NavigateToLocation*
+  commentId: Overload:RPG.Commands.LuaGameApi.NavigateToLocation
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_NavigateToLocation_RPG_Commands_LocationWrapper_
+  name: NavigateToLocation
+  nameWithType: LuaGameApi.NavigateToLocation
+  fullName: RPG.Commands.LuaGameApi.NavigateToLocation
+- uid: RPG.Commands.LuaGameApi.GetDistanceBetweenRegions*
+  commentId: Overload:RPG.Commands.LuaGameApi.GetDistanceBetweenRegions
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_GetDistanceBetweenRegions_RPG_Commands_RegionWrapper_RPG_Commands_RegionWrapper_
+  name: GetDistanceBetweenRegions
+  nameWithType: LuaGameApi.GetDistanceBetweenRegions
+  fullName: RPG.Commands.LuaGameApi.GetDistanceBetweenRegions
+- uid: System.Double
+  commentId: T:System.Double
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.double
+  name: double
+  nameWithType: double
+  fullName: double
+  nameWithType.vb: Double
+  fullName.vb: Double
+  name.vb: Double
+- uid: RPG.Commands.LuaGameApi.GetRegionPosition*
+  commentId: Overload:RPG.Commands.LuaGameApi.GetRegionPosition
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_GetRegionPosition_RPG_Commands_RegionWrapper_
+  name: GetRegionPosition
+  nameWithType: LuaGameApi.GetRegionPosition
+  fullName: RPG.Commands.LuaGameApi.GetRegionPosition
+- uid: RPG.Vector2
+  commentId: T:RPG.Vector2
+  parent: RPG
+  href: RPG.Vector2.html
+  name: Vector2
+  nameWithType: Vector2
+  fullName: RPG.Vector2
+- uid: RPG.Commands.LuaGameApi.CalculateTravelTime*
+  commentId: Overload:RPG.Commands.LuaGameApi.CalculateTravelTime
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_CalculateTravelTime_RPG_Commands_RegionWrapper_RPG_Commands_RegionWrapper_
+  name: CalculateTravelTime
+  nameWithType: LuaGameApi.CalculateTravelTime
+  fullName: RPG.Commands.LuaGameApi.CalculateTravelTime
+- uid: RPG.Commands.LuaGameApi.SimulateTravelTime*
+  commentId: Overload:RPG.Commands.LuaGameApi.SimulateTravelTime
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_SimulateTravelTime_System_Int32_
+  name: SimulateTravelTime
+  nameWithType: LuaGameApi.SimulateTravelTime
+  fullName: RPG.Commands.LuaGameApi.SimulateTravelTime
+- uid: RPG.Commands.LuaGameApi.SimulateTravelTimeWithProgress*
+  commentId: Overload:RPG.Commands.LuaGameApi.SimulateTravelTimeWithProgress
+  href: RPG.Commands.LuaGameApi.html#RPG_Commands_LuaGameApi_SimulateTravelTimeWithProgress_System_Int32_System_Single_
+  name: SimulateTravelTimeWithProgress
+  nameWithType: LuaGameApi.SimulateTravelTimeWithProgress
+  fullName: RPG.Commands.LuaGameApi.SimulateTravelTimeWithProgress
+- uid: System.Single
+  commentId: T:System.Single
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.single
+  name: float
+  nameWithType: float
+  fullName: float
+  nameWithType.vb: Single
+  fullName.vb: Single
+  name.vb: Single

@@ -1,0 +1,832 @@
+### YamlMime:ManagedReference
+items:
+- uid: RPG.WorldRegion
+  commentId: T:RPG.WorldRegion
+  id: WorldRegion
+  parent: RPG
+  children:
+  - RPG.WorldRegion.Connections
+  - RPG.WorldRegion.DescriptionId
+  - RPG.WorldRegion.Items
+  - RPG.WorldRegion.Locations
+  - RPG.WorldRegion.NPCs
+  - RPG.WorldRegion.NameId
+  - RPG.WorldRegion.Position
+  - RPG.WorldRegion.Routes
+  langs:
+  - csharp
+  - vb
+  name: WorldRegion
+  nameWithType: WorldRegion
+  fullName: RPG.WorldRegion
+  type: Class
+  source:
+    remote:
+      path: WorldData.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: WorldRegion
+    path: ../WorldData.cs
+    startLine: 8
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Represents a region in the game world with its properties and connections
+  example: []
+  syntax:
+    content: public class WorldRegion
+    content.vb: Public Class WorldRegion
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+- uid: RPG.WorldRegion.NameId
+  commentId: P:RPG.WorldRegion.NameId
+  id: NameId
+  parent: RPG.WorldRegion
+  langs:
+  - csharp
+  - vb
+  name: NameId
+  nameWithType: WorldRegion.NameId
+  fullName: RPG.WorldRegion.NameId
+  type: Property
+  source:
+    remote:
+      path: WorldData.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: NameId
+    path: ../WorldData.cs
+    startLine: 13
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the identifier for the region name
+  example: []
+  syntax:
+    content: public int NameId { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public Property NameId As Integer
+  overload: RPG.WorldRegion.NameId*
+- uid: RPG.WorldRegion.DescriptionId
+  commentId: P:RPG.WorldRegion.DescriptionId
+  id: DescriptionId
+  parent: RPG.WorldRegion
+  langs:
+  - csharp
+  - vb
+  name: DescriptionId
+  nameWithType: WorldRegion.DescriptionId
+  fullName: RPG.WorldRegion.DescriptionId
+  type: Property
+  source:
+    remote:
+      path: WorldData.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: DescriptionId
+    path: ../WorldData.cs
+    startLine: 17
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the identifier for the region description
+  example: []
+  syntax:
+    content: public int DescriptionId { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public Property DescriptionId As Integer
+  overload: RPG.WorldRegion.DescriptionId*
+- uid: RPG.WorldRegion.Connections
+  commentId: P:RPG.WorldRegion.Connections
+  id: Connections
+  parent: RPG.WorldRegion
+  langs:
+  - csharp
+  - vb
+  name: Connections
+  nameWithType: WorldRegion.Connections
+  fullName: RPG.WorldRegion.Connections
+  type: Property
+  source:
+    remote:
+      path: WorldData.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Connections
+    path: ../WorldData.cs
+    startLine: 21
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the list of connected region identifiers
+  example: []
+  syntax:
+    content: public List<int> Connections { get; set; }
+    parameters: []
+    return:
+      type: System.Collections.Generic.List{System.Int32}
+    content.vb: Public Property Connections As List(Of Integer)
+  overload: RPG.WorldRegion.Connections*
+- uid: RPG.WorldRegion.NPCs
+  commentId: P:RPG.WorldRegion.NPCs
+  id: NPCs
+  parent: RPG.WorldRegion
+  langs:
+  - csharp
+  - vb
+  name: NPCs
+  nameWithType: WorldRegion.NPCs
+  fullName: RPG.WorldRegion.NPCs
+  type: Property
+  source:
+    remote:
+      path: WorldData.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: NPCs
+    path: ../WorldData.cs
+    startLine: 25
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the list of NPC identifiers in this region
+  example: []
+  syntax:
+    content: public List<int> NPCs { get; set; }
+    parameters: []
+    return:
+      type: System.Collections.Generic.List{System.Int32}
+    content.vb: Public Property NPCs As List(Of Integer)
+  overload: RPG.WorldRegion.NPCs*
+- uid: RPG.WorldRegion.Items
+  commentId: P:RPG.WorldRegion.Items
+  id: Items
+  parent: RPG.WorldRegion
+  langs:
+  - csharp
+  - vb
+  name: Items
+  nameWithType: WorldRegion.Items
+  fullName: RPG.WorldRegion.Items
+  type: Property
+  source:
+    remote:
+      path: WorldData.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Items
+    path: ../WorldData.cs
+    startLine: 29
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the list of item identifiers in this region
+  example: []
+  syntax:
+    content: public List<int> Items { get; set; }
+    parameters: []
+    return:
+      type: System.Collections.Generic.List{System.Int32}
+    content.vb: Public Property Items As List(Of Integer)
+  overload: RPG.WorldRegion.Items*
+- uid: RPG.WorldRegion.Position
+  commentId: P:RPG.WorldRegion.Position
+  id: Position
+  parent: RPG.WorldRegion
+  langs:
+  - csharp
+  - vb
+  name: Position
+  nameWithType: WorldRegion.Position
+  fullName: RPG.WorldRegion.Position
+  type: Property
+  source:
+    remote:
+      path: WorldData.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Position
+    path: ../WorldData.cs
+    startLine: 33
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the position of this region in the world
+  example: []
+  syntax:
+    content: public Vector2 Position { get; set; }
+    parameters: []
+    return:
+      type: RPG.Vector2
+    content.vb: Public Property Position As Vector2
+  overload: RPG.WorldRegion.Position*
+- uid: RPG.WorldRegion.Locations
+  commentId: P:RPG.WorldRegion.Locations
+  id: Locations
+  parent: RPG.WorldRegion
+  langs:
+  - csharp
+  - vb
+  name: Locations
+  nameWithType: WorldRegion.Locations
+  fullName: RPG.WorldRegion.Locations
+  type: Property
+  source:
+    remote:
+      path: WorldData.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Locations
+    path: ../WorldData.cs
+    startLine: 37
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the list of locations within this region
+  example: []
+  syntax:
+    content: public List<Location> Locations { get; set; }
+    parameters: []
+    return:
+      type: System.Collections.Generic.List{RPG.Location}
+    content.vb: Public Property Locations As List(Of Location)
+  overload: RPG.WorldRegion.Locations*
+- uid: RPG.WorldRegion.Routes
+  commentId: P:RPG.WorldRegion.Routes
+  id: Routes
+  parent: RPG.WorldRegion
+  langs:
+  - csharp
+  - vb
+  name: Routes
+  nameWithType: WorldRegion.Routes
+  fullName: RPG.WorldRegion.Routes
+  type: Property
+  source:
+    remote:
+      path: WorldData.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Routes
+    path: ../WorldData.cs
+    startLine: 41
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets or sets the dictionary of routes in this region
+  example: []
+  syntax:
+    content: public Dictionary<int, List<RoutePoint>> Routes { get; set; }
+    parameters: []
+    return:
+      type: System.Collections.Generic.Dictionary{System.Int32,System.Collections.Generic.List{RPG.RoutePoint}}
+    content.vb: Public Property Routes As Dictionary(Of Integer, List(Of RoutePoint))
+  overload: RPG.WorldRegion.Routes*
+references:
+- uid: RPG
+  commentId: N:RPG
+  href: RPG.html
+  name: RPG
+  nameWithType: RPG
+  fullName: RPG
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: RPG.WorldRegion.NameId*
+  commentId: Overload:RPG.WorldRegion.NameId
+  href: RPG.WorldRegion.html#RPG_WorldRegion_NameId
+  name: NameId
+  nameWithType: WorldRegion.NameId
+  fullName: RPG.WorldRegion.NameId
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int32
+  name: int
+  nameWithType: int
+  fullName: int
+  nameWithType.vb: Integer
+  fullName.vb: Integer
+  name.vb: Integer
+- uid: RPG.WorldRegion.DescriptionId*
+  commentId: Overload:RPG.WorldRegion.DescriptionId
+  href: RPG.WorldRegion.html#RPG_WorldRegion_DescriptionId
+  name: DescriptionId
+  nameWithType: WorldRegion.DescriptionId
+  fullName: RPG.WorldRegion.DescriptionId
+- uid: RPG.WorldRegion.Connections*
+  commentId: Overload:RPG.WorldRegion.Connections
+  href: RPG.WorldRegion.html#RPG_WorldRegion_Connections
+  name: Connections
+  nameWithType: WorldRegion.Connections
+  fullName: RPG.WorldRegion.Connections
+- uid: System.Collections.Generic.List{System.Int32}
+  commentId: T:System.Collections.Generic.List{System.Int32}
+  parent: System.Collections.Generic
+  definition: System.Collections.Generic.List`1
+  href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  name: List<int>
+  nameWithType: List<int>
+  fullName: System.Collections.Generic.List<int>
+  nameWithType.vb: List(Of Integer)
+  fullName.vb: System.Collections.Generic.List(Of Integer)
+  name.vb: List(Of Integer)
+  spec.csharp:
+  - uid: System.Collections.Generic.List`1
+    name: List
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  - name: <
+  - uid: System.Int32
+    name: int
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int32
+  - name: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.List`1
+    name: List
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: System.Int32
+    name: Integer
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int32
+  - name: )
+- uid: System.Collections.Generic.List`1
+  commentId: T:System.Collections.Generic.List`1
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  name: List<T>
+  nameWithType: List<T>
+  fullName: System.Collections.Generic.List<T>
+  nameWithType.vb: List(Of T)
+  fullName.vb: System.Collections.Generic.List(Of T)
+  name.vb: List(Of T)
+  spec.csharp:
+  - uid: System.Collections.Generic.List`1
+    name: List
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  - name: <
+  - name: T
+  - name: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.List`1
+    name: List
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  - name: (
+  - name: Of
+  - name: " "
+  - name: T
+  - name: )
+- uid: System.Collections.Generic
+  commentId: N:System.Collections.Generic
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System.Collections.Generic
+  nameWithType: System.Collections.Generic
+  fullName: System.Collections.Generic
+  spec.csharp:
+  - uid: System
+    name: System
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system
+  - name: .
+  - uid: System.Collections
+    name: Collections
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections
+  - name: .
+  - uid: System.Collections.Generic
+    name: Generic
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic
+  spec.vb:
+  - uid: System
+    name: System
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system
+  - name: .
+  - uid: System.Collections
+    name: Collections
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections
+  - name: .
+  - uid: System.Collections.Generic
+    name: Generic
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic
+- uid: RPG.WorldRegion.NPCs*
+  commentId: Overload:RPG.WorldRegion.NPCs
+  href: RPG.WorldRegion.html#RPG_WorldRegion_NPCs
+  name: NPCs
+  nameWithType: WorldRegion.NPCs
+  fullName: RPG.WorldRegion.NPCs
+- uid: RPG.WorldRegion.Items*
+  commentId: Overload:RPG.WorldRegion.Items
+  href: RPG.WorldRegion.html#RPG_WorldRegion_Items
+  name: Items
+  nameWithType: WorldRegion.Items
+  fullName: RPG.WorldRegion.Items
+- uid: RPG.WorldRegion.Position*
+  commentId: Overload:RPG.WorldRegion.Position
+  href: RPG.WorldRegion.html#RPG_WorldRegion_Position
+  name: Position
+  nameWithType: WorldRegion.Position
+  fullName: RPG.WorldRegion.Position
+- uid: RPG.Vector2
+  commentId: T:RPG.Vector2
+  parent: RPG
+  href: RPG.Vector2.html
+  name: Vector2
+  nameWithType: Vector2
+  fullName: RPG.Vector2
+- uid: RPG.WorldRegion.Locations*
+  commentId: Overload:RPG.WorldRegion.Locations
+  href: RPG.WorldRegion.html#RPG_WorldRegion_Locations
+  name: Locations
+  nameWithType: WorldRegion.Locations
+  fullName: RPG.WorldRegion.Locations
+- uid: System.Collections.Generic.List{RPG.Location}
+  commentId: T:System.Collections.Generic.List{RPG.Location}
+  parent: System.Collections.Generic
+  definition: System.Collections.Generic.List`1
+  href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  name: List<Location>
+  nameWithType: List<Location>
+  fullName: System.Collections.Generic.List<RPG.Location>
+  nameWithType.vb: List(Of Location)
+  fullName.vb: System.Collections.Generic.List(Of RPG.Location)
+  name.vb: List(Of Location)
+  spec.csharp:
+  - uid: System.Collections.Generic.List`1
+    name: List
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  - name: <
+  - uid: RPG.Location
+    name: Location
+    href: RPG.Location.html
+  - name: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.List`1
+    name: List
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: RPG.Location
+    name: Location
+    href: RPG.Location.html
+  - name: )
+- uid: RPG.WorldRegion.Routes*
+  commentId: Overload:RPG.WorldRegion.Routes
+  href: RPG.WorldRegion.html#RPG_WorldRegion_Routes
+  name: Routes
+  nameWithType: WorldRegion.Routes
+  fullName: RPG.WorldRegion.Routes
+- uid: System.Collections.Generic.Dictionary{System.Int32,System.Collections.Generic.List{RPG.RoutePoint}}
+  commentId: T:System.Collections.Generic.Dictionary{System.Int32,System.Collections.Generic.List{RPG.RoutePoint}}
+  parent: System.Collections.Generic
+  definition: System.Collections.Generic.Dictionary`2
+  href: https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary-2
+  name: Dictionary<int, List<RoutePoint>>
+  nameWithType: Dictionary<int, List<RoutePoint>>
+  fullName: System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<RPG.RoutePoint>>
+  nameWithType.vb: Dictionary(Of Integer, List(Of RoutePoint))
+  fullName.vb: System.Collections.Generic.Dictionary(Of Integer, System.Collections.Generic.List(Of RPG.RoutePoint))
+  name.vb: Dictionary(Of Integer, List(Of RoutePoint))
+  spec.csharp:
+  - uid: System.Collections.Generic.Dictionary`2
+    name: Dictionary
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary-2
+  - name: <
+  - uid: System.Int32
+    name: int
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int32
+  - name: ','
+  - name: " "
+  - uid: System.Collections.Generic.List`1
+    name: List
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  - name: <
+  - uid: RPG.RoutePoint
+    name: RoutePoint
+    href: RPG.RoutePoint.html
+  - name: '>'
+  - name: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.Dictionary`2
+    name: Dictionary
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary-2
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: System.Int32
+    name: Integer
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int32
+  - name: ','
+  - name: " "
+  - uid: System.Collections.Generic.List`1
+    name: List
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: RPG.RoutePoint
+    name: RoutePoint
+    href: RPG.RoutePoint.html
+  - name: )
+  - name: )
+- uid: System.Collections.Generic.Dictionary`2
+  commentId: T:System.Collections.Generic.Dictionary`2
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary-2
+  name: Dictionary<TKey, TValue>
+  nameWithType: Dictionary<TKey, TValue>
+  fullName: System.Collections.Generic.Dictionary<TKey, TValue>
+  nameWithType.vb: Dictionary(Of TKey, TValue)
+  fullName.vb: System.Collections.Generic.Dictionary(Of TKey, TValue)
+  name.vb: Dictionary(Of TKey, TValue)
+  spec.csharp:
+  - uid: System.Collections.Generic.Dictionary`2
+    name: Dictionary
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary-2
+  - name: <
+  - name: TKey
+  - name: ','
+  - name: " "
+  - name: TValue
+  - name: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.Dictionary`2
+    name: Dictionary
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary-2
+  - name: (
+  - name: Of
+  - name: " "
+  - name: TKey
+  - name: ','
+  - name: " "
+  - name: TValue
+  - name: )

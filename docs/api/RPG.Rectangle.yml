@@ -1,0 +1,538 @@
+### YamlMime:ManagedReference
+items:
+- uid: RPG.Rectangle
+  commentId: T:RPG.Rectangle
+  id: Rectangle
+  parent: RPG
+  children:
+  - RPG.Rectangle.#ctor(System.Int32,System.Int32,System.Int32,System.Int32)
+  - RPG.Rectangle.Height
+  - RPG.Rectangle.Intersects(RPG.Rectangle)
+  - RPG.Rectangle.Width
+  - RPG.Rectangle.X
+  - RPG.Rectangle.Y
+  langs:
+  - csharp
+  - vb
+  name: Rectangle
+  nameWithType: Rectangle
+  fullName: RPG.Rectangle
+  type: Struct
+  source:
+    remote:
+      path: ConsoleWindowManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Rectangle
+    path: ../ConsoleWindowManager.cs
+    startLine: 93
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Represents an immutable rectangular area defined by its position and dimensions.
+  example: []
+  syntax:
+    content: public readonly struct Rectangle
+    content.vb: Public Structure Rectangle
+  inheritedMembers:
+  - System.ValueType.Equals(System.Object)
+  - System.ValueType.GetHashCode
+  - System.ValueType.ToString
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetType
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+- uid: RPG.Rectangle.#ctor(System.Int32,System.Int32,System.Int32,System.Int32)
+  commentId: M:RPG.Rectangle.#ctor(System.Int32,System.Int32,System.Int32,System.Int32)
+  id: '#ctor(System.Int32,System.Int32,System.Int32,System.Int32)'
+  parent: RPG.Rectangle
+  langs:
+  - csharp
+  - vb
+  name: Rectangle(int, int, int, int)
+  nameWithType: Rectangle.Rectangle(int, int, int, int)
+  fullName: RPG.Rectangle.Rectangle(int, int, int, int)
+  type: Constructor
+  source:
+    remote:
+      path: ConsoleWindowManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: .ctor
+    path: ../ConsoleWindowManager.cs
+    startLine: 93
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Represents an immutable rectangular area defined by its position and dimensions.
+  example: []
+  syntax:
+    content: public Rectangle(int x, int y, int width, int height)
+    parameters:
+    - id: x
+      type: System.Int32
+      description: The X-coordinate of the rectangle's top-left corner.
+    - id: y
+      type: System.Int32
+      description: The Y-coordinate of the rectangle's top-left corner.
+    - id: width
+      type: System.Int32
+      description: The width of the rectangle.
+    - id: height
+      type: System.Int32
+      description: The height of the rectangle.
+    content.vb: Public Sub New(x As Integer, y As Integer, width As Integer, height As Integer)
+  overload: RPG.Rectangle.#ctor*
+  nameWithType.vb: Rectangle.New(Integer, Integer, Integer, Integer)
+  fullName.vb: RPG.Rectangle.New(Integer, Integer, Integer, Integer)
+  name.vb: New(Integer, Integer, Integer, Integer)
+- uid: RPG.Rectangle.X
+  commentId: P:RPG.Rectangle.X
+  id: X
+  parent: RPG.Rectangle
+  langs:
+  - csharp
+  - vb
+  name: X
+  nameWithType: Rectangle.X
+  fullName: RPG.Rectangle.X
+  type: Property
+  source:
+    remote:
+      path: ConsoleWindowManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: X
+    path: ../ConsoleWindowManager.cs
+    startLine: 98
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets the X-coordinate of the rectangle's top-left corner.
+  example: []
+  syntax:
+    content: public int X { get; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public ReadOnly Property X As Integer
+  overload: RPG.Rectangle.X*
+- uid: RPG.Rectangle.Y
+  commentId: P:RPG.Rectangle.Y
+  id: Y
+  parent: RPG.Rectangle
+  langs:
+  - csharp
+  - vb
+  name: Y
+  nameWithType: Rectangle.Y
+  fullName: RPG.Rectangle.Y
+  type: Property
+  source:
+    remote:
+      path: ConsoleWindowManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Y
+    path: ../ConsoleWindowManager.cs
+    startLine: 103
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets the Y-coordinate of the rectangle's top-left corner.
+  example: []
+  syntax:
+    content: public int Y { get; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public ReadOnly Property Y As Integer
+  overload: RPG.Rectangle.Y*
+- uid: RPG.Rectangle.Width
+  commentId: P:RPG.Rectangle.Width
+  id: Width
+  parent: RPG.Rectangle
+  langs:
+  - csharp
+  - vb
+  name: Width
+  nameWithType: Rectangle.Width
+  fullName: RPG.Rectangle.Width
+  type: Property
+  source:
+    remote:
+      path: ConsoleWindowManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Width
+    path: ../ConsoleWindowManager.cs
+    startLine: 108
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets the width of the rectangle, ensuring it is never negative.
+  example: []
+  syntax:
+    content: public int Width { get; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public ReadOnly Property Width As Integer
+  overload: RPG.Rectangle.Width*
+- uid: RPG.Rectangle.Height
+  commentId: P:RPG.Rectangle.Height
+  id: Height
+  parent: RPG.Rectangle
+  langs:
+  - csharp
+  - vb
+  name: Height
+  nameWithType: Rectangle.Height
+  fullName: RPG.Rectangle.Height
+  type: Property
+  source:
+    remote:
+      path: ConsoleWindowManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Height
+    path: ../ConsoleWindowManager.cs
+    startLine: 113
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets the height of the rectangle, ensuring it is never negative.
+  example: []
+  syntax:
+    content: public int Height { get; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public ReadOnly Property Height As Integer
+  overload: RPG.Rectangle.Height*
+- uid: RPG.Rectangle.Intersects(RPG.Rectangle)
+  commentId: M:RPG.Rectangle.Intersects(RPG.Rectangle)
+  id: Intersects(RPG.Rectangle)
+  parent: RPG.Rectangle
+  langs:
+  - csharp
+  - vb
+  name: Intersects(Rectangle)
+  nameWithType: Rectangle.Intersects(Rectangle)
+  fullName: RPG.Rectangle.Intersects(RPG.Rectangle)
+  type: Method
+  source:
+    remote:
+      path: ConsoleWindowManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Intersects
+    path: ../ConsoleWindowManager.cs
+    startLine: 120
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Determines whether this rectangle intersects with another rectangle.
+  example: []
+  syntax:
+    content: public bool Intersects(Rectangle other)
+    parameters:
+    - id: other
+      type: RPG.Rectangle
+      description: The rectangle to test for intersection.
+    return:
+      type: System.Boolean
+      description: True if the rectangles intersect; otherwise, false.
+    content.vb: Public Function Intersects(other As Rectangle) As Boolean
+  overload: RPG.Rectangle.Intersects*
+references:
+- uid: RPG
+  commentId: N:RPG
+  href: RPG.html
+  name: RPG
+  nameWithType: RPG
+  fullName: RPG
+- uid: System.ValueType.Equals(System.Object)
+  commentId: M:System.ValueType.Equals(System.Object)
+  parent: System.ValueType
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.valuetype.equals
+  name: Equals(object)
+  nameWithType: ValueType.Equals(object)
+  fullName: System.ValueType.Equals(object)
+  nameWithType.vb: ValueType.Equals(Object)
+  fullName.vb: System.ValueType.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.ValueType.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.valuetype.equals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.ValueType.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.valuetype.equals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.ValueType.GetHashCode
+  commentId: M:System.ValueType.GetHashCode
+  parent: System.ValueType
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.valuetype.gethashcode
+  name: GetHashCode()
+  nameWithType: ValueType.GetHashCode()
+  fullName: System.ValueType.GetHashCode()
+  spec.csharp:
+  - uid: System.ValueType.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.valuetype.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.ValueType.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.valuetype.gethashcode
+  - name: (
+  - name: )
+- uid: System.ValueType.ToString
+  commentId: M:System.ValueType.ToString
+  parent: System.ValueType
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.valuetype.tostring
+  name: ToString()
+  nameWithType: ValueType.ToString()
+  fullName: System.ValueType.ToString()
+  spec.csharp:
+  - uid: System.ValueType.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.valuetype.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.ValueType.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.valuetype.tostring
+  - name: (
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.ValueType
+  commentId: T:System.ValueType
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.valuetype
+  name: ValueType
+  nameWithType: ValueType
+  fullName: System.ValueType
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: RPG.Rectangle.#ctor*
+  commentId: Overload:RPG.Rectangle.#ctor
+  href: RPG.Rectangle.html#RPG_Rectangle__ctor_System_Int32_System_Int32_System_Int32_System_Int32_
+  name: Rectangle
+  nameWithType: Rectangle.Rectangle
+  fullName: RPG.Rectangle.Rectangle
+  nameWithType.vb: Rectangle.New
+  fullName.vb: RPG.Rectangle.New
+  name.vb: New
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int32
+  name: int
+  nameWithType: int
+  fullName: int
+  nameWithType.vb: Integer
+  fullName.vb: Integer
+  name.vb: Integer
+- uid: RPG.Rectangle.X*
+  commentId: Overload:RPG.Rectangle.X
+  href: RPG.Rectangle.html#RPG_Rectangle_X
+  name: X
+  nameWithType: Rectangle.X
+  fullName: RPG.Rectangle.X
+- uid: RPG.Rectangle.Y*
+  commentId: Overload:RPG.Rectangle.Y
+  href: RPG.Rectangle.html#RPG_Rectangle_Y
+  name: Y
+  nameWithType: Rectangle.Y
+  fullName: RPG.Rectangle.Y
+- uid: RPG.Rectangle.Width*
+  commentId: Overload:RPG.Rectangle.Width
+  href: RPG.Rectangle.html#RPG_Rectangle_Width
+  name: Width
+  nameWithType: Rectangle.Width
+  fullName: RPG.Rectangle.Width
+- uid: RPG.Rectangle.Height*
+  commentId: Overload:RPG.Rectangle.Height
+  href: RPG.Rectangle.html#RPG_Rectangle_Height
+  name: Height
+  nameWithType: Rectangle.Height
+  fullName: RPG.Rectangle.Height
+- uid: RPG.Rectangle.Intersects*
+  commentId: Overload:RPG.Rectangle.Intersects
+  href: RPG.Rectangle.html#RPG_Rectangle_Intersects_RPG_Rectangle_
+  name: Intersects
+  nameWithType: Rectangle.Intersects
+  fullName: RPG.Rectangle.Intersects
+- uid: RPG.Rectangle
+  commentId: T:RPG.Rectangle
+  parent: RPG
+  href: RPG.Rectangle.html
+  name: Rectangle
+  nameWithType: Rectangle
+  fullName: RPG.Rectangle
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.boolean
+  name: bool
+  nameWithType: bool
+  fullName: bool
+  nameWithType.vb: Boolean
+  fullName.vb: Boolean
+  name.vb: Boolean

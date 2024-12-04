@@ -1,0 +1,815 @@
+### YamlMime:ManagedReference
+items:
+- uid: RPG.SaveManager
+  commentId: T:RPG.SaveManager
+  id: SaveManager
+  parent: RPG
+  children:
+  - RPG.SaveManager.CreateAutosave(RPG.SaveData)
+  - RPG.SaveManager.DeleteSave(System.String,System.Boolean)
+  - RPG.SaveManager.GetSaveFiles(System.Boolean)
+  - RPG.SaveManager.Load(System.String,System.Boolean)
+  - RPG.SaveManager.RestoreBackup(System.String,System.Int32)
+  - RPG.SaveManager.Save(RPG.SaveData,System.String,System.Boolean)
+  - RPG.SaveManager.SaveExists(System.String,System.Boolean)
+  langs:
+  - csharp
+  - vb
+  name: SaveManager
+  nameWithType: SaveManager
+  fullName: RPG.SaveManager
+  type: Class
+  source:
+    remote:
+      path: SaveManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: SaveManager
+    path: ../SaveManager.cs
+    startLine: 12
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Manages saving and loading game data to disk.
+  example: []
+  syntax:
+    content: public static class SaveManager
+    content.vb: Public Module SaveManager
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+- uid: RPG.SaveManager.Save(RPG.SaveData,System.String,System.Boolean)
+  commentId: M:RPG.SaveManager.Save(RPG.SaveData,System.String,System.Boolean)
+  id: Save(RPG.SaveData,System.String,System.Boolean)
+  parent: RPG.SaveManager
+  langs:
+  - csharp
+  - vb
+  name: Save(SaveData, string, bool)
+  nameWithType: SaveManager.Save(SaveData, string, bool)
+  fullName: RPG.SaveManager.Save(RPG.SaveData, string, bool)
+  type: Method
+  source:
+    remote:
+      path: SaveManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Save
+    path: ../SaveManager.cs
+    startLine: 60
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Saves the game data to disk.
+  example: []
+  syntax:
+    content: public static void Save(SaveData saveData, string slot, bool isAutosave = false)
+    parameters:
+    - id: saveData
+      type: RPG.SaveData
+      description: The game data to save.
+    - id: slot
+      type: System.String
+      description: The save slot to use.
+    - id: isAutosave
+      type: System.Boolean
+      description: Whether this save is an autosave.
+    content.vb: Public Shared Sub Save(saveData As SaveData, slot As String, isAutosave As Boolean = False)
+  overload: RPG.SaveManager.Save*
+  nameWithType.vb: SaveManager.Save(SaveData, String, Boolean)
+  fullName.vb: RPG.SaveManager.Save(RPG.SaveData, String, Boolean)
+  name.vb: Save(SaveData, String, Boolean)
+- uid: RPG.SaveManager.Load(System.String,System.Boolean)
+  commentId: M:RPG.SaveManager.Load(System.String,System.Boolean)
+  id: Load(System.String,System.Boolean)
+  parent: RPG.SaveManager
+  langs:
+  - csharp
+  - vb
+  name: Load(string, bool)
+  nameWithType: SaveManager.Load(string, bool)
+  fullName: RPG.SaveManager.Load(string, bool)
+  type: Method
+  source:
+    remote:
+      path: SaveManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Load
+    path: ../SaveManager.cs
+    startLine: 107
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Loads the game data from disk.
+  example: []
+  syntax:
+    content: public static (SaveMetadata? Metadata, SaveData? Data) Load(string slot, bool isAutosave = false)
+    parameters:
+    - id: slot
+      type: System.String
+      description: The save slot to load.
+    - id: isAutosave
+      type: System.Boolean
+      description: Whether to load an autosave.
+    return:
+      type: System.ValueTuple{RPG.SaveMetadata,RPG.SaveData}
+      description: A tuple containing the save metadata and data.
+    content.vb: Public Shared Function Load(slot As String, isAutosave As Boolean = False) As (Metadata As SaveMetadata, Data As SaveData)
+  overload: RPG.SaveManager.Load*
+  nameWithType.vb: SaveManager.Load(String, Boolean)
+  fullName.vb: RPG.SaveManager.Load(String, Boolean)
+  name.vb: Load(String, Boolean)
+- uid: RPG.SaveManager.GetSaveFiles(System.Boolean)
+  commentId: M:RPG.SaveManager.GetSaveFiles(System.Boolean)
+  id: GetSaveFiles(System.Boolean)
+  parent: RPG.SaveManager
+  langs:
+  - csharp
+  - vb
+  name: GetSaveFiles(bool)
+  nameWithType: SaveManager.GetSaveFiles(bool)
+  fullName: RPG.SaveManager.GetSaveFiles(bool)
+  type: Method
+  source:
+    remote:
+      path: SaveManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: GetSaveFiles
+    path: ../SaveManager.cs
+    startLine: 148
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Gets a list of save files.
+  example: []
+  syntax:
+    content: public static List<SaveInfo> GetSaveFiles(bool includeAutosaves = true)
+    parameters:
+    - id: includeAutosaves
+      type: System.Boolean
+      description: Whether to include autosaves in the list.
+    return:
+      type: System.Collections.Generic.List{RPG.SaveInfo}
+      description: A list of save files.
+    content.vb: Public Shared Function GetSaveFiles(includeAutosaves As Boolean = True) As List(Of SaveInfo)
+  overload: RPG.SaveManager.GetSaveFiles*
+  nameWithType.vb: SaveManager.GetSaveFiles(Boolean)
+  fullName.vb: RPG.SaveManager.GetSaveFiles(Boolean)
+  name.vb: GetSaveFiles(Boolean)
+- uid: RPG.SaveManager.CreateAutosave(RPG.SaveData)
+  commentId: M:RPG.SaveManager.CreateAutosave(RPG.SaveData)
+  id: CreateAutosave(RPG.SaveData)
+  parent: RPG.SaveManager
+  langs:
+  - csharp
+  - vb
+  name: CreateAutosave(SaveData)
+  nameWithType: SaveManager.CreateAutosave(SaveData)
+  fullName: RPG.SaveManager.CreateAutosave(RPG.SaveData)
+  type: Method
+  source:
+    remote:
+      path: SaveManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: CreateAutosave
+    path: ../SaveManager.cs
+    startLine: 176
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Creates an autosave from the current game data.
+  example: []
+  syntax:
+    content: public static void CreateAutosave(SaveData saveData)
+    parameters:
+    - id: saveData
+      type: RPG.SaveData
+      description: The game data to save.
+    content.vb: Public Shared Sub CreateAutosave(saveData As SaveData)
+  overload: RPG.SaveManager.CreateAutosave*
+- uid: RPG.SaveManager.DeleteSave(System.String,System.Boolean)
+  commentId: M:RPG.SaveManager.DeleteSave(System.String,System.Boolean)
+  id: DeleteSave(System.String,System.Boolean)
+  parent: RPG.SaveManager
+  langs:
+  - csharp
+  - vb
+  name: DeleteSave(string, bool)
+  nameWithType: SaveManager.DeleteSave(string, bool)
+  fullName: RPG.SaveManager.DeleteSave(string, bool)
+  type: Method
+  source:
+    remote:
+      path: SaveManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: DeleteSave
+    path: ../SaveManager.cs
+    startLine: 187
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Deletes a save file.
+  example: []
+  syntax:
+    content: public static void DeleteSave(string slot, bool isAutosave = false)
+    parameters:
+    - id: slot
+      type: System.String
+      description: The save slot to delete.
+    - id: isAutosave
+      type: System.Boolean
+      description: Whether to delete an autosave.
+    content.vb: Public Shared Sub DeleteSave(slot As String, isAutosave As Boolean = False)
+  overload: RPG.SaveManager.DeleteSave*
+  nameWithType.vb: SaveManager.DeleteSave(String, Boolean)
+  fullName.vb: RPG.SaveManager.DeleteSave(String, Boolean)
+  name.vb: DeleteSave(String, Boolean)
+- uid: RPG.SaveManager.RestoreBackup(System.String,System.Int32)
+  commentId: M:RPG.SaveManager.RestoreBackup(System.String,System.Int32)
+  id: RestoreBackup(System.String,System.Int32)
+  parent: RPG.SaveManager
+  langs:
+  - csharp
+  - vb
+  name: RestoreBackup(string, int)
+  nameWithType: SaveManager.RestoreBackup(string, int)
+  fullName: RPG.SaveManager.RestoreBackup(string, int)
+  type: Method
+  source:
+    remote:
+      path: SaveManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: RestoreBackup
+    path: ../SaveManager.cs
+    startLine: 207
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Restores a backup to the main save file.
+  example: []
+  syntax:
+    content: public static bool RestoreBackup(string slot, int backupIndex)
+    parameters:
+    - id: slot
+      type: System.String
+      description: The save slot to restore.
+    - id: backupIndex
+      type: System.Int32
+      description: The index of the backup to restore.
+    return:
+      type: System.Boolean
+      description: True if the backup was restored successfully.
+    content.vb: Public Shared Function RestoreBackup(slot As String, backupIndex As Integer) As Boolean
+  overload: RPG.SaveManager.RestoreBackup*
+  nameWithType.vb: SaveManager.RestoreBackup(String, Integer)
+  fullName.vb: RPG.SaveManager.RestoreBackup(String, Integer)
+  name.vb: RestoreBackup(String, Integer)
+- uid: RPG.SaveManager.SaveExists(System.String,System.Boolean)
+  commentId: M:RPG.SaveManager.SaveExists(System.String,System.Boolean)
+  id: SaveExists(System.String,System.Boolean)
+  parent: RPG.SaveManager
+  langs:
+  - csharp
+  - vb
+  name: SaveExists(string, bool)
+  nameWithType: SaveManager.SaveExists(string, bool)
+  fullName: RPG.SaveManager.SaveExists(string, bool)
+  type: Method
+  source:
+    remote:
+      path: SaveManager.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: SaveExists
+    path: ../SaveManager.cs
+    startLine: 227
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Checks if a save file exists in the specified slot.
+  example: []
+  syntax:
+    content: public static bool SaveExists(string slot, bool isAutosave = false)
+    parameters:
+    - id: slot
+      type: System.String
+      description: The save slot to check.
+    - id: isAutosave
+      type: System.Boolean
+      description: Whether to check for an autosave.
+    return:
+      type: System.Boolean
+      description: True if a save file exists in the slot; otherwise, false.
+    content.vb: Public Shared Function SaveExists(slot As String, isAutosave As Boolean = False) As Boolean
+  overload: RPG.SaveManager.SaveExists*
+  nameWithType.vb: SaveManager.SaveExists(String, Boolean)
+  fullName.vb: RPG.SaveManager.SaveExists(String, Boolean)
+  name.vb: SaveExists(String, Boolean)
+references:
+- uid: RPG
+  commentId: N:RPG
+  href: RPG.html
+  name: RPG
+  nameWithType: RPG
+  fullName: RPG
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: RPG.SaveManager.Save*
+  commentId: Overload:RPG.SaveManager.Save
+  href: RPG.SaveManager.html#RPG_SaveManager_Save_RPG_SaveData_System_String_System_Boolean_
+  name: Save
+  nameWithType: SaveManager.Save
+  fullName: RPG.SaveManager.Save
+- uid: RPG.SaveData
+  commentId: T:RPG.SaveData
+  parent: RPG
+  href: RPG.SaveData.html
+  name: SaveData
+  nameWithType: SaveData
+  fullName: RPG.SaveData
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.boolean
+  name: bool
+  nameWithType: bool
+  fullName: bool
+  nameWithType.vb: Boolean
+  fullName.vb: Boolean
+  name.vb: Boolean
+- uid: RPG.SaveManager.Load*
+  commentId: Overload:RPG.SaveManager.Load
+  href: RPG.SaveManager.html#RPG_SaveManager_Load_System_String_System_Boolean_
+  name: Load
+  nameWithType: SaveManager.Load
+  fullName: RPG.SaveManager.Load
+- uid: System.ValueTuple{RPG.SaveMetadata,RPG.SaveData}
+  commentId: T:System.ValueTuple{RPG.SaveMetadata,RPG.SaveData}
+  parent: System
+  definition: System.ValueTuple`2
+  href: RPG.SaveMetadata.html
+  name: (SaveMetadata Metadata, SaveData Data)
+  nameWithType: (SaveMetadata Metadata, SaveData Data)
+  fullName: (RPG.SaveMetadata Metadata, RPG.SaveData Data)
+  nameWithType.vb: (Metadata As SaveMetadata, Data As SaveData)
+  fullName.vb: (Metadata As RPG.SaveMetadata, Data As RPG.SaveData)
+  name.vb: (Metadata As SaveMetadata, Data As SaveData)
+  spec.csharp:
+  - name: (
+  - uid: RPG.SaveMetadata
+    name: SaveMetadata
+    href: RPG.SaveMetadata.html
+  - name: " "
+  - uid: System.ValueTuple{RPG.SaveMetadata,RPG.SaveData}.Metadata
+    name: Metadata
+    href: https://learn.microsoft.com/dotnet/api/system.valuetuple-rpg.savemetadata,rpg.savedata-.metadata
+  - name: ','
+  - name: " "
+  - uid: RPG.SaveData
+    name: SaveData
+    href: RPG.SaveData.html
+  - name: " "
+  - uid: System.ValueTuple{RPG.SaveMetadata,RPG.SaveData}.Data
+    name: Data
+    href: https://learn.microsoft.com/dotnet/api/system.valuetuple-rpg.savemetadata,rpg.savedata-.data
+  - name: )
+  spec.vb:
+  - name: (
+  - uid: System.ValueTuple{RPG.SaveMetadata,RPG.SaveData}.Metadata
+    name: Metadata
+    href: https://learn.microsoft.com/dotnet/api/system.valuetuple-rpg.savemetadata,rpg.savedata-.metadata
+  - name: " "
+  - name: As
+  - name: " "
+  - uid: RPG.SaveMetadata
+    name: SaveMetadata
+    href: RPG.SaveMetadata.html
+  - name: ','
+  - name: " "
+  - uid: System.ValueTuple{RPG.SaveMetadata,RPG.SaveData}.Data
+    name: Data
+    href: https://learn.microsoft.com/dotnet/api/system.valuetuple-rpg.savemetadata,rpg.savedata-.data
+  - name: " "
+  - name: As
+  - name: " "
+  - uid: RPG.SaveData
+    name: SaveData
+    href: RPG.SaveData.html
+  - name: )
+- uid: System.ValueTuple`2
+  commentId: T:System.ValueTuple`2
+  name: (T1, T2)
+  nameWithType: (T1, T2)
+  fullName: (T1, T2)
+  spec.csharp:
+  - name: (
+  - name: T1
+  - name: ','
+  - name: " "
+  - name: T2
+  - name: )
+  spec.vb:
+  - name: (
+  - name: T1
+  - name: ','
+  - name: " "
+  - name: T2
+  - name: )
+- uid: RPG.SaveManager.GetSaveFiles*
+  commentId: Overload:RPG.SaveManager.GetSaveFiles
+  href: RPG.SaveManager.html#RPG_SaveManager_GetSaveFiles_System_Boolean_
+  name: GetSaveFiles
+  nameWithType: SaveManager.GetSaveFiles
+  fullName: RPG.SaveManager.GetSaveFiles
+- uid: System.Collections.Generic.List{RPG.SaveInfo}
+  commentId: T:System.Collections.Generic.List{RPG.SaveInfo}
+  parent: System.Collections.Generic
+  definition: System.Collections.Generic.List`1
+  href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  name: List<SaveInfo>
+  nameWithType: List<SaveInfo>
+  fullName: System.Collections.Generic.List<RPG.SaveInfo>
+  nameWithType.vb: List(Of SaveInfo)
+  fullName.vb: System.Collections.Generic.List(Of RPG.SaveInfo)
+  name.vb: List(Of SaveInfo)
+  spec.csharp:
+  - uid: System.Collections.Generic.List`1
+    name: List
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  - name: <
+  - uid: RPG.SaveInfo
+    name: SaveInfo
+    href: RPG.SaveInfo.html
+  - name: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.List`1
+    name: List
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: RPG.SaveInfo
+    name: SaveInfo
+    href: RPG.SaveInfo.html
+  - name: )
+- uid: System.Collections.Generic.List`1
+  commentId: T:System.Collections.Generic.List`1
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  name: List<T>
+  nameWithType: List<T>
+  fullName: System.Collections.Generic.List<T>
+  nameWithType.vb: List(Of T)
+  fullName.vb: System.Collections.Generic.List(Of T)
+  name.vb: List(Of T)
+  spec.csharp:
+  - uid: System.Collections.Generic.List`1
+    name: List
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  - name: <
+  - name: T
+  - name: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.List`1
+    name: List
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.list-1
+  - name: (
+  - name: Of
+  - name: " "
+  - name: T
+  - name: )
+- uid: System.Collections.Generic
+  commentId: N:System.Collections.Generic
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System.Collections.Generic
+  nameWithType: System.Collections.Generic
+  fullName: System.Collections.Generic
+  spec.csharp:
+  - uid: System
+    name: System
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system
+  - name: .
+  - uid: System.Collections
+    name: Collections
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections
+  - name: .
+  - uid: System.Collections.Generic
+    name: Generic
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic
+  spec.vb:
+  - uid: System
+    name: System
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system
+  - name: .
+  - uid: System.Collections
+    name: Collections
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections
+  - name: .
+  - uid: System.Collections.Generic
+    name: Generic
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic
+- uid: RPG.SaveManager.CreateAutosave*
+  commentId: Overload:RPG.SaveManager.CreateAutosave
+  href: RPG.SaveManager.html#RPG_SaveManager_CreateAutosave_RPG_SaveData_
+  name: CreateAutosave
+  nameWithType: SaveManager.CreateAutosave
+  fullName: RPG.SaveManager.CreateAutosave
+- uid: RPG.SaveManager.DeleteSave*
+  commentId: Overload:RPG.SaveManager.DeleteSave
+  href: RPG.SaveManager.html#RPG_SaveManager_DeleteSave_System_String_System_Boolean_
+  name: DeleteSave
+  nameWithType: SaveManager.DeleteSave
+  fullName: RPG.SaveManager.DeleteSave
+- uid: RPG.SaveManager.RestoreBackup*
+  commentId: Overload:RPG.SaveManager.RestoreBackup
+  href: RPG.SaveManager.html#RPG_SaveManager_RestoreBackup_System_String_System_Int32_
+  name: RestoreBackup
+  nameWithType: SaveManager.RestoreBackup
+  fullName: RPG.SaveManager.RestoreBackup
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int32
+  name: int
+  nameWithType: int
+  fullName: int
+  nameWithType.vb: Integer
+  fullName.vb: Integer
+  name.vb: Integer
+- uid: RPG.SaveManager.SaveExists*
+  commentId: Overload:RPG.SaveManager.SaveExists
+  href: RPG.SaveManager.html#RPG_SaveManager_SaveExists_System_String_System_Boolean_
+  name: SaveExists
+  nameWithType: SaveManager.SaveExists
+  fullName: RPG.SaveManager.SaveExists

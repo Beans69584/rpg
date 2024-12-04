@@ -1,0 +1,543 @@
+### YamlMime:ManagedReference
+items:
+- uid: RPG.Commands.LuaTableExtensions
+  commentId: T:RPG.Commands.LuaTableExtensions
+  id: LuaTableExtensions
+  parent: RPG.Commands
+  children:
+  - RPG.Commands.LuaTableExtensions.ToLuaTable(System.Collections.Generic.IEnumerable{RPG.Commands.LocationWrapper},NLua.Lua)
+  - RPG.Commands.LuaTableExtensions.ToLuaTable(System.Collections.Generic.IEnumerable{RPG.Commands.RegionWrapper},NLua.Lua)
+  langs:
+  - csharp
+  - vb
+  name: LuaTableExtensions
+  nameWithType: LuaTableExtensions
+  fullName: RPG.Commands.LuaTableExtensions
+  type: Class
+  source:
+    remote:
+      path: Commands/LuaWrapper.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: LuaTableExtensions
+    path: ../Commands/LuaWrapper.cs
+    startLine: 64
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Extension methods for lua tables.
+  example: []
+  syntax:
+    content: public static class LuaTableExtensions
+    content.vb: Public Module LuaTableExtensions
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+- uid: RPG.Commands.LuaTableExtensions.ToLuaTable(System.Collections.Generic.IEnumerable{RPG.Commands.RegionWrapper},NLua.Lua)
+  commentId: M:RPG.Commands.LuaTableExtensions.ToLuaTable(System.Collections.Generic.IEnumerable{RPG.Commands.RegionWrapper},NLua.Lua)
+  id: ToLuaTable(System.Collections.Generic.IEnumerable{RPG.Commands.RegionWrapper},NLua.Lua)
+  isExtensionMethod: true
+  parent: RPG.Commands.LuaTableExtensions
+  langs:
+  - csharp
+  - vb
+  name: ToLuaTable(IEnumerable<RegionWrapper>, Lua)
+  nameWithType: LuaTableExtensions.ToLuaTable(IEnumerable<RegionWrapper>, Lua)
+  fullName: RPG.Commands.LuaTableExtensions.ToLuaTable(System.Collections.Generic.IEnumerable<RPG.Commands.RegionWrapper>, NLua.Lua)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaWrapper.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: ToLuaTable
+    path: ../Commands/LuaWrapper.cs
+    startLine: 72
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Converts a list of region wrappers to a lua table.
+  example: []
+  syntax:
+    content: public static LuaTable? ToLuaTable(this IEnumerable<RegionWrapper> items, Lua lua)
+    parameters:
+    - id: items
+      type: System.Collections.Generic.IEnumerable{RPG.Commands.RegionWrapper}
+      description: The items to convert.
+    - id: lua
+      type: NLua.Lua
+      description: The lua instance to use.
+    return:
+      type: NLua.LuaTable
+      description: The lua table.
+    content.vb: Public Shared Function ToLuaTable(items As IEnumerable(Of RegionWrapper), lua As Lua) As LuaTable
+  overload: RPG.Commands.LuaTableExtensions.ToLuaTable*
+  nameWithType.vb: LuaTableExtensions.ToLuaTable(IEnumerable(Of RegionWrapper), Lua)
+  fullName.vb: RPG.Commands.LuaTableExtensions.ToLuaTable(System.Collections.Generic.IEnumerable(Of RPG.Commands.RegionWrapper), NLua.Lua)
+  name.vb: ToLuaTable(IEnumerable(Of RegionWrapper), Lua)
+- uid: RPG.Commands.LuaTableExtensions.ToLuaTable(System.Collections.Generic.IEnumerable{RPG.Commands.LocationWrapper},NLua.Lua)
+  commentId: M:RPG.Commands.LuaTableExtensions.ToLuaTable(System.Collections.Generic.IEnumerable{RPG.Commands.LocationWrapper},NLua.Lua)
+  id: ToLuaTable(System.Collections.Generic.IEnumerable{RPG.Commands.LocationWrapper},NLua.Lua)
+  isExtensionMethod: true
+  parent: RPG.Commands.LuaTableExtensions
+  langs:
+  - csharp
+  - vb
+  name: ToLuaTable(IEnumerable<LocationWrapper>, Lua)
+  nameWithType: LuaTableExtensions.ToLuaTable(IEnumerable<LocationWrapper>, Lua)
+  fullName: RPG.Commands.LuaTableExtensions.ToLuaTable(System.Collections.Generic.IEnumerable<RPG.Commands.LocationWrapper>, NLua.Lua)
+  type: Method
+  source:
+    remote:
+      path: Commands/LuaWrapper.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: ToLuaTable
+    path: ../Commands/LuaWrapper.cs
+    startLine: 91
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Converts a list of location wrappers to a lua table.
+  example: []
+  syntax:
+    content: public static LuaTable? ToLuaTable(this IEnumerable<LocationWrapper> items, Lua lua)
+    parameters:
+    - id: items
+      type: System.Collections.Generic.IEnumerable{RPG.Commands.LocationWrapper}
+      description: The items to convert.
+    - id: lua
+      type: NLua.Lua
+      description: The lua instance to use.
+    return:
+      type: NLua.LuaTable
+      description: The lua table.
+    content.vb: Public Shared Function ToLuaTable(items As IEnumerable(Of LocationWrapper), lua As Lua) As LuaTable
+  overload: RPG.Commands.LuaTableExtensions.ToLuaTable*
+  nameWithType.vb: LuaTableExtensions.ToLuaTable(IEnumerable(Of LocationWrapper), Lua)
+  fullName.vb: RPG.Commands.LuaTableExtensions.ToLuaTable(System.Collections.Generic.IEnumerable(Of RPG.Commands.LocationWrapper), NLua.Lua)
+  name.vb: ToLuaTable(IEnumerable(Of LocationWrapper), Lua)
+references:
+- uid: RPG.Commands
+  commentId: N:RPG.Commands
+  href: RPG.html
+  name: RPG.Commands
+  nameWithType: RPG.Commands
+  fullName: RPG.Commands
+  spec.csharp:
+  - uid: RPG
+    name: RPG
+    href: RPG.html
+  - name: .
+  - uid: RPG.Commands
+    name: Commands
+    href: RPG.Commands.html
+  spec.vb:
+  - uid: RPG
+    name: RPG
+    href: RPG.html
+  - name: .
+  - uid: RPG.Commands
+    name: Commands
+    href: RPG.Commands.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: RPG.Commands.LuaTableExtensions.ToLuaTable*
+  commentId: Overload:RPG.Commands.LuaTableExtensions.ToLuaTable
+  href: RPG.Commands.LuaTableExtensions.html#RPG_Commands_LuaTableExtensions_ToLuaTable_System_Collections_Generic_IEnumerable_RPG_Commands_RegionWrapper__NLua_Lua_
+  name: ToLuaTable
+  nameWithType: LuaTableExtensions.ToLuaTable
+  fullName: RPG.Commands.LuaTableExtensions.ToLuaTable
+- uid: System.Collections.Generic.IEnumerable{RPG.Commands.RegionWrapper}
+  commentId: T:System.Collections.Generic.IEnumerable{RPG.Commands.RegionWrapper}
+  parent: System.Collections.Generic
+  definition: System.Collections.Generic.IEnumerable`1
+  href: https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1
+  name: IEnumerable<RegionWrapper>
+  nameWithType: IEnumerable<RegionWrapper>
+  fullName: System.Collections.Generic.IEnumerable<RPG.Commands.RegionWrapper>
+  nameWithType.vb: IEnumerable(Of RegionWrapper)
+  fullName.vb: System.Collections.Generic.IEnumerable(Of RPG.Commands.RegionWrapper)
+  name.vb: IEnumerable(Of RegionWrapper)
+  spec.csharp:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1
+  - name: <
+  - uid: RPG.Commands.RegionWrapper
+    name: RegionWrapper
+    href: RPG.Commands.RegionWrapper.html
+  - name: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: RPG.Commands.RegionWrapper
+    name: RegionWrapper
+    href: RPG.Commands.RegionWrapper.html
+  - name: )
+- uid: NLua.Lua
+  commentId: T:NLua.Lua
+  parent: NLua
+  isExternal: true
+  name: Lua
+  nameWithType: Lua
+  fullName: NLua.Lua
+- uid: NLua.LuaTable
+  commentId: T:NLua.LuaTable
+  parent: NLua
+  isExternal: true
+  name: LuaTable
+  nameWithType: LuaTable
+  fullName: NLua.LuaTable
+- uid: System.Collections.Generic.IEnumerable`1
+  commentId: T:System.Collections.Generic.IEnumerable`1
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1
+  name: IEnumerable<T>
+  nameWithType: IEnumerable<T>
+  fullName: System.Collections.Generic.IEnumerable<T>
+  nameWithType.vb: IEnumerable(Of T)
+  fullName.vb: System.Collections.Generic.IEnumerable(Of T)
+  name.vb: IEnumerable(Of T)
+  spec.csharp:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1
+  - name: <
+  - name: T
+  - name: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1
+  - name: (
+  - name: Of
+  - name: " "
+  - name: T
+  - name: )
+- uid: System.Collections.Generic
+  commentId: N:System.Collections.Generic
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System.Collections.Generic
+  nameWithType: System.Collections.Generic
+  fullName: System.Collections.Generic
+  spec.csharp:
+  - uid: System
+    name: System
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system
+  - name: .
+  - uid: System.Collections
+    name: Collections
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections
+  - name: .
+  - uid: System.Collections.Generic
+    name: Generic
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic
+  spec.vb:
+  - uid: System
+    name: System
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system
+  - name: .
+  - uid: System.Collections
+    name: Collections
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections
+  - name: .
+  - uid: System.Collections.Generic
+    name: Generic
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic
+- uid: NLua
+  commentId: N:NLua
+  isExternal: true
+  name: NLua
+  nameWithType: NLua
+  fullName: NLua
+- uid: System.Collections.Generic.IEnumerable{RPG.Commands.LocationWrapper}
+  commentId: T:System.Collections.Generic.IEnumerable{RPG.Commands.LocationWrapper}
+  parent: System.Collections.Generic
+  definition: System.Collections.Generic.IEnumerable`1
+  href: https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1
+  name: IEnumerable<LocationWrapper>
+  nameWithType: IEnumerable<LocationWrapper>
+  fullName: System.Collections.Generic.IEnumerable<RPG.Commands.LocationWrapper>
+  nameWithType.vb: IEnumerable(Of LocationWrapper)
+  fullName.vb: System.Collections.Generic.IEnumerable(Of RPG.Commands.LocationWrapper)
+  name.vb: IEnumerable(Of LocationWrapper)
+  spec.csharp:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1
+  - name: <
+  - uid: RPG.Commands.LocationWrapper
+    name: LocationWrapper
+    href: RPG.Commands.LocationWrapper.html
+  - name: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: RPG.Commands.LocationWrapper
+    name: LocationWrapper
+    href: RPG.Commands.LocationWrapper.html
+  - name: )

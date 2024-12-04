@@ -1,0 +1,589 @@
+### YamlMime:ManagedReference
+items:
+- uid: RPG.Commands.SaveCommand
+  commentId: T:RPG.Commands.SaveCommand
+  id: SaveCommand
+  parent: RPG.Commands
+  children:
+  - RPG.Commands.SaveCommand.Aliases
+  - RPG.Commands.SaveCommand.Description
+  - RPG.Commands.SaveCommand.Execute(System.String,RPG.GameState)
+  - RPG.Commands.SaveCommand.Name
+  langs:
+  - csharp
+  - vb
+  name: SaveCommand
+  nameWithType: SaveCommand
+  fullName: RPG.Commands.SaveCommand
+  type: Class
+  source:
+    remote:
+      path: Commands/SaveCommand.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: SaveCommand
+    path: ../Commands/SaveCommand.cs
+    startLine: 10
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Built-in command that saves the game to a save slot.
+  example: []
+  syntax:
+    content: 'public class SaveCommand : BaseCommand, ICommand'
+    content.vb: Public Class SaveCommand Inherits BaseCommand Implements ICommand
+  inheritance:
+  - System.Object
+  - RPG.Commands.BaseCommand
+  implements:
+  - RPG.Commands.ICommand
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+- uid: RPG.Commands.SaveCommand.Name
+  commentId: P:RPG.Commands.SaveCommand.Name
+  id: Name
+  parent: RPG.Commands.SaveCommand
+  langs:
+  - csharp
+  - vb
+  name: Name
+  nameWithType: SaveCommand.Name
+  fullName: RPG.Commands.SaveCommand.Name
+  type: Property
+  source:
+    remote:
+      path: Commands/SaveCommand.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Name
+    path: ../Commands/SaveCommand.cs
+    startLine: 15
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the name of the command.
+  example: []
+  syntax:
+    content: public override string Name { get; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: Public Overrides ReadOnly Property Name As String
+  overridden: RPG.Commands.BaseCommand.Name
+  overload: RPG.Commands.SaveCommand.Name*
+- uid: RPG.Commands.SaveCommand.Description
+  commentId: P:RPG.Commands.SaveCommand.Description
+  id: Description
+  parent: RPG.Commands.SaveCommand
+  langs:
+  - csharp
+  - vb
+  name: Description
+  nameWithType: SaveCommand.Description
+  fullName: RPG.Commands.SaveCommand.Description
+  type: Property
+  source:
+    remote:
+      path: Commands/SaveCommand.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Description
+    path: ../Commands/SaveCommand.cs
+    startLine: 19
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets the description of the command.
+  example: []
+  syntax:
+    content: public override string Description { get; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: Public Overrides ReadOnly Property Description As String
+  overridden: RPG.Commands.BaseCommand.Description
+  overload: RPG.Commands.SaveCommand.Description*
+- uid: RPG.Commands.SaveCommand.Aliases
+  commentId: P:RPG.Commands.SaveCommand.Aliases
+  id: Aliases
+  parent: RPG.Commands.SaveCommand
+  langs:
+  - csharp
+  - vb
+  name: Aliases
+  nameWithType: SaveCommand.Aliases
+  fullName: RPG.Commands.SaveCommand.Aliases
+  type: Property
+  source:
+    remote:
+      path: Commands/SaveCommand.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Aliases
+    path: ../Commands/SaveCommand.cs
+    startLine: 23
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Gets a list of aliases for the command.
+  example: []
+  syntax:
+    content: public override string[] Aliases { get; }
+    parameters: []
+    return:
+      type: System.String[]
+    content.vb: Public Overrides ReadOnly Property Aliases As String()
+  overridden: RPG.Commands.BaseCommand.Aliases
+  overload: RPG.Commands.SaveCommand.Aliases*
+- uid: RPG.Commands.SaveCommand.Execute(System.String,RPG.GameState)
+  commentId: M:RPG.Commands.SaveCommand.Execute(System.String,RPG.GameState)
+  id: Execute(System.String,RPG.GameState)
+  parent: RPG.Commands.SaveCommand
+  langs:
+  - csharp
+  - vb
+  name: Execute(string, GameState)
+  nameWithType: SaveCommand.Execute(string, GameState)
+  fullName: RPG.Commands.SaveCommand.Execute(string, RPG.GameState)
+  type: Method
+  source:
+    remote:
+      path: Commands/SaveCommand.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Execute
+    path: ../Commands/SaveCommand.cs
+    startLine: 30
+  assemblies:
+  - RPG
+  namespace: RPG.Commands
+  summary: Executes the command with the specified arguments and game state.
+  example: []
+  syntax:
+    content: public override void Execute(string args, GameState state)
+    parameters:
+    - id: args
+      type: System.String
+      description: The arguments for the command.
+    - id: state
+      type: RPG.GameState
+      description: The current game state.
+    content.vb: Public Overrides Sub Execute(args As String, state As GameState)
+  overridden: RPG.Commands.BaseCommand.Execute(System.String,RPG.GameState)
+  overload: RPG.Commands.SaveCommand.Execute*
+  nameWithType.vb: SaveCommand.Execute(String, GameState)
+  fullName.vb: RPG.Commands.SaveCommand.Execute(String, RPG.GameState)
+  name.vb: Execute(String, GameState)
+references:
+- uid: RPG.Commands
+  commentId: N:RPG.Commands
+  href: RPG.html
+  name: RPG.Commands
+  nameWithType: RPG.Commands
+  fullName: RPG.Commands
+  spec.csharp:
+  - uid: RPG
+    name: RPG
+    href: RPG.html
+  - name: .
+  - uid: RPG.Commands
+    name: Commands
+    href: RPG.Commands.html
+  spec.vb:
+  - uid: RPG
+    name: RPG
+    href: RPG.html
+  - name: .
+  - uid: RPG.Commands
+    name: Commands
+    href: RPG.Commands.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: RPG.Commands.BaseCommand
+  commentId: T:RPG.Commands.BaseCommand
+  parent: RPG.Commands
+  href: RPG.Commands.BaseCommand.html
+  name: BaseCommand
+  nameWithType: BaseCommand
+  fullName: RPG.Commands.BaseCommand
+- uid: RPG.Commands.ICommand
+  commentId: T:RPG.Commands.ICommand
+  parent: RPG.Commands
+  href: RPG.Commands.ICommand.html
+  name: ICommand
+  nameWithType: ICommand
+  fullName: RPG.Commands.ICommand
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: RPG.Commands.BaseCommand.Name
+  commentId: P:RPG.Commands.BaseCommand.Name
+  parent: RPG.Commands.BaseCommand
+  href: RPG.Commands.BaseCommand.html#RPG_Commands_BaseCommand_Name
+  name: Name
+  nameWithType: BaseCommand.Name
+  fullName: RPG.Commands.BaseCommand.Name
+- uid: RPG.Commands.SaveCommand.Name*
+  commentId: Overload:RPG.Commands.SaveCommand.Name
+  href: RPG.Commands.SaveCommand.html#RPG_Commands_SaveCommand_Name
+  name: Name
+  nameWithType: SaveCommand.Name
+  fullName: RPG.Commands.SaveCommand.Name
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: RPG.Commands.BaseCommand.Description
+  commentId: P:RPG.Commands.BaseCommand.Description
+  parent: RPG.Commands.BaseCommand
+  href: RPG.Commands.BaseCommand.html#RPG_Commands_BaseCommand_Description
+  name: Description
+  nameWithType: BaseCommand.Description
+  fullName: RPG.Commands.BaseCommand.Description
+- uid: RPG.Commands.SaveCommand.Description*
+  commentId: Overload:RPG.Commands.SaveCommand.Description
+  href: RPG.Commands.SaveCommand.html#RPG_Commands_SaveCommand_Description
+  name: Description
+  nameWithType: SaveCommand.Description
+  fullName: RPG.Commands.SaveCommand.Description
+- uid: RPG.Commands.BaseCommand.Aliases
+  commentId: P:RPG.Commands.BaseCommand.Aliases
+  parent: RPG.Commands.BaseCommand
+  href: RPG.Commands.BaseCommand.html#RPG_Commands_BaseCommand_Aliases
+  name: Aliases
+  nameWithType: BaseCommand.Aliases
+  fullName: RPG.Commands.BaseCommand.Aliases
+- uid: RPG.Commands.SaveCommand.Aliases*
+  commentId: Overload:RPG.Commands.SaveCommand.Aliases
+  href: RPG.Commands.SaveCommand.html#RPG_Commands_SaveCommand_Aliases
+  name: Aliases
+  nameWithType: SaveCommand.Aliases
+  fullName: RPG.Commands.SaveCommand.Aliases
+- uid: System.String[]
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string[]
+  nameWithType: string[]
+  fullName: string[]
+  nameWithType.vb: String()
+  fullName.vb: String()
+  name.vb: String()
+  spec.csharp:
+  - uid: System.String
+    name: string
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.string
+  - name: '['
+  - name: ']'
+  spec.vb:
+  - uid: System.String
+    name: String
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.string
+  - name: (
+  - name: )
+- uid: RPG.Commands.BaseCommand.Execute(System.String,RPG.GameState)
+  commentId: M:RPG.Commands.BaseCommand.Execute(System.String,RPG.GameState)
+  parent: RPG.Commands.BaseCommand
+  isExternal: true
+  href: RPG.Commands.BaseCommand.html#RPG_Commands_BaseCommand_Execute_System_String_RPG_GameState_
+  name: Execute(string, GameState)
+  nameWithType: BaseCommand.Execute(string, GameState)
+  fullName: RPG.Commands.BaseCommand.Execute(string, RPG.GameState)
+  nameWithType.vb: BaseCommand.Execute(String, GameState)
+  fullName.vb: RPG.Commands.BaseCommand.Execute(String, RPG.GameState)
+  name.vb: Execute(String, GameState)
+  spec.csharp:
+  - uid: RPG.Commands.BaseCommand.Execute(System.String,RPG.GameState)
+    name: Execute
+    href: RPG.Commands.BaseCommand.html#RPG_Commands_BaseCommand_Execute_System_String_RPG_GameState_
+  - name: (
+  - uid: System.String
+    name: string
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.string
+  - name: ','
+  - name: " "
+  - uid: RPG.GameState
+    name: GameState
+    href: RPG.GameState.html
+  - name: )
+  spec.vb:
+  - uid: RPG.Commands.BaseCommand.Execute(System.String,RPG.GameState)
+    name: Execute
+    href: RPG.Commands.BaseCommand.html#RPG_Commands_BaseCommand_Execute_System_String_RPG_GameState_
+  - name: (
+  - uid: System.String
+    name: String
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.string
+  - name: ','
+  - name: " "
+  - uid: RPG.GameState
+    name: GameState
+    href: RPG.GameState.html
+  - name: )
+- uid: RPG.Commands.SaveCommand.Execute*
+  commentId: Overload:RPG.Commands.SaveCommand.Execute
+  href: RPG.Commands.SaveCommand.html#RPG_Commands_SaveCommand_Execute_System_String_RPG_GameState_
+  name: Execute
+  nameWithType: SaveCommand.Execute
+  fullName: RPG.Commands.SaveCommand.Execute
+- uid: RPG.GameState
+  commentId: T:RPG.GameState
+  parent: RPG
+  href: RPG.GameState.html
+  name: GameState
+  nameWithType: GameState
+  fullName: RPG.GameState
+- uid: RPG
+  commentId: N:RPG
+  href: RPG.html
+  name: RPG
+  nameWithType: RPG
+  fullName: RPG

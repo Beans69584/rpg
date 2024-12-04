@@ -1,0 +1,189 @@
+### YamlMime:ManagedReference
+items:
+- uid: RPG.ItemType
+  commentId: T:RPG.ItemType
+  id: ItemType
+  parent: RPG
+  children:
+  - RPG.ItemType.Armor
+  - RPG.ItemType.Consumable
+  - RPG.ItemType.Misc
+  - RPG.ItemType.Quest
+  - RPG.ItemType.Weapon
+  langs:
+  - csharp
+  - vb
+  name: ItemType
+  nameWithType: ItemType
+  fullName: RPG.ItemType
+  type: Enum
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: ItemType
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 1219
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Defines the different types of items that can exist in the game world.
+  example: []
+  syntax:
+    content: public enum ItemType
+    content.vb: Public Enum ItemType
+- uid: RPG.ItemType.Weapon
+  commentId: F:RPG.ItemType.Weapon
+  id: Weapon
+  parent: RPG.ItemType
+  langs:
+  - csharp
+  - vb
+  name: Weapon
+  nameWithType: ItemType.Weapon
+  fullName: RPG.ItemType.Weapon
+  type: Field
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Weapon
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 1224
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Represents items that can be used to deal damage.
+  example: []
+  syntax:
+    content: Weapon = 0
+    return:
+      type: RPG.ItemType
+- uid: RPG.ItemType.Armor
+  commentId: F:RPG.ItemType.Armor
+  id: Armor
+  parent: RPG.ItemType
+  langs:
+  - csharp
+  - vb
+  name: Armor
+  nameWithType: ItemType.Armor
+  fullName: RPG.ItemType.Armor
+  type: Field
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Armor
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 1228
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Represents items that can be equipped for protection.
+  example: []
+  syntax:
+    content: Armor = 1
+    return:
+      type: RPG.ItemType
+- uid: RPG.ItemType.Consumable
+  commentId: F:RPG.ItemType.Consumable
+  id: Consumable
+  parent: RPG.ItemType
+  langs:
+  - csharp
+  - vb
+  name: Consumable
+  nameWithType: ItemType.Consumable
+  fullName: RPG.ItemType.Consumable
+  type: Field
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Consumable
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 1232
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Represents items that can be used once for their effects.
+  example: []
+  syntax:
+    content: Consumable = 2
+    return:
+      type: RPG.ItemType
+- uid: RPG.ItemType.Quest
+  commentId: F:RPG.ItemType.Quest
+  id: Quest
+  parent: RPG.ItemType
+  langs:
+  - csharp
+  - vb
+  name: Quest
+  nameWithType: ItemType.Quest
+  fullName: RPG.ItemType.Quest
+  type: Field
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Quest
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 1236
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Represents items that are related to quests or missions.
+  example: []
+  syntax:
+    content: Quest = 3
+    return:
+      type: RPG.ItemType
+- uid: RPG.ItemType.Misc
+  commentId: F:RPG.ItemType.Misc
+  id: Misc
+  parent: RPG.ItemType
+  langs:
+  - csharp
+  - vb
+  name: Misc
+  nameWithType: ItemType.Misc
+  fullName: RPG.ItemType.Misc
+  type: Field
+  source:
+    remote:
+      path: ProceduralWorldGenerator.cs
+      branch: main
+      repo: git@ssh.konpeki.co.uk:/root/work.git
+    id: Misc
+    path: ../ProceduralWorldGenerator.cs
+    startLine: 1240
+  assemblies:
+  - RPG
+  namespace: RPG
+  summary: Represents miscellaneous items that don't fit other categories.
+  example: []
+  syntax:
+    content: Misc = 4
+    return:
+      type: RPG.ItemType
+references:
+- uid: RPG
+  commentId: N:RPG
+  href: RPG.html
+  name: RPG
+  nameWithType: RPG
+  fullName: RPG
+- uid: RPG.ItemType
+  commentId: T:RPG.ItemType
+  parent: RPG
+  href: RPG.ItemType.html
+  name: ItemType
+  nameWithType: ItemType
+  fullName: RPG.ItemType

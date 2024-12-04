@@ -1,0 +1,535 @@
+{
+  "source_base_path": "F:/RPG/docs",
+  "xrefmap": "xrefmap.yml",
+  "files": [
+    {
+      "type": "Resource",
+      "output": {
+        "resource": {
+          "relative_path": "index.json"
+        }
+      }
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.ColoredText.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.ColoredText.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.CommandHandler.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.CommandHandler.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Commands.BaseCommand.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Commands.BaseCommand.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Commands.HelpCommand.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Commands.HelpCommand.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Commands.ICommand.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Commands.ICommand.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Commands.LoadCommand.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Commands.LoadCommand.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Commands.LocationWrapper.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Commands.LocationWrapper.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Commands.LuaCommand.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Commands.LuaCommand.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Commands.LuaCommandLoader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Commands.LuaCommandLoader.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Commands.LuaGameApi.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Commands.LuaGameApi.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Commands.LuaTableExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Commands.LuaTableExtensions.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Commands.RegionWrapper.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Commands.RegionWrapper.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Commands.SaveCommand.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Commands.SaveCommand.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Commands.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Commands.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.ConsoleBuffer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.ConsoleBuffer.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.ConsoleDisplayConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.ConsoleDisplayConfig.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.ConsoleWindowManager.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.ConsoleWindowManager.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Entity.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Entity.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.EntityStats.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.EntityStats.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.GameSettings.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.GameSettings.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.GameState.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.GameState.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.GenWorldRegion.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.GenWorldRegion.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Header.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Header.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Item.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Item.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.ItemStats.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.ItemStats.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.ItemType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.ItemType.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.LocalizationManager.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.LocalizationManager.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Location.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Location.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.LocationConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.LocationConfig.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.OptimizedWorldBuilder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.OptimizedWorldBuilder.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.ProceduralWorldGenerator.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.ProceduralWorldGenerator.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Program.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Program.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Rectangle.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Rectangle.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Region.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Region.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.RegionConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.RegionConfig.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.ResourceTable.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.ResourceTable.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.RoutePoint.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.RoutePoint.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.SaveData.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.SaveData.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.SaveInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.SaveInfo.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.SaveManager.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.SaveManager.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.SaveMetadata.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.SaveMetadata.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.SaveType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.SaveType.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.Vector2.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.Vector2.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.WorldConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.WorldConfig.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.WorldData.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.WorldData.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.WorldLoader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.WorldLoader.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.WorldRegion.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.WorldRegion.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/RPG.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/RPG.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "api/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/toc.html"
+        },
+        ".json": {
+          "relative_path": "api/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "index.md",
+      "output": {
+        ".html": {
+          "relative_path": "index.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "toc.html"
+        },
+        ".json": {
+          "relative_path": "toc.json"
+        }
+      },
+      "version": ""
+    }
+  ],
+  "groups": [
+    {
+      "xrefmap": "xrefmap.yml"
+    }
+  ]
+}
