@@ -1,6 +1,4 @@
-image:
-  name: mcr.microsoft.com/dotnet/sdk:9.0
-  entrypoint: [""]
+image: mcr.microsoft.com/dotnet/sdk:9.0
 
 variables:
   GIT_DEPTH: "1"
