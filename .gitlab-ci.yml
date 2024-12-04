@@ -4,6 +4,8 @@ image: mcr.microsoft.com/dotnet/sdk:9.0
 before_script:
   - dotnet tool install -g docfx
 pages:
+  tags:
+    - dotnet
   script:
     - ~/.dotnet/tools/docfx ./docs/docfx.json
     - rm -rf public/*
