@@ -12,7 +12,7 @@ pages:
     - dotnet tool install -g docfx
     - pwsh ./build_docs.ps1 -Environment gitlab
     - mkdir -p public
-    - mv ./_site/* public/
+    - mv ./docs/_site/* public/
   artifacts:
     paths:
       - public
