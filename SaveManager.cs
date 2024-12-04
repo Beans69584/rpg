@@ -10,17 +10,18 @@ namespace RPG
         private const int MAX_BACKUPS = 5;
 
         private static readonly string SaveDirectory = Path.Combine(
-            Environment.GetFolderPath(
-                Environment.OSVersion.Platform == PlatformID.Unix ||
-                Environment.OSVersion.Platform == PlatformID.MacOSX
-                    ? Environment.SpecialFolder.Personal
-                    : Environment.SpecialFolder.ApplicationData
-            ),
             Environment.OSVersion.Platform == PlatformID.Unix ||
             Environment.OSVersion.Platform == PlatformID.MacOSX
-                ? "Library/Application Support/DemoRPG/Saves"
-                : "DemoRPG/Saves"
+                ? Environment.GetEnvironmentVariable("XDG_DATA_HOME")
+                    ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), ".local/share")
+                : Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            Environment.OSVersion.Platform == PlatformID.Unix
+                ? "demorpg/saves"
+                : Environment.OSVersion.Platform == PlatformID.MacOSX
+                    ? "Library/Application Support/DemoRPG/Saves"
+                    : "DemoRPG/Saves"
         );
+
 
         private static readonly string BackupDirectory = Path.Combine(SaveDirectory, "Backups");
         private static readonly string AutosaveDirectory = Path.Combine(SaveDirectory, "Autosaves");
@@ -46,7 +47,7 @@ namespace RPG
             };
 
             string path = GetSavePath(slot, isAutosave);
-            
+
             // Create backup of existing save
             if (File.Exists(path) && !isAutosave)
             {
@@ -112,7 +113,7 @@ namespace RPG
         public static List<SaveInfo> GetSaveFiles(bool includeAutosaves = true)
         {
             List<SaveInfo> saves = new List<SaveInfo>();
-            
+
             // Get manual saves
             foreach (string file in Directory.GetFiles(SaveDirectory, "*.save"))
             {
@@ -197,7 +198,7 @@ namespace RPG
 
             string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
             string backupPath = Path.Combine(BackupDirectory, $"{slot}_{timestamp}.backup");
-            
+
             File.Copy(sourcePath, backupPath, true);
             CleanupOldBackups(slot);
         }

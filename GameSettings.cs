@@ -16,11 +16,19 @@ namespace RPG
 
     public class GameSettings
     {
-        private static readonly string AppDataPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "DemoRPG"
+        private static readonly string SettingsDirectory = Path.Combine(
+            Environment.OSVersion.Platform == PlatformID.Unix ||
+            Environment.OSVersion.Platform == PlatformID.MacOSX
+                ? Environment.GetEnvironmentVariable("XDG_DATA_HOME")
+                    ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), ".local/share")
+                : Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            Environment.OSVersion.Platform == PlatformID.Unix
+                ? "demorpg"
+                : Environment.OSVersion.Platform == PlatformID.MacOSX
+                    ? "Library/Application Support/DemoRPG"
+                    : "DemoRPG"
         );
-        private static readonly string SettingsPath = Path.Combine(AppDataPath, "settings.json");
+        private static readonly string SettingsPath = Path.Combine(SettingsDirectory, "settings.json");
         private static GameSettings? _instance;
 
         // Settings properties
@@ -49,7 +57,7 @@ namespace RPG
             try
             {
                 // Ensure directory exists
-                Directory.CreateDirectory(AppDataPath);
+                Directory.CreateDirectory(SettingsDirectory);
 
                 // Serialize settings
                 var options = new JsonSerializerOptions { WriteIndented = true };

@@ -84,13 +84,29 @@ return CreateCommand({
 })
 ```
 
-## Settings
+## Game Data Locations
+
+### Settings
 
 Game settings are stored in the application data directory:
 
-- Windows: `%AppData%\DemoRPG`
-- macOS: `~/Library/Application Support/DemoRPG`
+- Windows: `%AppData%\DemoRPG\Settings`
+- macOS: `~/Library/Application Support/DemoRPG/Settings`
 - Linux: `~/.config/DemoRPG`
+
+### Save Games
+
+Save games are stored in the following locations:
+
+- Windows: `%AppData%\DemoRPG\Saves`
+- macOS: `~/Library/Application Support/DemoRPG/Saves`
+- Linux: `~/.local/share/demorpg/saves`
+
+Each save directory contains:
+
+- Regular saves (`.save` files)
+- Autosaves in `Autosaves` subfolder
+- Backups in `Backups` subfolder
 
 ## License
 
