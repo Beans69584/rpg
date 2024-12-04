@@ -30,9 +30,9 @@ namespace RPG
             BuildResourceTables();
 
             // Convert regions
-            foreach (var regionConfig in _sourceConfig.Regions)
+            foreach (RegionConfig regionConfig in _sourceConfig.Regions)
             {
-                var region = new WorldRegion
+                WorldRegion region = new WorldRegion
                 {
                     NameId = GetOrAddString(regionConfig.Name),
                     DescriptionId = GetOrAddString(regionConfig.Description),
@@ -40,9 +40,9 @@ namespace RPG
                 };
 
                 // Convert locations
-                foreach (var locationConfig in regionConfig.Locations)
+                foreach (LocationConfig locationConfig in regionConfig.Locations)
                 {
-                    var location = new Location
+                    Location location = new Location
                     {
                         NameId = GetOrAddString(locationConfig.Name),
                         TypeId = GetOrAddString(locationConfig.Type),
@@ -66,10 +66,10 @@ namespace RPG
                     .ToList();
 
                 // Convert routes
-                foreach (var connection in region.Connections)
+                foreach (int connection in region.Connections)
                 {
-                    var targetName = _sourceConfig.Regions[connection].Name;
-                    if (regionConfig.Routes.TryGetValue(targetName, out var routePoints))
+                    string targetName = _sourceConfig.Regions[connection].Name;
+                    if (regionConfig.Routes.TryGetValue(targetName, out List<RoutePoint>? routePoints))
                     {
                         region.Routes[connection] = routePoints;
                     }
@@ -89,9 +89,9 @@ namespace RPG
             }
 
             // Convert NPCs
-            foreach (var npcName in _sourceConfig.NPCs)
+            foreach (string npcName in _sourceConfig.NPCs)
             {
-                var npc = new Entity
+                Entity npc = new Entity
                 {
                     NameId = GetOrAddString(npcName),
                     Level = Random.Shared.Next(1, 10),
@@ -103,9 +103,9 @@ namespace RPG
             }
 
             // Convert items
-            foreach (var itemName in _sourceConfig.Items)
+            foreach (string itemName in _sourceConfig.Items)
             {
-                var item = new Item
+                Item item = new Item
                 {
                     NameId = GetOrAddString(itemName),
                     DescriptionId = GetOrAddString($"A {itemName.ToLower()} of unknown origin."),
@@ -177,19 +177,18 @@ namespace RPG
             string worldPath = Path.Combine(_outputPath, "world.dat");
             Directory.CreateDirectory(_outputPath);
 
-            var options = new JsonSerializerOptions
+            JsonSerializerOptions options = new JsonSerializerOptions
             {
                 WriteIndented = false, // Compact format
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
 
             // Serialize to JSON bytes
-            var jsonBytes = System.Text.Encoding.UTF8.GetBytes(
-                JsonSerializer.Serialize(_data, options));
+            byte[] jsonBytes = JsonSerializer.SerializeToUtf8Bytes(_data, options);
 
             // Compress using GZip
-            using var fs = File.Create(worldPath);
-            using var gzip = new System.IO.Compression.GZipStream(
+            using FileStream fs = File.Create(worldPath);
+            using System.IO.Compression.GZipStream gzip = new System.IO.Compression.GZipStream(
                 fs,
                 System.IO.Compression.CompressionLevel.Optimal);
             gzip.Write(jsonBytes, 0, jsonBytes.Length);
@@ -279,7 +278,7 @@ namespace RPG
 
         public WorldConfig GenerateWorld()
         {
-            var config = new WorldConfig
+            WorldConfig config = new WorldConfig
             {
                 Name = GenerateWorldName(),
                 Description = "A procedurally generated realm with diverse landscapes and hidden mysteries.",
@@ -289,13 +288,13 @@ namespace RPG
             };
 
             // Find interesting points for regions
-            var regions = FindRegionLocations();
+            List<(int x, int y)> regions = FindRegionLocations();
 
             // Generate regions and their connections
-            foreach (var point in regions)
+            foreach ((int x, int y) point in regions)
             {
-                var regionType = DetermineRegionType(point.x, point.y);
-                var region = GenerateRegion(regionType, point.x, point.y);
+                string regionType = DetermineRegionType(point.x, point.y);
+                RegionConfig region = GenerateRegion(regionType, point.x, point.y);
                 config.Regions.Add(region);
             }
 
@@ -311,7 +310,7 @@ namespace RPG
 
         private List<(int x, int y)> FindRegionLocations()
         {
-            var locations = new List<(int x, int y)>();
+            List<(int x, int y)> locations = new List<(int x, int y)>();
             int minDistance = 10; // Minimum distance between regions
 
             // Find local maxima and interesting points in the heightmap
@@ -373,7 +372,7 @@ namespace RPG
 
         private RegionConfig GenerateRegion(string type, int x, int y)
         {
-            var region = new RegionConfig
+            RegionConfig region = new RegionConfig
             {
                 Name = GenerateRegionName(type),
                 Description = GenerateRegionDescription(type),
@@ -391,7 +390,7 @@ namespace RPG
             }
 
             // Generate route points between regions
-            foreach (var connection in region.Connections)
+            foreach (string connection in region.Connections)
             {
                 region.Routes[connection] = GenerateRoutePath();
             }
@@ -402,14 +401,14 @@ namespace RPG
         private void GenerateSettlement(RegionConfig region)
         {
             // Determine settlement size and type
-            var size = _random.Next(100) switch
+            string size = _random.Next(100) switch
             {
                 > 90 => "large",
                 > 70 => "medium",
                 _ => "small"
             };
 
-            var locationCount = size switch
+            int locationCount = size switch
             {
                 "large" => _random.Next(8, 12),
                 "medium" => _random.Next(5, 8),
@@ -417,7 +416,7 @@ namespace RPG
             };
 
             // Essential locations based on size
-            var essentialLocations = size switch
+            string[] essentialLocations = size switch
             {
                 "large" => new[] { "Town Hall", "Market", "Inn", "Temple", "Blacksmith" },
                 "medium" => new[] { "Inn", "Market", "Chapel", "Blacksmith" },
@@ -425,13 +424,13 @@ namespace RPG
             };
 
             // Add essential locations
-            foreach (var locType in essentialLocations)
+            foreach (string? locType in essentialLocations)
             {
                 region.Locations.Add(GenerateLocation(locType));
             }
 
             // Add random additional locations
-            var additionalTypes = new[]
+            string[] additionalTypes = new[]
             {
             "House", "Farm", "Workshop", "Store", "Stable",
             "Garden", "Well", "Warehouse", "Watch Post", "Mill"
@@ -439,7 +438,7 @@ namespace RPG
 
             for (int i = essentialLocations.Length; i < locationCount; i++)
             {
-                var locType = additionalTypes[_random.Next(additionalTypes.Length)];
+                string locType = additionalTypes[_random.Next(additionalTypes.Length)];
                 region.Locations.Add(GenerateLocation(locType));
             }
         }
@@ -458,7 +457,7 @@ namespace RPG
 
         private string GenerateLocationName(string type)
         {
-            var prefixes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> prefixes = new Dictionary<string, string[]>
             {
                 ["Inn"] = new[] { "Traveler's", "Weary", "Golden", "Silver", "Old" },
                 ["Market"] = new[] { "Town", "Trade", "Market", "Merchant's", "Commons" },
@@ -467,7 +466,7 @@ namespace RPG
                 ["Trading Post"] = new[] { "Frontier", "Trader's", "Merchant's", "Caravan", "Waypoint" }
             };
 
-            var suffixes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> suffixes = new Dictionary<string, string[]>
             {
                 ["Inn"] = new[] { "Rest", "Lodge", "Inn", "Haven", "House" },
                 ["Market"] = new[] { "Square", "Plaza", "Market", "Exchange", "Grounds" },
@@ -476,7 +475,7 @@ namespace RPG
                 ["Trading Post"] = new[] { "Post", "House", "Store", "Exchange", "Shop" }
             };
 
-            if (prefixes.TryGetValue(type, out var typePrefix) && suffixes.TryGetValue(type, out var typeSuffix))
+            if (prefixes.TryGetValue(type, out string[]? typePrefix) && suffixes.TryGetValue(type, out string[]? typeSuffix))
             {
                 return $"{typePrefix[_random.Next(typePrefix.Length)]} {typeSuffix[_random.Next(typeSuffix.Length)]}";
             }
@@ -486,12 +485,12 @@ namespace RPG
 
         private List<RoutePoint> GenerateRoutePath()
         {
-            var points = new List<RoutePoint>();
-            var pathLength = _random.Next(2, 5);
+            List<RoutePoint> points = new List<RoutePoint>();
+            int pathLength = _random.Next(2, 5);
 
             for (int i = 0; i < pathLength; i++)
             {
-                var point = new RoutePoint
+                RoutePoint point = new RoutePoint
                 {
                     Description = GenerateRouteDescription(),
                     Directions = GenerateRouteDirections(),
@@ -505,7 +504,7 @@ namespace RPG
 
         private string GenerateRouteDescription()
         {
-            var descriptions = new[]
+            string[] descriptions = new[]
             {
             "The path winds through dense vegetation.",
             "A well-worn trail stretches ahead.",
@@ -519,7 +518,7 @@ namespace RPG
 
         private string GenerateRouteDirections()
         {
-            var directions = new[]
+            string[] directions = new[]
             {
             "Follow the path north past the large boulder.",
             "Continue east along the stream.",
@@ -533,10 +532,10 @@ namespace RPG
 
         private List<LocationConfig> GenerateRouteLandmarks()
         {
-            var landmarks = new List<LocationConfig>();
+            List<LocationConfig> landmarks = new List<LocationConfig>();
             if (_random.Next(100) < 30) // 30% chance for a landmark
             {
-                var types = new[]
+                string[] types = new[]
                 {
                 "Ancient Ruins", "Watch Tower", "Abandoned Fort",
                 "Old Shrine", "Cave Entrance", "Stone Circle",
@@ -544,7 +543,7 @@ namespace RPG
                 "Campsite", "Trading Post", "Mystery"
             };
 
-                var type = types[_random.Next(types.Length)];
+                string type = types[_random.Next(types.Length)];
                 landmarks.Add(new LocationConfig
                 {
                     Name = GenerateLocationName(type),
@@ -562,7 +561,7 @@ namespace RPG
             // Connect each region to its 2-4 nearest neighbors
             for (int i = 0; i < regions.Count; i++)
             {
-                var distances = new List<(int index, double dist)>();
+                List<(int index, double dist)> distances = new List<(int index, double dist)>();
                 for (int j = 0; j < regions.Count; j++)
                 {
                     if (i == j) continue;
@@ -570,8 +569,8 @@ namespace RPG
                 }
 
                 // Sort by distance and take 2-4 nearest
-                var connectionCount = _random.Next(2, 5);
-                var connections = distances
+                int connectionCount = _random.Next(2, 5);
+                List<string> connections = distances
                     .OrderBy(d => d.dist)
                     .Take(connectionCount)
                     .Select(d => regions[d.index].Name)
@@ -583,14 +582,14 @@ namespace RPG
 
         private string GenerateWorldName()
         {
-            var prefixes = new[] { "Northern", "Eastern", "Western", "Southern", "Lost", "Ancient", "Wild" };
-            var suffixes = new[] { "Frontier", "Reaches", "Lands", "Territory", "Province", "Region", "Domain" };
+            string[] prefixes = new[] { "Northern", "Eastern", "Western", "Southern", "Lost", "Ancient", "Wild" };
+            string[] suffixes = new[] { "Frontier", "Reaches", "Lands", "Territory", "Province", "Region", "Domain" };
             return $"The {prefixes[_random.Next(prefixes.Length)]} {suffixes[_random.Next(suffixes.Length)]}";
         }
 
         private string GenerateRegionName(string type)
         {
-            var prefixes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> prefixes = new Dictionary<string, string[]>
             {
                 ["Mountain"] = new[] { "High", "Steep", "Rocky", "Stone", "Frost" },
                 ["Hills"] = new[] { "Rolling", "Green", "Windy", "Low", "Grassy" },
@@ -601,7 +600,7 @@ namespace RPG
                 ["Valley"] = new[] { "Hidden", "Quiet", "Green", "Peaceful", "Sheltered" }
             };
 
-            var suffixes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> suffixes = new Dictionary<string, string[]>
             {
                 ["Mountain"] = new[] { "Peak", "Ridge", "Summit", "Heights", "Pass" },
                 ["Hills"] = new[] { "Hills", "Slopes", "Rise", "Downs", "Highlands" },
@@ -612,14 +611,14 @@ namespace RPG
                 ["Valley"] = new[] { "Valley", "Vale", "Dale", "Glen", "Bottom" }
             };
 
-            var prefix = prefixes[type][_random.Next(prefixes[type].Length)];
-            var suffix = suffixes[type][_random.Next(suffixes[type].Length)];
+            string prefix = prefixes[type][_random.Next(prefixes[type].Length)];
+            string suffix = suffixes[type][_random.Next(suffixes[type].Length)];
             return $"{prefix} {suffix}";
         }
 
         private string GenerateRegionDescription(string type)
         {
-            var descriptions = new Dictionary<string, string[]>
+            Dictionary<string, string[]> descriptions = new Dictionary<string, string[]>
             {
                 ["Mountain"] = new[] {
                 "Steep cliffs rise sharply against the sky, their peaks shrouded in clouds.",
@@ -663,10 +662,10 @@ namespace RPG
 
         private List<string> GenerateNPCsForType(string type)
         {
-            var npcs = new List<string>();
-            var count = _random.Next(2, 5);
+            List<string> npcs = new List<string>();
+            int count = _random.Next(2, 5);
 
-            var npcTypes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> npcTypes = new Dictionary<string, string[]>
             {
                 ["Mountain"] = new[] { "Miner", "Guide", "Climber", "Scout", "Hunter" },
                 ["Hills"] = new[] { "Shepherd", "Farmer", "Hunter", "Guard", "Traveler" },
@@ -687,10 +686,10 @@ namespace RPG
 
         private List<string> GenerateItemsForType(string type)
         {
-            var items = new List<string>();
-            var count = _random.Next(3, 6);
+            List<string> items = new List<string>();
+            int count = _random.Next(3, 6);
 
-            var itemTypes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> itemTypes = new Dictionary<string, string[]>
             {
                 ["Mountain"] = new[] { "Pickaxe", "Rope", "Lantern", "Iron Ore", "Climbing Gear" },
                 ["Hills"] = new[] { "Walking Staff", "Water Skin", "Dried Food", "Wool", "Tools" },
@@ -711,14 +710,14 @@ namespace RPG
 
         private double Distance((int x, int y) a, (int x, int y) b)
         {
-            var dx = a.x - b.x;
-            var dy = a.y - b.y;
+            int dx = a.x - b.x;
+            int dy = a.y - b.y;
             return Math.Sqrt(dx * dx + dy * dy);
         }
 
         private string GenerateLocationDescription(string type)
         {
-            var descriptions = new Dictionary<string, string[]>
+            Dictionary<string, string[]> descriptions = new Dictionary<string, string[]>
             {
                 ["Inn"] = new[] {
                 "A cozy establishment with a warm hearth and the smell of fresh bread.",
@@ -772,7 +771,7 @@ namespace RPG
             }
             };
 
-            if (descriptions.TryGetValue(type, out var typeDescriptions))
+            if (descriptions.TryGetValue(type, out string[]? typeDescriptions))
             {
                 return typeDescriptions[_random.Next(typeDescriptions.Length)];
             }
@@ -782,10 +781,10 @@ namespace RPG
 
         private List<string> GenerateNPCsForLocation(string type)
         {
-            var npcs = new List<string>();
-            var count = _random.Next(1, 4);
+            List<string> npcs = new List<string>();
+            int count = _random.Next(1, 4);
 
-            var npcTypes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> npcTypes = new Dictionary<string, string[]>
             {
                 ["Inn"] = new[] { "Innkeeper", "Barmaid", "Cook", "Patron", "Traveler" },
                 ["Market"] = new[] { "Merchant", "Shopper", "Guard", "Vendor", "Pickpocket" },
@@ -799,7 +798,7 @@ namespace RPG
                 ["Ancient Ruins"] = new[] { "Explorer", "Archaeologist", "Treasure Hunter", "Guard" }
             };
 
-            if (npcTypes.TryGetValue(type, out var typeNPCs))
+            if (npcTypes.TryGetValue(type, out string[]? typeNPCs))
             {
                 for (int i = 0; i < count; i++)
                 {
@@ -812,10 +811,10 @@ namespace RPG
 
         private List<string> GenerateItemsForLocation(string type)
         {
-            var items = new List<string>();
-            var count = _random.Next(2, 5);
+            List<string> items = new List<string>();
+            int count = _random.Next(2, 5);
 
-            var itemTypes = new Dictionary<string, string[]>
+            Dictionary<string, string[]> itemTypes = new Dictionary<string, string[]>
             {
                 ["Inn"] = new[] { "Ale", "Bread", "Stew", "Bedroll", "Candle", "Key" },
                 ["Market"] = new[] { "Food", "Cloth", "Pottery", "Tools", "Jewelry", "Spices" },
@@ -829,7 +828,7 @@ namespace RPG
                 ["Ancient Ruins"] = new[] { "Artifact", "Relic", "Old Coin", "Broken Pottery" }
             };
 
-            if (itemTypes.TryGetValue(type, out var typeItems))
+            if (itemTypes.TryGetValue(type, out string[]? typeItems))
             {
                 for (int i = 0; i < count; i++)
                 {

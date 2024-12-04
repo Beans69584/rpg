@@ -3,6 +3,17 @@ using System.Text.Json.Serialization;
 
 namespace RPG
 {
+    public class ConsoleDisplayConfig
+    {
+        public bool UseColors { get; set; } = true;
+        public bool UseUnicodeBorders { get; set; } = true;
+        public bool EnableCursorBlink { get; set; } = true;
+        public bool UseBold { get; set; } = true;
+        public int RefreshRateMs { get; set; } = 16;
+        public int CursorBlinkRateMs { get; set; } = 530;
+        public bool UseCurvedBorders { get; set; } = true;
+    }
+
     public class GameSettings
     {
         private static readonly string AppDataPath = Path.Combine(
@@ -17,6 +28,7 @@ namespace RPG
         public int WindowWidth { get; set; } = 80;
         public int WindowHeight { get; set; } = 24;
         public bool FullScreen { get; set; } = false;
+        public ConsoleDisplayConfig Display { get; set; } = new ConsoleDisplayConfig();
 
         // Default constructor for JSON deserialization
         [JsonConstructor]
@@ -79,9 +91,19 @@ namespace RPG
             get => Instance.Language;
             set
             {
-                Instance.Language = value;
-                Instance.Save();
+                if (Instance.Language != value)
+                {
+                    Instance.Language = value;
+                    Instance.Save();
+                }
             }
+        }
+
+        // Add a method to update the language directly
+        public void UpdateLanguage(string language)
+        {
+            Language = language;
+            Save();
         }
     }
 }

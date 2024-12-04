@@ -68,7 +68,19 @@ namespace RPG
         private const int RESIZE_DEBOUNCE_MS = 100;
         private bool isResizing = false;
 
-        private static readonly Dictionary<string, char> BoxChars = new()
+        // Add ASCII box drawing characters
+        private static readonly Dictionary<string, char> AsciiBoxChars = new()
+        {
+            ["topLeft"] = '+',
+            ["topRight"] = '+',
+            ["bottomLeft"] = '+',
+            ["bottomRight"] = '+',
+            ["horizontal"] = '-',
+            ["vertical"] = '|'
+        };
+
+        // Add Unicode box drawing characters
+        private static readonly Dictionary<string, char> UnicodeBoxChars = new()
         {
             ["topLeft"] = '┌',
             ["topRight"] = '┐',
@@ -78,12 +90,34 @@ namespace RPG
             ["vertical"] = '│'
         };
 
+        // Add curved box drawing characters
+        private static readonly Dictionary<string, char> CurvedBoxChars = new()
+        {
+            ["topLeft"] = '╭',
+            ["topRight"] = '╮',
+            ["bottomLeft"] = '╰',
+            ["bottomRight"] = '╯',
+            ["horizontal"] = '─',
+            ["vertical"] = '│'
+        };
+
+        private Dictionary<string, char> BoxChars;
+        private ConsoleDisplayConfig displayConfig;
+        private const int DEFAULT_REFRESH_RATE = 16;
+
+        // Update constructor to handle curved borders
         public ConsoleWindowManager()
         {
             Console.CursorVisible = false;
             lastConsoleWidth = Console.WindowWidth;
             lastConsoleHeight = Console.WindowHeight;
             buffer = new ConsoleBuffer(Console.WindowWidth, Console.WindowHeight);
+
+            displayConfig = GameSettings.Instance.Display;
+            BoxChars = displayConfig.UseUnicodeBorders
+                ? (displayConfig.UseCurvedBorders ? CurvedBoxChars : UnicodeBoxChars)
+                : AsciiBoxChars;
+
             renderTask = Task.Run(RenderLoop);
         }
 
@@ -114,13 +148,13 @@ namespace RPG
             {
                 try
                 {
-
-                    if (isDirty || (DateTime.Now - lastCursorBlink).TotalMilliseconds >= CURSOR_BLINK_MS)
+                    if (isDirty || (displayConfig.EnableCursorBlink &&
+                        (DateTime.Now - lastCursorBlink).TotalMilliseconds >= displayConfig.CursorBlinkRateMs))
                     {
                         Render();
                         isDirty = false;
                     }
-                    Thread.Sleep(16);
+                    Thread.Sleep(displayConfig.RefreshRateMs);
                 }
                 catch (OperationCanceledException)
                 {
@@ -293,7 +327,7 @@ namespace RPG
         {
             var bounds = region.ContentBounds;
             var allWrappedLines = new List<string>();
-            
+
             foreach (var line in lines)
             {
                 allWrappedLines.AddRange(WrapText(line, bounds.Width));
@@ -315,7 +349,7 @@ namespace RPG
                     int charWidth = IsDoubleWidth(c) ? 2 : 1;
                     if (lineWidth + charWidth > bounds.Width)
                         break;
-                        
+
                     visibleLine.Append(c);
                     lineWidth += charWidth;
                 }
@@ -342,11 +376,11 @@ namespace RPG
 
             var currentLine = new StringBuilder();
             int currentWidth = 0;
-            
+
             foreach (var word in text.Split(' '))
             {
                 int wordWidth = word.Sum(c => IsDoubleWidth(c) ? 2 : 1);
-                
+
                 if (currentWidth + wordWidth + (currentWidth > 0 ? 1 : 0) > width)
                 {
                     if (currentLine.Length > 0)
@@ -355,13 +389,13 @@ namespace RPG
                         currentLine.Clear();
                         currentWidth = 0;
                     }
-                    
+
                     // Handle words that are longer than the width
                     if (wordWidth > width)
                     {
                         var temp = new StringBuilder();
                         int tempWidth = 0;
-                        
+
                         foreach (char c in word)
                         {
                             int charWidth = IsDoubleWidth(c) ? 2 : 1;
@@ -374,7 +408,7 @@ namespace RPG
                             temp.Append(c);
                             tempWidth += charWidth;
                         }
-                        
+
                         if (temp.Length > 0)
                         {
                             currentLine.Append(temp);
@@ -449,8 +483,9 @@ namespace RPG
                 buffer.WriteString(x + prompt.Length, y, displayText, currentInputColor);
             }
 
-            // Handle cursor blinking
-            if ((DateTime.Now - lastCursorBlink).TotalMilliseconds >= CURSOR_BLINK_MS)
+            // Handle cursor blinking based on settings
+            if (displayConfig.EnableCursorBlink &&
+                (DateTime.Now - lastCursorBlink).TotalMilliseconds >= displayConfig.CursorBlinkRateMs)
             {
                 cursorVisible = !cursorVisible;
                 lastCursorBlink = DateTime.Now;
@@ -460,7 +495,8 @@ namespace RPG
             int cursorX = x + prompt.Length + displayText.Length;
             if (cursorX < x + inputRegion.Width - 1)
             {
-                buffer.SetChar(cursorX, y, cursorVisible ? '▌' : ' ', currentInputColor);
+                char cursorChar = displayConfig.UseUnicodeBorders ? '▌' : '|';
+                buffer.SetChar(cursorX, y, cursorVisible ? cursorChar : ' ', currentInputColor);
             }
         }
 
@@ -473,6 +509,292 @@ namespace RPG
                 QueueRender();
             }
         }
+
+        // Add method to update display settings
+        public void UpdateDisplaySettings(ConsoleDisplayConfig newConfig)
+        {
+            lock (renderLock)
+            {
+                displayConfig = newConfig;
+                BoxChars = displayConfig.UseUnicodeBorders
+                    ? (displayConfig.UseCurvedBorders ? CurvedBoxChars : UnicodeBoxChars)
+                    : AsciiBoxChars;
+                isDirty = true;
+            }
+        }
+
+        public void RenderMap(Region region, WorldData world, WorldRegion currentRegion)
+        {
+            if (!region.IsVisible) return;
+
+            // Calculate map bounds with margins
+            const float MARGIN = 2.0f; // Add margin to ensure regions aren't at edges
+            var positions = world.Regions.Select(r => r.Position).ToList();
+            var minX = positions.Min(p => p.X) - MARGIN;
+            var maxX = positions.Max(p => p.X) + MARGIN;
+            var minY = positions.Min(p => p.Y) - MARGIN;
+            var maxY = positions.Max(p => p.Y) + MARGIN;
+
+            // Ensure current region is in view by expanding bounds if needed
+            minX = Math.Min(minX, currentRegion.Position.X - MARGIN);
+            maxX = Math.Max(maxX, currentRegion.Position.X + MARGIN);
+            minY = Math.Min(minY, currentRegion.Position.Y - MARGIN);
+            maxY = Math.Max(maxY, currentRegion.Position.Y + MARGIN);
+
+            // Calculate map dimensions
+            var mapWidth = region.Width - 2;
+            var mapHeight = region.Height - 2;
+
+            // Calculate scale to fit the map while preserving aspect ratio
+            float worldWidth = maxX - minX;
+            float worldHeight = maxY - minY;
+            float worldAspect = worldWidth / worldHeight;
+            float mapAspect = mapWidth / (float)mapHeight;
+
+            float scale;
+            float offsetX = 0, offsetY = 0;
+
+            if (worldAspect > mapAspect)
+            {
+                // World is wider than map
+                scale = mapWidth / worldWidth;
+                offsetY = (mapHeight - (worldHeight * scale)) / 2;
+            }
+            else
+            {
+                // World is taller than map
+                scale = mapHeight / worldHeight;
+                offsetX = (mapWidth - (worldWidth * scale)) / 2;
+            }
+
+            // Create and clear map buffer
+            var map = new char[mapWidth, mapHeight];
+            var colors = new ConsoleColor[mapWidth, mapHeight];
+            for (int y = 0; y < mapHeight; y++)
+                for (int x = 0; x < mapWidth; x++)
+                {
+                    map[x, y] = ' ';
+                    colors[x, y] = ConsoleColor.Gray;
+                }
+
+            // Draw connections first
+            foreach (var r in world.Regions)
+            {
+                foreach (var connIdx in r.Connections)
+                {
+                    var conn = world.Regions[connIdx];
+                    DrawLine(r.Position, conn.Position, '·', ConsoleColor.DarkGray);
+                }
+            }
+
+            // Draw regions
+            foreach (var r in world.Regions)
+            {
+                var x = TransformX(r.Position.X);
+                var y = TransformY(r.Position.Y);
+
+                if (x >= 0 && x < mapWidth && y >= 0 && y < mapHeight)
+                {
+                    var symbol = r == currentRegion ? '☆' : '○';
+                    var color = r == currentRegion ? ConsoleColor.Yellow : ConsoleColor.White;
+                    map[x, y] = symbol;
+                    colors[x, y] = color;
+                }
+            }
+
+            // Render to buffer
+            for (int y = 0; y < mapHeight; y++)
+            {
+                for (int x = 0; x < mapWidth; x++)
+                {
+                    buffer.SetChar(region.X + 1 + x, region.Y + 1 + y, map[x, y], colors[x, y]);
+                }
+            }
+
+            // Local coordinate transformation functions
+            int TransformX(float x) => (int)(((x - minX) * scale) + offsetX);
+            int TransformY(float y) => (int)(((y - minY) * scale) + offsetY);
+
+            void DrawLine(Vector2 start, Vector2 end, char symbol, ConsoleColor color)
+            {
+                int x1 = TransformX(start.X), y1 = TransformY(start.Y);
+                int x2 = TransformX(end.X), y2 = TransformY(end.Y);
+
+                int dx = Math.Abs(x2 - x1), dy = Math.Abs(y2 - y1);
+                int sx = x1 < x2 ? 1 : -1, sy = y1 < y2 ? 1 : -1;
+                int err = dx - dy;
+
+                while (true)
+                {
+                    if (x1 >= 0 && x1 < mapWidth && y1 >= 0 && y1 < mapHeight)
+                    {
+                        if (map[x1, y1] == ' ')
+                        {
+                            map[x1, y1] = symbol;
+                            colors[x1, y1] = color;
+                        }
+                    }
+
+                    if (x1 == x2 && y1 == y2) break;
+                    int e2 = 2 * err;
+                    if (e2 > -dy) { err -= dy; x1 += sx; }
+                    if (e2 < dx) { err += dx; y1 += sy; }
+                }
+            }
+        }
+
+        public void RenderRegionMap(Region region, WorldRegion currentRegion)
+        {
+            if (!region.IsVisible) return;
+
+            int mapWidth = region.Width - 2;
+            int mapHeight = region.Height - 2;
+
+            // Create a map buffer
+            var mapChars = new char[mapWidth, mapHeight];
+            var mapColors = new ConsoleColor[mapWidth, mapHeight];
+
+            // Clear the map area
+            for (int y = 0; y < mapHeight; y++)
+                for (int x = 0; x < mapWidth; x++)
+                {
+                    buffer.SetChar(region.X + 1 + x, region.Y + 1 + y, ' ', ConsoleColor.Gray);
+                }
+
+            var locations = currentRegion.Locations;
+            if (locations.Count == 0)
+            {
+                buffer.WriteString(region.X + 2, region.Y + 2, "No locations available", ConsoleColor.Gray);
+                return;
+            }
+
+            // Calculate layout
+            int maxLocationsPerRow = 3;  // Limit locations per row for better spacing
+            int rows = (int)Math.Ceiling(locations.Count / (float)maxLocationsPerRow);
+            int effectiveWidth = mapWidth - 4;  // Leave margins
+            int effectiveHeight = mapHeight - 4;
+            int cellWidth = effectiveWidth / Math.Min(locations.Count, maxLocationsPerRow);
+            int cellHeight = effectiveHeight / rows;
+
+            // Draw locations
+            for (int i = 0; i < locations.Count; i++)
+            {
+                int row = i / maxLocationsPerRow;
+                int col = i % maxLocationsPerRow;
+
+                // Calculate center position for this location
+                int centerX = region.X + 3 + (col * cellWidth) + (cellWidth / 2);
+                int centerY = region.Y + 3 + (row * cellHeight) + (cellHeight / 2);
+
+                var location = locations[i];
+                char symbol = GetLocationSymbol(location);
+                var color = GetLocationColor(location);
+
+                // Draw location
+                buffer.SetChar(centerX, centerY, symbol, color);
+
+                // Draw name below the symbol
+                if (centerY + 1 < region.Y + region.Height - 1)
+                {
+                    string name = location.NameId.ToString();
+                    int nameX = Math.Max(centerX - (name.Length / 2), region.X + 2);
+                    buffer.WriteString(nameX, centerY + 1, name, color);
+                }
+
+                // Draw paths to other locations
+                DrawLocationConnections(i, location, locations, maxLocationsPerRow, centerX, centerY, color);
+            }
+
+            // Local helper to draw connections between locations
+            void DrawLocationConnections(int currentIndex, Location current, List<Location> allLocations,
+                int locPerRow, int startX, int startY, ConsoleColor color)
+            {
+                for (int j = 0; j < currentIndex; j++)
+                {
+                    var other = allLocations[j];
+
+                    // Check if locations are connected (share NPCs or Items)
+                    bool connected = current.NPCs.Intersect(other.NPCs).Any() ||
+                                   current.Items.Intersect(other.Items).Any();
+
+                    if (connected)
+                    {
+                        int otherRow = j / locPerRow;
+                        int otherCol = j % locPerRow;
+                        int otherX = region.X + 3 + (otherCol * cellWidth) + (cellWidth / 2);
+                        int otherY = region.Y + 3 + (otherRow * cellHeight) + (cellHeight / 2);
+
+                        DrawLine(startX, startY, otherX, otherY, '·', ConsoleColor.DarkGray);
+                    }
+                }
+            }
+
+            // Line drawing helper using Bresenham's algorithm
+            void DrawLine(int x1, int y1, int x2, int y2, char symbol, ConsoleColor color)
+            {
+                int dx = Math.Abs(x2 - x1);
+                int dy = Math.Abs(y2 - y1);
+                int sx = x1 < x2 ? 1 : -1;
+                int sy = y1 < y2 ? 1 : -1;
+                int err = dx - dy;
+
+                while (true)
+                {
+                    // Only draw if within bounds and not overlapping with location symbols
+                    if (x1 >= region.X + 1 && x1 < region.X + region.Width - 1 &&
+                        y1 >= region.Y + 1 && y1 < region.Y + region.Height - 1)
+                    {
+                        var currentChar = buffer.GetChar(x1, y1);
+                        if (currentChar == ' ')  // Only draw line if space is empty
+                        {
+                            buffer.SetChar(x1, y1, symbol, color);
+                        }
+                    }
+
+                    if (x1 == x2 && y1 == y2) break;
+                    int e2 = 2 * err;
+                    if (e2 > -dy) { err -= dy; x1 += sx; }
+                    if (e2 < dx) { err += dx; y1 += sy; }
+                }
+            }
+        }
+
+        private char GetLocationSymbol(Location location)
+        {
+            // Assuming location.TypeId indicates the type of location
+            return location.TypeId switch
+            {
+                var id when id == 0 => '◆',  // Important location
+                var id when id == 1 => '■',  // Building
+                var id when id == 2 => '▲',  // Mountain/Hill
+                var id when id == 3 => '☘',  // Nature location
+                var id when id == 4 => '♠',  // Forest location
+                var id when id == 5 => '≈',  // Water location
+                var id when id == 6 => '†',  // Temple/Shrine
+                var id when id == 7 => '⌂',  // House/Inn
+                var id when id == 8 => '♦',  // Shop/Market
+                _ => '○'                     // Default unknown location
+            };
+        }
+
+        private ConsoleColor GetLocationColor(Location location)
+        {
+            // Assuming location.TypeId indicates the type of location
+            return location.TypeId switch
+            {
+                var id when id == 0 => ConsoleColor.Yellow,     // Important location
+                var id when id == 1 => ConsoleColor.White,      // Building
+                var id when id == 2 => ConsoleColor.DarkGray,   // Mountain/Hill
+                var id when id == 3 => ConsoleColor.Green,      // Nature location
+                var id when id == 4 => ConsoleColor.DarkGreen,  // Forest location
+                var id when id == 5 => ConsoleColor.Blue,       // Water location
+                var id when id == 6 => ConsoleColor.Cyan,       // Temple/Shrine
+                var id when id == 7 => ConsoleColor.DarkYellow, // House/Inn
+                var id when id == 8 => ConsoleColor.Magenta,    // Shop/Market
+                _ => ConsoleColor.Gray                          // Default unknown location
+            };
+        }
+
     }
 
     public class ConsoleBuffer
@@ -595,7 +917,7 @@ namespace RPG
             foreach (char c in text)
             {
                 if (currentX >= width) break;
-                
+
                 SetChar(currentX, y, c, color);
                 currentX += IsDoubleWidth(c) ? 2 : 1;
 
@@ -614,11 +936,16 @@ namespace RPG
             Console.SetCursorPosition(0, 0);
             var sb = new StringBuilder(chars.Length);
             ConsoleColor currentColor = colors[0];
-            Console.ForegroundColor = currentColor;
+
+            // Only change colors if enabled in settings
+            if (GameSettings.Instance.Display.UseColors)
+            {
+                Console.ForegroundColor = currentColor;
+            }
 
             for (int i = 0; i < chars.Length; i++)
             {
-                if (colors[i] != currentColor)
+                if (GameSettings.Instance.Display.UseColors && colors[i] != currentColor)
                 {
                     // Flush current buffer
                     Console.Write(sb.ToString());
@@ -633,6 +960,21 @@ namespace RPG
 
             // Flush remaining buffer
             Console.Write(sb.ToString());
+
+            // Reset color if we were using colors
+            if (GameSettings.Instance.Display.UseColors)
+            {
+                Console.ForegroundColor = ConsoleColor.Gray;
+            }
+        }
+
+        public char GetChar(int x, int y)
+        {
+            if (x >= 0 && x < width && y >= 0 && y < height)
+            {
+                return chars[y * width + x];
+            }
+            return ' ';
         }
     }
 }

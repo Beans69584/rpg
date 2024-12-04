@@ -34,7 +34,7 @@ namespace RPG
 
         public static void Save(SaveData saveData, string slot, bool isAutosave = false)
         {
-            var metadata = new SaveMetadata
+            SaveMetadata metadata = new SaveMetadata
             {
                 Version = CURRENT_SAVE_VERSION,
                 SaveTime = DateTime.UtcNow,
@@ -54,17 +54,15 @@ namespace RPG
             }
 
             // Serialize and compress
-            using var fs = File.Create(path);
-            using var gz = new GZipStream(fs, CompressionLevel.Optimal);
-            using var writer = new BinaryWriter(gz);
+            using FileStream fs = File.Create(path);
+            using GZipStream gz = new GZipStream(fs, CompressionLevel.Optimal);
+            using BinaryWriter writer = new BinaryWriter(gz);
 
-            // Write metadata first
-            var metadataBytes = JsonSerializer.SerializeToUtf8Bytes(metadata);
+            byte[] metadataBytes = JsonSerializer.SerializeToUtf8Bytes(metadata);
             writer.Write(metadataBytes.Length);
             writer.Write(metadataBytes);
 
-            // Write save data
-            var saveDataBytes = JsonSerializer.SerializeToUtf8Bytes(saveData);
+            byte[] saveDataBytes = JsonSerializer.SerializeToUtf8Bytes(saveData);
             writer.Write(saveDataBytes.Length);
             writer.Write(saveDataBytes);
 
@@ -82,14 +80,14 @@ namespace RPG
 
             try
             {
-                using var fs = File.OpenRead(path);
-                using var gz = new GZipStream(fs, CompressionMode.Decompress);
-                using var reader = new BinaryReader(gz);
+                using FileStream fs = File.OpenRead(path);
+                using GZipStream gz = new GZipStream(fs, CompressionMode.Decompress);
+                using BinaryReader reader = new BinaryReader(gz);
 
-                // Read metadata
+                // Read metadata using source generation
                 int metadataLength = reader.ReadInt32();
-                var metadataBytes = reader.ReadBytes(metadataLength);
-                var metadata = JsonSerializer.Deserialize<SaveMetadata>(metadataBytes);
+                byte[] metadataBytes = reader.ReadBytes(metadataLength);
+                SaveMetadata? metadata = JsonSerializer.Deserialize<SaveMetadata>(metadataBytes);
 
                 // Version check and migration if needed
                 if (metadata?.Version < CURRENT_SAVE_VERSION)
@@ -97,10 +95,10 @@ namespace RPG
                     return LoadLegacySave(path);
                 }
 
-                // Read save data
+                // Read save data using source generation
                 int saveDataLength = reader.ReadInt32();
-                var saveDataBytes = reader.ReadBytes(saveDataLength);
-                var saveData = JsonSerializer.Deserialize<SaveData>(saveDataBytes);
+                byte[] saveDataBytes = reader.ReadBytes(saveDataLength);
+                SaveData? saveData = JsonSerializer.Deserialize<SaveData>(saveDataBytes);
 
                 return (metadata, saveData);
             }
@@ -113,21 +111,21 @@ namespace RPG
 
         public static List<SaveInfo> GetSaveFiles(bool includeAutosaves = true)
         {
-            var saves = new List<SaveInfo>();
+            List<SaveInfo> saves = new List<SaveInfo>();
             
             // Get manual saves
-            foreach (var file in Directory.GetFiles(SaveDirectory, "*.save"))
+            foreach (string file in Directory.GetFiles(SaveDirectory, "*.save"))
             {
-                var info = GetSaveInfo(file, false);
+                SaveInfo? info = GetSaveInfo(file, false);
                 if (info != null) saves.Add(info);
             }
 
             // Get autosaves if requested
             if (includeAutosaves)
             {
-                foreach (var file in Directory.GetFiles(AutosaveDirectory, "*.save"))
+                foreach (string file in Directory.GetFiles(AutosaveDirectory, "*.save"))
                 {
-                    var info = GetSaveInfo(file, true);
+                    SaveInfo? info = GetSaveInfo(file, true);
                     if (info != null) saves.Add(info);
                 }
             }
@@ -173,7 +171,7 @@ namespace RPG
         {
             try
             {
-                var (metadata, _) = Load(Path.GetFileNameWithoutExtension(path), isAutosave);
+                (SaveMetadata metadata, SaveData _) = Load(Path.GetFileNameWithoutExtension(path), isAutosave);
                 if (metadata != null)
                 {
                     return new SaveInfo
@@ -206,11 +204,11 @@ namespace RPG
 
         private static void CleanupOldAutosaves()
         {
-            var files = Directory.GetFiles(AutosaveDirectory, "*.save")
+            IEnumerable<string> files = Directory.GetFiles(AutosaveDirectory, "*.save")
                 .OrderByDescending(f => File.GetLastWriteTime(f))
                 .Skip(MAX_AUTOSAVES);
 
-            foreach (var file in files)
+            foreach (string? file in files)
             {
                 try { File.Delete(file); }
                 catch { /* Ignore cleanup errors */ }
@@ -219,11 +217,11 @@ namespace RPG
 
         private static void CleanupOldBackups(string slot)
         {
-            var files = Directory.GetFiles(BackupDirectory, $"{slot}_*.backup")
+            IEnumerable<string> files = Directory.GetFiles(BackupDirectory, $"{slot}_*.backup")
                 .OrderByDescending(f => File.GetLastWriteTime(f))
                 .Skip(MAX_BACKUPS);
 
-            foreach (var file in files)
+            foreach (string? file in files)
             {
                 try { File.Delete(file); }
                 catch { /* Ignore cleanup errors */ }
@@ -236,11 +234,11 @@ namespace RPG
             try
             {
                 string json = File.ReadAllText(path);
-                var legacyData = JsonSerializer.Deserialize<SaveData>(json);
+                SaveData? legacyData = JsonSerializer.Deserialize<SaveData>(json);
                 if (legacyData == null) return (null, null);
 
                 // Create metadata from legacy save
-                var metadata = new SaveMetadata
+                SaveMetadata metadata = new SaveMetadata
                 {
                     Version = 0,
                     SaveTime = File.GetLastWriteTime(path),
@@ -267,7 +265,7 @@ namespace RPG
 
         private static string GetBackupPath(string slot, int backupIndex)
         {
-            var backups = Directory.GetFiles(BackupDirectory, $"{slot}_*.backup")
+            List<string> backups = Directory.GetFiles(BackupDirectory, $"{slot}_*.backup")
                 .OrderByDescending(f => File.GetLastWriteTime(f))
                 .ToList();
 
@@ -287,7 +285,7 @@ namespace RPG
         {
             slot = Slot;
             // Load the actual save data when deconstructing
-            var (_, saveData) = SaveManager.Load(Slot, IsAutosave);
+            (SaveMetadata _, SaveData saveData) = SaveManager.Load(Slot, IsAutosave);
             data = saveData ?? new SaveData();
         }
     }

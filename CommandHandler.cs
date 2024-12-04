@@ -1,17 +1,10 @@
 using RPG.Commands;
-using RPG.Plugins;
 
 namespace RPG
 {
     public class CommandHandler
     {
         private readonly Dictionary<string, ICommand> _commands = new();
-        private IPluginManager? _pluginManager;
-
-        public void Initialize(IPluginManager pluginManager)
-        {
-            _pluginManager = pluginManager;
-        }
 
         public void RegisterCommand(ICommand command)
         {
@@ -34,18 +27,6 @@ namespace RPG
             {
                 try
                 {
-                    if (_pluginManager != null)
-                    {
-                        state.GameLog.Add("[Debug] Running command through middleware");
-                        bool middlewareResult = await Task.FromResult(
-                            _pluginManager.ProcessCommandMiddleware(input, state));
-                        if (!middlewareResult)
-                        {
-                            state.GameLog.Add("[Debug] Middleware chain failed");
-                            return false;
-                        }
-                    }
-
                     command.Execute(args, state);
                     return true;
                 }

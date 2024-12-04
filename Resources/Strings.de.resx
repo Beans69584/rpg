@@ -66,4 +66,73 @@
     <data name="Error_ResizeTip" xml:space="preserve">
         <value>Tipp: Versuchen Sie das Konsolenfenster zu maximieren.</value>
     </data>
+    <data name="Load_NoSaves" xml:space="preserve">
+        <value>Keine Spielstände gefunden.</value>
+    </data>
+    <data name="Load_Title" xml:space="preserve">
+        <value>Spiel laden</value>
+    </data>
+    <data name="Load_Instructions" xml:space="preserve">
+        <value>Auf/Ab zur Auswahl, Enter zum Laden, Escape zum Zurückkehren</value>
+    </data>
+    <data name="Load_ConfirmDelete" xml:space="preserve">
+        <value>Sind Sie sicher, dass Sie Spielstand {0} löschen möchten?</value>
+    </data>
+    <data name="Load_DeleteInstructions" xml:space="preserve">
+        <value>Drücken Sie Entf zum Löschen eines Spielstands</value>
+    </data>
+    <data name="Load_DeleteWarning" xml:space="preserve">
+        <value>Diese Aktion kann nicht rückgängig gemacht werden!</value>
+    </data>
+    <data name="Settings_General" xml:space="preserve">
+        <value>ALLGEMEINE EINSTELLUNGEN</value>
+    </data>
+    <data name="Settings_Visual" xml:space="preserve">
+        <value>VISUELLE EINSTELLUNGEN</value>
+    </data>
+    <data name="Settings_Cursor" xml:space="preserve">
+        <value>CURSOR-EINSTELLUNGEN</value>
+    </data>
+    <data name="Settings_Performance" xml:space="preserve">
+        <value>LEISTUNG</value>
+    </data>
+    <data name="Settings_Language_Label" xml:space="preserve">
+        <value>Sprache: {0}</value>
+    </data>
+    <data name="Settings_Colors_Label" xml:space="preserve">
+        <value>Farben: {0}</value>
+    </data>
+    <data name="Settings_Colors_Toggle" xml:space="preserve">
+        <value>Farben [Leertaste zum {0}]</value>
+    </data>
+    <data name="Settings_BorderStyle_Label" xml:space="preserve">
+        <value>Rahmenart: {0}</value>
+    </data>
+    <data name="Settings_CursorBlink_Label" xml:space="preserve">
+        <value>Cursor-Blinken: {0}</value>
+    </data>
+    <data name="Settings_CursorBlink_Toggle" xml:space="preserve">
+        <value>Cursor-Blinken [Leertaste zum {0}]</value>
+    </data>
+    <data name="Settings_BlinkSpeed_Label" xml:space="preserve">
+        <value>Blinkgeschwindigkeit: {0}</value>
+    </data>
+    <data name="Settings_FrameRate_Label" xml:space="preserve">
+        <value>Bildrate: {0} FPS</value>
+    </data>
+    <data name="Settings_NavigationHint" xml:space="preserve">
+        <value>Pfeiltasten zur Navigation | Leertaste/Enter zum Umschalten | Esc zum Zurück</value>
+    </data>
+    <data name="Common_On" xml:space="preserve">
+        <value>Ein</value>
+    </data>
+    <data name="Common_Off" xml:space="preserve">
+        <value>Aus</value>
+    </data>
+    <data name="Common_Enable" xml:space="preserve">
+        <value>einschalten</value>
+    </data>
+    <data name="Common_Disable" xml:space="preserve">
+        <value>ausschalten</value>
+    </data>
 </root>

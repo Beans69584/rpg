@@ -16,10 +16,10 @@ namespace RPG
                 resourceManager = new ResourceManager(
                     "RPG.Resources.Strings",
                     typeof(LocalizationManager).Assembly);
-                    
+
                 // Use settings instance
                 currentCulture = CultureInfo.GetCultureInfo(GameSettings.Instance.Language);
-                
+
                 // Debug info
                 Console.WriteLine($"Assembly: {typeof(LocalizationManager).Assembly.FullName}");
                 Console.WriteLine($"Resource: {resourceManager.BaseName}");

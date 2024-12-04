@@ -3,3 +3,4 @@ obj/
 .vscode/
 World/
 *.dat
+*.snk

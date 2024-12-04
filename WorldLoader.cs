@@ -22,7 +22,7 @@ namespace RPG
                 PropertyNameCaseInsensitive = true
             };
 
-            _worldData = JsonSerializer.Deserialize<WorldData>(ms.ToArray(), options)!;
+            _worldData = JsonSerializer.Deserialize<WorldData>(ms, options)!;
             _stringCache = _worldData.Resources.StringPool
                 .ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
 
@@ -45,8 +45,8 @@ namespace RPG
         public WorldRegion? GetStartingRegion()
         {
             return _worldData.Regions
-                .FirstOrDefault(r => 
-                    GetString(r.NameId).Contains("Village") || 
+                .FirstOrDefault(r =>
+                    GetString(r.NameId).Contains("Village") ||
                     GetString(r.NameId).Contains("Town"))
                 as WorldRegion
                 ?? _worldData.Regions.FirstOrDefault() as WorldRegion;
@@ -55,7 +55,7 @@ namespace RPG
         public WorldRegion? GetRegionByName(string name)
         {
             return _worldData.Regions
-                .FirstOrDefault(r => 
+                .FirstOrDefault(r =>
                     GetString(r.NameId).Equals(name, StringComparison.OrdinalIgnoreCase))
                 as WorldRegion;
         }
@@ -66,7 +66,7 @@ namespace RPG
         // Location methods
         public Location? GetLocationByName(WorldRegion region, string name)
         {
-            return region.Locations.FirstOrDefault(l => 
+            return region.Locations.FirstOrDefault(l =>
                 GetString(l.NameId).Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -114,14 +114,14 @@ namespace RPG
             return from.Routes.TryGetValue(toIndex, out var route) ? route : new List<RoutePoint>();
         }
 
-        public string GetRouteDescription(RoutePoint point) => 
+        public string GetRouteDescription(RoutePoint point) =>
             GetString(point.DescriptionId);
 
-        public string GetRouteDirections(RoutePoint point) => 
+        public string GetRouteDirections(RoutePoint point) =>
             GetString(point.DirectionsId);
 
         public IEnumerable<Location> GetRouteLandmarks(RoutePoint point) =>
-            point.Landmarks.Select(l => new Location 
+            point.Landmarks.Select(l => new Location
             {
                 NameId = GetOrAddString(l.Name),
                 TypeId = GetOrAddString(l.Type),

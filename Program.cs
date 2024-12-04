@@ -2,7 +2,6 @@
 using System.IO.Compression;
 using RPG;
 using RPG.Commands;
-using RPG.Plugins;
 using System.Text.Json;
 
 class Program
@@ -12,13 +11,25 @@ class Program
 
     static async Task Main(string[] args)
     {
-        // Create plugins directory if it doesn't exist
-        Directory.CreateDirectory("./plugins");
-        Directory.CreateDirectory("./plugins/lua");
-        Directory.CreateDirectory("./plugins/native");
-
-        // Initialize plugin manager early
-        var pluginManager = new PluginManager();
+        // Add these lines at the start of Main
+        Console.OutputEncoding = Encoding.UTF8;
+        if (OperatingSystem.IsWindows())
+        {
+            try
+            {
+                // Try to set UTF-8 codepage
+                Console.OutputEncoding = Encoding.UTF8;
+                var handle = GetStdHandle(-11); // STD_OUTPUT_HANDLE
+                GetConsoleMode(handle, out uint mode);
+                SetConsoleMode(handle, mode | 0x4); // ENABLE_VIRTUAL_TERMINAL_PROCESSING
+            }
+            catch
+            {
+                // Fallback to ASCII if UTF-8 setup fails
+                GameSettings.Instance.Display.UseUnicodeBorders = false;
+                GameSettings.Instance.Save();
+            }
+        }
 
         while (true)
         {
@@ -32,10 +43,10 @@ class Program
             switch (choice)
             {
                 case 1: // Start New Game
-                    await StartGame(null, pluginManager);
+                    await StartGame(null);
                     break;
                 case 2: // Load Game
-                    await ShowLoadGameMenu(pluginManager);
+                    await ShowLoadGameMenu();
                     break;
                 case 3: // Options
                     await ShowOptionsMenu();
@@ -226,18 +237,10 @@ class Program
         }
     }
 
-    private static async Task StartGame(string? loadSlot = null, PluginManager pluginManager = null)
+    private static async Task StartGame(string? loadSlot = null)
     {
         using var manager = new ConsoleWindowManager();
         var state = new GameState(manager);
-
-        // Initialize command handler with plugin manager
-        state.CommandHandler.Initialize(pluginManager);
-
-        // Create plugin context and load plugins
-        var context = new PluginContext(state, manager, state.CommandHandler, pluginManager);
-        pluginManager?.Initialize(context);
-        await LoadPlugins(context);
 
         if (loadSlot == null)
         {
@@ -279,12 +282,31 @@ class Program
 
         void UpdateLayout()
         {
+            int mapHeight = Console.WindowHeight - 6;
+            int mapWidth = 40;
+
             manager.UpdateRegion("GameLog", r =>
             {
                 r.X = 1;
                 r.Y = 1;
-                r.Width = Console.WindowWidth - 42;
-                r.Height = Console.WindowHeight - 6;
+                r.Width = Console.WindowWidth - mapWidth - 42;
+                r.Height = mapHeight;
+            });
+
+            manager.UpdateRegion("Map", r =>
+            {
+                r.X = Console.WindowWidth - mapWidth - 41;
+                r.Y = 1;
+                r.Width = mapWidth;
+                r.Height = mapHeight / 2;
+            });
+
+            manager.UpdateRegion("RegionMap", r =>
+            {
+                r.X = Console.WindowWidth - mapWidth - 41;
+                r.Y = mapHeight / 2 + 2;
+                r.Width = mapWidth;
+                r.Height = mapHeight / 2 - 1;
             });
 
             manager.UpdateRegion("Stats", r =>
@@ -292,7 +314,7 @@ class Program
                 r.X = Console.WindowWidth - 40;
                 r.Y = 1;
                 r.Width = 39;
-                r.Height = Console.WindowHeight - 6;
+                r.Height = mapHeight;
             });
 
             manager.UpdateRegion("Input", r =>
@@ -303,6 +325,28 @@ class Program
                 r.Height = 3;
             });
         }
+
+        var worldMap = new Region
+        {
+            Name = "World Map",
+            BorderColor = ConsoleColor.Blue,
+            TitleColor = ConsoleColor.Cyan,
+            RenderContent = (region) =>
+            {
+                manager.RenderMap(region, state.World.GetWorldData(), state.CurrentRegion);
+            }
+        };
+
+        var regionMap = new Region
+        {
+            Name = "Region Map",
+            BorderColor = ConsoleColor.Green,
+            TitleColor = ConsoleColor.Green,
+            RenderContent = (region) =>
+            {
+                manager.RenderRegionMap(region, state.CurrentRegion);
+            }
+        };
 
         var gameLog = new Region
         {
@@ -346,6 +390,8 @@ class Program
         manager.AddRegion("GameLog", gameLog);
         manager.AddRegion("Stats", statsPanel);
         manager.AddRegion("Input", inputRegion);
+        manager.AddRegion("Map", worldMap);
+        manager.AddRegion("RegionMap", regionMap);
         UpdateLayout();
 
         var inputBuffer = new StringBuilder();
@@ -398,9 +444,6 @@ class Program
 
             await Task.Delay(16);
         }
-
-        // Cleanup plugins when game ends
-        UnloadPlugins(context);
     }
 
     private static async Task ProcessCommand(string input, GameState state)
@@ -422,73 +465,7 @@ class Program
             commandHandler.RegisterCommand(command);
         }
     }
-
-    private static async Task LoadPlugins(PluginContext context)
-    {
-        try
-        {
-            string luaPath = Path.GetFullPath("./plugins/lua");
-            string nativePath = Path.GetFullPath("./plugins/native");
-
-            context.LogDebug($"Loading plugins from:");
-            context.LogDebug($"Lua Path: {luaPath}");
-            context.LogDebug($"Native Path: {nativePath}");
-
-            // Similar for Lua plugins...
-            if (Directory.Exists("./plugins/lua"))
-            {
-                var luaFiles = Directory.GetFiles("./plugins/lua", "*.lua");
-                context.LogDebug($"Found {luaFiles.Length} Lua plugins");
-                foreach (var file in luaFiles)
-                {
-                    context.LogDebug($"Loading Lua plugin: {Path.GetFileName(file)}");
-                    context.PluginManager.LoadPlugin(file);
-                }
-            }
-            else
-            {
-                context.LogDebug("Lua plugins directory not found");
-            }
-
-            // Initialize plugins
-            var plugins = context.PluginManager.GetPlugins().ToList();
-            context.LogDebug($"Initializing {plugins.Count} plugins");
-            foreach (var plugin in plugins)
-            {
-                try
-                {
-                    context.LogDebug($"Initializing plugin: {plugin.Name}");
-                    plugin.Initialize(context);
-                }
-                catch (Exception ex)
-                {
-                    context.LogDebug($"Failed to initialize plugin {plugin.Name}: {ex.Message}");
-                    context.LogDebug($"Stack trace: {ex.StackTrace}");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            context.LogDebug($"Error loading plugins: {ex.Message}");
-            context.LogDebug($"Stack trace: {ex.StackTrace}");
-        }
-    }
     
-    private static void UnloadPlugins(PluginContext context)
-    {
-        foreach (var plugin in context.PluginManager.GetPlugins())
-        {
-            try
-            {
-                plugin.Shutdown();
-            }
-            catch (Exception ex)
-            {
-                context.LogDebug($"Error shutting down plugin {plugin.Name}: {ex.Message}");
-            }
-        }
-    }
-
     private static async Task ShowOptionsMenu()
     {
         using var manager = new ConsoleWindowManager();
@@ -496,11 +473,18 @@ class Program
         var currentOption = 1;
         var languages = LocalizationManager.GetAvailableLanguages().ToList();
         var currentLanguageIndex = languages.FindIndex(c => c.Name == GameSettings.CurrentLanguage);
+        var settings = GameSettings.Instance;
+        const int MAX_OPTIONS = 7; // Updated number of options
+
+        // FPS options (will be converted to refresh rate ms)
+        int[] fpsOptions = { 30, 60, 120 };
+        int currentFpsIndex = Array.FindIndex(fpsOptions, fps => 1000 / fps == settings.Display.RefreshRateMs);
+        if (currentFpsIndex == -1) currentFpsIndex = 1; // Default to 60 FPS if current setting isn't in list
 
         state.Localization.LanguageChanged += (newLanguage) =>
         {
             manager.QueueRender();
-            GameSettings.Instance.Save();
+            settings.Save();
         };
 
         void UpdateLayout()
@@ -524,20 +508,79 @@ class Program
                 var options = new List<string>
                 {
                     "",
-                    state.Localization.GetString("Options_Instructions"),
+                    $"   {state.Localization.GetString("Settings_General")}",
+                    "   ===============",
                     "",
                     currentOption == 1 ?
-                        $"> [{state.Localization.GetString("Options_Language")}]: {languages[currentLanguageIndex].DisplayName} <" :
-                        $"  {state.Localization.GetString("Options_Language")}: {languages[currentLanguageIndex].DisplayName}  ",
+                        $" > {state.Localization.GetString("Settings_Language_Label", languages[currentLanguageIndex].DisplayName)} [←/→]" :
+                        $"   {state.Localization.GetString("Settings_Language_Label", languages[currentLanguageIndex].DisplayName)}",
+                    "",
+                    "",
+                    $"   {state.Localization.GetString("Settings_Visual")}",
+                    "   ===============",
                     "",
                     currentOption == 2 ?
-                        $"> [{state.Localization.GetString("Options_Back")}] <" :
-                        $"  {state.Localization.GetString("Options_Back")}  "
+                        $" > {state.Localization.GetString("Settings_Colors_Toggle", settings.Display.UseColors ? state.Localization.GetString("Settings_Disable") : state.Localization.GetString("Settings_Enable"))}" :
+                        $"   {state.Localization.GetString("Settings_Colors_Label", settings.Display.UseColors ? state.Localization.GetString("Settings_On") : state.Localization.GetString("Settings_Off"))}",
+                    "",
+                    currentOption == 3 ?
+                        $" > {state.Localization.GetString("Settings_BorderStyle_Label", GetBorderStyleDisplay(settings.Display, state))} [←/→]" :
+                        $"   {state.Localization.GetString("Settings_BorderStyle_Label", GetBorderStyleDisplay(settings.Display, state))}",
+                    "",
+                    "",
+                    $"   {state.Localization.GetString("Settings_Cursor")}",
+                    "   ===============",
+                    "",
+                    currentOption == 4 ?
+                        $" > {state.Localization.GetString("Settings_CursorBlink_Toggle", settings.Display.EnableCursorBlink ? state.Localization.GetString("Settings_Disable") : state.Localization.GetString("Settings_Enable"))}" :
+                        $"   {state.Localization.GetString("Settings_CursorBlink_Label", settings.Display.EnableCursorBlink ? state.Localization.GetString("Settings_On") : state.Localization.GetString("Settings_Off"))}",
+                    "",
+                    currentOption == 5 ?
+                        $" > {state.Localization.GetString("Settings_BlinkSpeed_Label", GetBlinkSpeedDisplay(settings.Display.CursorBlinkRateMs, state))} [←/→]" :
+                        $"   {state.Localization.GetString("Settings_BlinkSpeed_Label", GetBlinkSpeedDisplay(settings.Display.CursorBlinkRateMs, state))}",
+                    "",
+                    "",
+                    $"   {state.Localization.GetString("Settings_Performance")}",
+                    "   ===========",
+                    "",
+                    currentOption == 6 ?
+                        $" > {state.Localization.GetString("Settings_FrameRate_Label", fpsOptions[currentFpsIndex])} [←/→]" :
+                        $"   {state.Localization.GetString("Settings_FrameRate_Label", fpsOptions[currentFpsIndex])}",
+                    "",
+                    "",
+                    currentOption == 7 ?
+                        $" > [{state.Localization.GetString("Settings_BackToMainMenu")}]" :
+                        $"   {state.Localization.GetString("Settings_BackToMainMenu")}",
+                    "",
+                    "",
+                    state.Localization.GetString("Settings_NavigationHint")
                 };
 
                 manager.RenderWrappedText(region, options, ConsoleColor.White);
             }
         };
+
+        // Helper function to display border style
+        static string GetBorderStyleDisplay(ConsoleDisplayConfig config, GameState state)
+        {
+            if (!config.UseUnicodeBorders) 
+                return state.Localization.GetString("BorderStyle_ASCII");
+            return config.UseCurvedBorders ? 
+                state.Localization.GetString("BorderStyle_Curved") : 
+                state.Localization.GetString("BorderStyle_Classic");
+        }
+
+        // Helper function to display blink speed
+        static string GetBlinkSpeedDisplay(int ms, GameState state)
+        {
+            return ms switch
+            {
+                <= 250 => state.Localization.GetString("BlinkSpeed_Fast"),
+                <= 400 => state.Localization.GetString("BlinkSpeed_Normal"),
+                <= 700 => state.Localization.GetString("BlinkSpeed_Slow"),
+                _ => state.Localization.GetString("BlinkSpeed_VerySlow")
+            };
+        }
 
         manager.AddRegion("Options", optionsMenu);
         UpdateLayout();
@@ -547,40 +590,90 @@ class Program
             if (Console.KeyAvailable)
             {
                 var key = Console.ReadKey(true);
+                bool settingsChanged = false;
+
                 switch (key.Key)
                 {
                     case ConsoleKey.UpArrow:
-                        currentOption = currentOption == 1 ? 2 : 1;
+                        currentOption = currentOption == 1 ? MAX_OPTIONS : currentOption - 1;
                         manager.QueueRender();
                         break;
+
                     case ConsoleKey.DownArrow:
-                        currentOption = currentOption == 2 ? 1 : 2;
+                        currentOption = currentOption == MAX_OPTIONS ? 1 : currentOption + 1;
                         manager.QueueRender();
                         break;
-                    case ConsoleKey.LeftArrow:
-                        if (currentOption == 1)
-                        {
-                            currentLanguageIndex = (currentLanguageIndex - 1 + languages.Count) % languages.Count;
-                            GameSettings.CurrentLanguage = languages[currentLanguageIndex].Name;
-                            state.Localization.SetLanguage(GameSettings.CurrentLanguage);
-                            manager.QueueRender();
-                        }
-                        break;
-                    case ConsoleKey.RightArrow:
-                        if (currentOption == 1)
-                        {
-                            currentLanguageIndex = (currentLanguageIndex + 1) % languages.Count;
-                            GameSettings.CurrentLanguage = languages[currentLanguageIndex].Name;
-                            state.Localization.SetLanguage(GameSettings.CurrentLanguage);
-                            manager.QueueRender();
-                        }
-                        break;
+
+                    case ConsoleKey.Spacebar:
                     case ConsoleKey.Enter:
-                        if (currentOption == 2)
-                            return;
+                        settingsChanged = true;
+                        switch (currentOption)
+                        {
+                            case 2: // Colors toggle
+                                settings.Display.UseColors = !settings.Display.UseColors;
+                                manager.UpdateDisplaySettings(settings.Display);
+                                break;
+                            case 4: // Cursor Blink toggle
+                                settings.Display.EnableCursorBlink = !settings.Display.EnableCursorBlink;
+                                manager.UpdateDisplaySettings(settings.Display);
+                                break;
+                            case 7: // Back
+                                if (settingsChanged)
+                                    settings.Save();
+                                return;
+                        }
                         break;
+
+                    case ConsoleKey.LeftArrow:
+                    case ConsoleKey.RightArrow:
+                        settingsChanged = true;
+                        switch (currentOption)
+                        {
+                            case 1: // Language cycling
+                                if (key.Key == ConsoleKey.LeftArrow)
+                                    currentLanguageIndex = (currentLanguageIndex - 1 + languages.Count) % languages.Count;
+                                else
+                                    currentLanguageIndex = (currentLanguageIndex + 1) % languages.Count;
+                                
+                                var newLanguage = languages[currentLanguageIndex].Name;
+                                settings.UpdateLanguage(newLanguage);  // Update the language in settings
+                                state.Localization.SetLanguage(newLanguage);  // Apply the language change
+                                break;
+
+                            case 3: // Border Style cycling
+                                CycleBorderStyle(settings.Display, key.Key == ConsoleKey.RightArrow);
+                                manager.UpdateDisplaySettings(settings.Display);
+                                break;
+
+                            case 5: // Blink Speed
+                                if (key.Key == ConsoleKey.LeftArrow)
+                                    settings.Display.CursorBlinkRateMs = Math.Max(200, settings.Display.CursorBlinkRateMs - 150);
+                                else
+                                    settings.Display.CursorBlinkRateMs = Math.Min(1000, settings.Display.CursorBlinkRateMs + 150);
+                                manager.UpdateDisplaySettings(settings.Display);
+                                break;
+
+                            case 6: // Frame Rate
+                                if (key.Key == ConsoleKey.LeftArrow)
+                                    currentFpsIndex = (currentFpsIndex - 1 + fpsOptions.Length) % fpsOptions.Length;
+                                else
+                                    currentFpsIndex = (currentFpsIndex + 1) % fpsOptions.Length;
+                                settings.Display.RefreshRateMs = 1000 / fpsOptions[currentFpsIndex];
+                                manager.UpdateDisplaySettings(settings.Display);
+                                break;
+                        }
+                        break;
+
                     case ConsoleKey.Escape:
+                        if (settingsChanged)
+                            settings.Save();
                         return;
+                }
+                
+                if (settingsChanged)
+                {
+                    settings.Save();
+                    manager.QueueRender();
                 }
             }
 
@@ -593,7 +686,7 @@ class Program
         }
     }
 
-    private static async Task ShowLoadGameMenu(PluginManager pluginManager)
+    private static async Task ShowLoadGameMenu()
     {
         using var manager = new ConsoleWindowManager();
         var state = new GameState(manager);
@@ -679,7 +772,7 @@ class Program
                         $"> [{saveInfo.Slot}] {saveType} {saveDate}" :
                         $"  {saveInfo.Slot}: {saveType} {saveDate}");
                     menuItems.Add($"     {saveInfo.Metadata.LastPlayedCharacter} - Level {saveInfo.Metadata.CharacterLevel}");
-                    menuItems.Add($"     Play time: {FormatPlayTime(saveInfo.Metadata.TotalPlayTime)}");
+                    menuItems.Add($"     {state.Localization.GetString("Load_PlayTime", FormatPlayTime(saveInfo.Metadata.TotalPlayTime, state))}");
                     menuItems.Add("");
                 }
 
@@ -809,7 +902,7 @@ class Program
                     case ConsoleKey.Enter:
                         var (slot, _) = saves[selectedIndex];
                         manager.Dispose();
-                        await StartGame(slot, pluginManager);
+                        await StartGame(slot);
                         return;
 
                     case ConsoleKey.Escape:
@@ -826,13 +919,16 @@ class Program
         }
     }
 
-    private static string FormatPlayTime(TimeSpan time)
+    private static string FormatPlayTime(TimeSpan time, GameState state)
     {
         if (time.TotalDays >= 1)
-            return $"{(int)time.TotalDays}d {time.Hours}h {time.Minutes}m";
+            return state.Localization.GetString("PlayTime_Days", 
+                (int)time.TotalDays, time.Hours, time.Minutes);
         if (time.TotalHours >= 1)
-            return $"{(int)time.TotalHours}h {time.Minutes}m";
-        return $"{time.Minutes}m {time.Seconds}s";
+            return state.Localization.GetString("PlayTime_Hours",
+                (int)time.TotalHours, time.Minutes);
+        return state.Localization.GetString("PlayTime_Minutes",
+            time.Minutes, time.Seconds);
     }
 
     private static async Task<bool> ConfirmDelete(string slot)
@@ -904,4 +1000,53 @@ class Program
             await Task.Delay(16);
         }
     }
+
+    private static void CycleBorderStyle(ConsoleDisplayConfig config, bool forward)
+    {
+        // Cycle order: ASCII -> Unicode Classic -> Unicode Curved -> ASCII
+        if (forward)
+        {
+            if (!config.UseUnicodeBorders)
+            {
+                config.UseUnicodeBorders = true;
+                config.UseCurvedBorders = false;
+            }
+            else if (!config.UseCurvedBorders)
+            {
+                config.UseCurvedBorders = true;
+            }
+            else
+            {
+                config.UseUnicodeBorders = false;
+                config.UseCurvedBorders = false;
+            }
+        }
+        else
+        {
+            if (config.UseCurvedBorders)
+            {
+                config.UseCurvedBorders = false;
+            }
+            else if (config.UseUnicodeBorders)
+            {
+                config.UseUnicodeBorders = false;
+                config.UseCurvedBorders = false;
+            }
+            else
+            {
+                config.UseUnicodeBorders = true;
+                config.UseCurvedBorders = true;
+            }
+        }
+    }
+
+    // Add these P/Invoke declarations at the bottom of the Program class
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    private static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+    private static extern IntPtr GetStdHandle(int nStdHandle);
 }
