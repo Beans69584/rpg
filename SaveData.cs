@@ -61,7 +61,18 @@ namespace RPG
         /// Gets or sets the last play session timestamp
         /// </summary>
         public DateTime LastPlayTime { get; set; } = DateTime.Now;
-
+        /// <summary>
+        /// Gets or sets the world seed
+        /// </summary>
+        public string WorldSeed { get; set; } = "";
+        /// <summary>
+        /// Gets or sets the world name
+        /// </summary>
+        public string WorldName { get; set; } = "";
+        /// <summary>
+        /// Gets or sets the world creation timestamp
+        /// </summary>
+        public DateTime WorldCreatedAt { get; set; }
         /// <summary>
         /// Gets the formatted display name for the save file
         /// </summary>

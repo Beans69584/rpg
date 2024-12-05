@@ -17,7 +17,7 @@ namespace RPG.Utils
         {
             return Environment.OSVersion.Platform switch
             {
-                PlatformID.Unix or PlatformID.MacOSX => ".demorpg",
+                PlatformID.Unix or PlatformID.MacOSX => "demorpg",
                 PlatformID.Win32NT or PlatformID.Win32Windows => "DemoRPG",
                 _ => throw new PlatformNotSupportedException($"Platform {Environment.OSVersion.Platform} is not supported"),
             };

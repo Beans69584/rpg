@@ -17,18 +17,31 @@ namespace RPG
         private const int MAX_AUTOSAVES = 3;
         private const int MAX_BACKUPS = 5;
         private static readonly string BaseDirectory = PathUtilities.GetSettingsDirectory();
-
-        private static readonly string SaveDirectory = Path.Combine(BaseDirectory, "Saves");
-
-
-        private static readonly string BackupDirectory = Path.Combine(SaveDirectory, "Backups");
-        private static readonly string AutosaveDirectory = Path.Combine(SaveDirectory, "Autosaves");
+        private static readonly string WorldsDirectory = Path.Combine(BaseDirectory, "Worlds");
 
         static SaveManager()
         {
-            Directory.CreateDirectory(SaveDirectory);
-            Directory.CreateDirectory(BackupDirectory);
-            Directory.CreateDirectory(AutosaveDirectory);
+            Directory.CreateDirectory(WorldsDirectory);
+        }
+
+        private static string GetWorldDirectory(string worldName)
+        {
+            if (string.IsNullOrEmpty(worldName))
+                throw new ArgumentException("World name cannot be null or empty", nameof(worldName));
+
+            string safeName = SanitizeWorldName(worldName);
+            string worldPath = Path.Combine(WorldsDirectory, safeName);
+            Directory.CreateDirectory(worldPath);
+            Directory.CreateDirectory(Path.Combine(worldPath, "backups"));
+            Directory.CreateDirectory(Path.Combine(worldPath, "autosaves"));
+            return worldPath;
+        }
+
+        private static string SanitizeWorldName(string worldName)
+        {
+            // Replace invalid characters with underscores
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            return string.Join("_", worldName.Split(invalid.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
         }
 
         /// <summary>
@@ -39,6 +52,9 @@ namespace RPG
         /// <param name="isAutosave">Whether this save is an autosave.</param>
         public static void Save(SaveData saveData, string slot, bool isAutosave = false)
         {
+            string worldName = GetWorldNameFromPath(saveData.WorldPath);
+            string worldDir = GetWorldDirectory(worldName);
+
             SaveMetadata metadata = new()
             {
                 Version = CURRENT_SAVE_VERSION,
@@ -50,12 +66,12 @@ namespace RPG
                 CharacterLevel = saveData.Level
             };
 
-            string path = GetSavePath(slot, isAutosave);
+            string path = GetSavePath(worldDir, slot, isAutosave);
 
             // Create backup of existing save
             if (File.Exists(path) && !isAutosave)
             {
-                CreateBackup(slot);
+                CreateBackup(worldDir, slot);
             }
 
             // Serialize and compress
@@ -86,9 +102,21 @@ namespace RPG
         /// <returns>A tuple containing the save metadata and data.</returns>
         public static (SaveMetadata? Metadata, SaveData? Data) Load(string slot, bool isAutosave = false)
         {
-            string path = GetSavePath(slot, isAutosave);
-            if (!File.Exists(path)) return (null, null);
+            // We need to scan all world directories since we don't know which world the save belongs to
+            foreach (string worldDir in Directory.GetDirectories(WorldsDirectory))
+            {
+                string path = GetSavePath(worldDir, slot, isAutosave);
+                if (File.Exists(path))
+                {
+                    return LoadFromPath(path);
+                }
+            }
 
+            return (null, null);
+        }
+
+        private static (SaveMetadata? Metadata, SaveData? Data) LoadFromPath(string path)
+        {
             try
             {
                 using FileStream fs = File.OpenRead(path);
@@ -129,20 +157,28 @@ namespace RPG
         {
             List<SaveInfo> saves = [];
 
-            // Get manual saves
-            foreach (string file in Directory.GetFiles(SaveDirectory, "*.save"))
+            // Look in each world directory
+            foreach (string worldDir in Directory.GetDirectories(WorldsDirectory))
             {
-                SaveInfo? info = GetSaveInfo(file, false);
-                if (info != null) saves.Add(info);
-            }
-
-            // Get autosaves if requested
-            if (includeAutosaves)
-            {
-                foreach (string file in Directory.GetFiles(AutosaveDirectory, "*.save"))
+                // Get regular saves
+                foreach (string file in Directory.GetFiles(worldDir, "*.save"))
                 {
-                    SaveInfo? info = GetSaveInfo(file, true);
+                    SaveInfo? info = GetSaveInfo(file, false);
                     if (info != null) saves.Add(info);
+                }
+
+                // Get autosaves if requested
+                if (includeAutosaves)
+                {
+                    string autosaveDir = Path.Combine(worldDir, "autosaves");
+                    if (Directory.Exists(autosaveDir))
+                    {
+                        foreach (string file in Directory.GetFiles(autosaveDir, "*.save"))
+                        {
+                            SaveInfo? info = GetSaveInfo(file, true);
+                            if (info != null) saves.Add(info);
+                        }
+                    }
                 }
             }
 
@@ -166,15 +202,20 @@ namespace RPG
         /// <param name="isAutosave">Whether to delete an autosave.</param>
         public static void DeleteSave(string slot, bool isAutosave = false)
         {
-            string path = GetSavePath(slot, isAutosave);
-            if (File.Exists(path))
+            // Need to scan all world directories since we don't know which world the save belongs to
+            foreach (string worldDir in Directory.GetDirectories(WorldsDirectory))
             {
-                // Move to recycle bin instead of permanent deletion
-                Microsoft.VisualBasic.FileIO.FileSystem.DeleteFile(
-                    path,
-                    Microsoft.VisualBasic.FileIO.UIOption.OnlyErrorDialogs,
-                    Microsoft.VisualBasic.FileIO.RecycleOption.SendToRecycleBin
-                );
+                string path = GetSavePath(worldDir, slot, isAutosave);
+                if (File.Exists(path))
+                {
+                    // Move to recycle bin instead of permanent deletion
+                    Microsoft.VisualBasic.FileIO.FileSystem.DeleteFile(
+                        path,
+                        Microsoft.VisualBasic.FileIO.UIOption.OnlyErrorDialogs,
+                        Microsoft.VisualBasic.FileIO.RecycleOption.SendToRecycleBin
+                    );
+                    break;
+                }
             }
         }
 
@@ -186,15 +227,18 @@ namespace RPG
         /// <returns>True if the backup was restored successfully.</returns>
         public static bool RestoreBackup(string slot, int backupIndex)
         {
-            string backupPath = GetBackupPath(slot, backupIndex);
-            string targetPath = GetSavePath(slot, false);
-
-            if (File.Exists(backupPath))
+            // Scan world directories to find the correct backup
+            foreach (string worldDir in Directory.GetDirectories(WorldsDirectory))
             {
-                File.Copy(backupPath, targetPath, true);
-                return true;
-            }
+                string backupPath = GetBackupPath(worldDir, slot, backupIndex);
+                string targetPath = GetSavePath(worldDir, slot, false);
 
+                if (File.Exists(backupPath))
+                {
+                    File.Copy(backupPath, targetPath, true);
+                    return true;
+                }
+            }
             return false;
         }
 
@@ -206,8 +250,9 @@ namespace RPG
         /// <returns>True if a save file exists in the slot; otherwise, false.</returns>
         public static bool SaveExists(string slot, bool isAutosave = false)
         {
-            string path = GetSavePath(slot, isAutosave);
-            return File.Exists(path);
+            return Directory.EnumerateDirectories(WorldsDirectory)
+                .Select(worldDir => GetSavePath(worldDir, slot, isAutosave))
+                .Any(File.Exists);
         }
 
         private static SaveInfo? GetSaveInfo(string path, bool isAutosave)
@@ -233,41 +278,54 @@ namespace RPG
             return null;
         }
 
-        private static void CreateBackup(string slot)
+        private static void CreateBackup(string worldDir, string slot)
         {
-            string sourcePath = GetSavePath(slot, false);
+            string sourcePath = GetSavePath(worldDir, slot, false);
             if (!File.Exists(sourcePath)) return;
 
+            string backupDir = Path.Combine(worldDir, "backups");
             string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-            string backupPath = Path.Combine(BackupDirectory, $"{slot}_{timestamp}.backup");
+            string backupPath = Path.Combine(backupDir, $"{slot}_{timestamp}.backup");
 
             File.Copy(sourcePath, backupPath, true);
-            CleanupOldBackups(slot);
+            CleanupOldBackups(worldDir, slot);
         }
 
         private static void CleanupOldAutosaves()
         {
-            IEnumerable<string> files = Directory.GetFiles(AutosaveDirectory, "*.save")
-                .OrderByDescending(File.GetLastWriteTime)
-                .Skip(MAX_AUTOSAVES);
-
-            foreach (string? file in files)
+            // Cleanup autosaves in all world directories
+            foreach (string worldDir in Directory.GetDirectories(WorldsDirectory))
             {
-                try { File.Delete(file); }
-                catch { /* Ignore cleanup errors */ }
+                string autosaveDir = Path.Combine(worldDir, "autosaves");
+                if (Directory.Exists(autosaveDir))
+                {
+                    IEnumerable<string> files = Directory.GetFiles(autosaveDir, "*.save")
+                        .OrderByDescending(File.GetLastWriteTime)
+                        .Skip(MAX_AUTOSAVES);
+
+                    foreach (string file in files)
+                    {
+                        try { File.Delete(file); }
+                        catch { /* Ignore cleanup errors */ }
+                    }
+                }
             }
         }
 
-        private static void CleanupOldBackups(string slot)
+        private static void CleanupOldBackups(string worldDir, string slot)
         {
-            IEnumerable<string> files = Directory.GetFiles(BackupDirectory, $"{slot}_*.backup")
-                .OrderByDescending(File.GetLastWriteTime)
-                .Skip(MAX_BACKUPS);
-
-            foreach (string? file in files)
+            string backupDir = Path.Combine(worldDir, "backups");
+            if (Directory.Exists(backupDir))
             {
-                try { File.Delete(file); }
-                catch { /* Ignore cleanup errors */ }
+                IEnumerable<string> files = Directory.GetFiles(backupDir, $"{slot}_*.backup")
+                    .OrderByDescending(File.GetLastWriteTime)
+                    .Skip(MAX_BACKUPS);
+
+                foreach (string file in files)
+                {
+                    try { File.Delete(file); }
+                    catch { /* Ignore cleanup errors */ }
+                }
             }
         }
 
@@ -300,19 +358,27 @@ namespace RPG
             }
         }
 
-        private static string GetSavePath(string slot, bool isAutosave)
+        private static string GetSavePath(string worldDir, string slot, bool isAutosave)
         {
-            return Path.Combine(
-                isAutosave ? AutosaveDirectory : SaveDirectory,
-                $"{slot}.save"
-            );
+            string saveDir = isAutosave ? Path.Combine(worldDir, "autosaves") : worldDir;
+            return Path.Combine(saveDir, $"{slot}.save");
         }
 
-        private static string GetBackupPath(string slot, int backupIndex)
+        private static string GetBackupPath(string worldDir, string slot, int backupIndex)
         {
-            List<string> backups = [.. Directory.GetFiles(BackupDirectory, $"{slot}_*.backup").OrderByDescending(File.GetLastWriteTime)];
-
+            string backupDir = Path.Combine(worldDir, "backups");
+            List<string> backups = [.. Directory.GetFiles(backupDir, $"{slot}_*.backup").OrderByDescending(File.GetLastWriteTime)];
             return backupIndex < backups.Count ? backups[backupIndex] : "";
+        }
+
+        private static string GetWorldNameFromPath(string worldPath)
+        {
+            // Extract world name from world file path
+            // Example path: /path/to/Worlds/MyWorld/world.dat
+            string? dirName = Path.GetDirectoryName(worldPath);
+            return string.IsNullOrEmpty(dirName)
+                ? throw new ArgumentException("Invalid world path", nameof(worldPath))
+                : Path.GetFileName(dirName) ?? "default";
         }
     }
 

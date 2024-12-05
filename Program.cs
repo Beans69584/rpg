@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using RPG.Utils;
 
 namespace RPG
 {
@@ -164,7 +165,7 @@ namespace RPG
                     [
                         @"██████╗ ███████╗███╗   ███╗ ██████╗ ",
                         @"██╔══██╗██╔════╝████╗ ████║██╔═══██╗",
-                        @"██║  ██║█████╗  ██╔████╔██║██║   ██║",
+                        @"██║  ██���█████╗  ██╔████╔██║██║   ██║",
                         @"██║  ██║██╔══╝  ██║╚██╔╝██║██║   ██║",
                         @"██████╔╝███████╗██║ ╚═╝ ██║╚██████╔╝",
                         @"╚═════╝ ╚══════╝╚═╝     ╚═╝ ╚═════╝ "
@@ -260,32 +261,19 @@ namespace RPG
 
             if (loadSlot == null)
             {
-                try
-                {
-                    if (!File.Exists("./World/world.dat"))
-                    {
-                        state.GameLog.Add("Generating new world...");
+                // Generate new world with unique seed
+                int worldSeed = Guid.NewGuid().GetHashCode();
+                ProceduralWorldGenerator generator = new(worldSeed);
+                WorldConfig worldConfig = generator.GenerateWorld();
 
-                        ProceduralWorldGenerator generator = new(Random.Shared.Next());
-                        WorldConfig worldConfig = generator.GenerateWorld();
+                // Create world directory under settings directory
+                string worldDir = Path.Combine(PathUtilities.GetSettingsDirectory(), "Worlds", worldConfig.Name.Replace(" ", "_"));
+                Directory.CreateDirectory(worldDir);
 
-                        Directory.CreateDirectory("./World");
+                OptimizedWorldBuilder builder = new(worldDir, worldConfig);
+                builder.Build();
 
-                        OptimizedWorldBuilder builder = new("./World", worldConfig);
-                        builder.Build();
-
-                        state.GameLog.Add($"Generated world '{worldConfig.Name}' with {worldConfig.Regions.Count} regions");
-                    }
-
-                    state.LoadWorld("./World/world.dat", true);
-                }
-                catch (Exception ex)
-                {
-                    state.GameLog.Add($"Failed to load/generate world: {ex.Message}");
-                    state.GameLog.Add("Press any key to return to menu...");
-                    Console.ReadKey(true);
-                    return;
-                }
+                state.LoadWorld(Path.Combine(worldDir, "world.dat"), true);
             }
             else if (!state.LoadGame(loadSlot))
             {
