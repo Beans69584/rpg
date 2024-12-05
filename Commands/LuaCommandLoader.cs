@@ -1,4 +1,5 @@
 using NLua;
+using RPG.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,7 +29,7 @@ namespace RPG.Commands
             _assembly = Assembly.GetExecutingAssembly();
 
             _userScriptsPath = Path.Combine(
-                GetApplicationFolder(),
+                PathUtilities.GetSettingsDirectory(),
                 "Scripts"
             );
 
@@ -87,22 +88,6 @@ namespace RPG.Commands
                     }
                 end
             ");
-        }
-
-        private static string GetApplicationFolder()
-        {
-            return Environment.OSVersion.Platform switch
-            {
-                PlatformID.Unix => "demorpg",
-                PlatformID.MacOSX => "Library/Application Support/DemoRPG",
-                PlatformID.Win32NT => "DemoRPG",
-                PlatformID.Win32Windows => "DemoRPG",
-                PlatformID.Win32S => throw new PlatformNotSupportedException("Win32s is not supported"),
-                PlatformID.WinCE => throw new PlatformNotSupportedException("Windows CE is not supported"),
-                PlatformID.Xbox => throw new PlatformNotSupportedException("Xbox is not supported"),
-                PlatformID.Other => throw new PlatformNotSupportedException("Unknown platform"),
-                _ => throw new PlatformNotSupportedException("Unknown platform"),
-            };
         }
 
         private string? GetEmbeddedScript(string filename)

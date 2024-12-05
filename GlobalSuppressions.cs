@@ -13,3 +13,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Style", "IDE0046:Convert to conditional expression", Justification = "Simplifying any further would hurt readability", Scope = "member", Target = "~M:RPG.Program.ShowOptionsMenuAsync~System.Threading.Tasks.Task")]
 [assembly: SuppressMessage("Style", "IDE0046:Convert to conditional expression", Justification = "Simplifying any further would hurt readability", Scope = "member", Target = "~M:RPG.SaveData.FormatPlayTime(System.TimeSpan)~System.String")]
 [assembly: SuppressMessage("Usage", "VSTHRD002:Avoid problematic synchronous waits", Justification = "Necessary implementation", Scope = "member", Target = "~M:RPG.ConsoleWindowManager.StopRendering")]
+[assembly: SuppressMessage("Style", "IDE0072:Add missing cases", Justification = "No need to, they will be caught by _", Scope = "member", Target = "~M:RPG.Utils.PathUtilities.GetApplicationFolder~System.String")]

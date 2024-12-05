@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using RPG.Utils;
 
 namespace RPG
 {
@@ -15,29 +16,7 @@ namespace RPG
         private const int CURRENT_SAVE_VERSION = 1;
         private const int MAX_AUTOSAVES = 3;
         private const int MAX_BACKUPS = 5;
-        private static string GetApplicationFolder()
-        {
-            return Environment.OSVersion.Platform switch
-            {
-                PlatformID.Unix => "demorpg",
-                PlatformID.MacOSX => "Library/Application Support/DemoRPG",
-                PlatformID.Win32NT => "DemoRPG",
-                PlatformID.Win32Windows => "DemoRPG",
-                PlatformID.Win32S => throw new PlatformNotSupportedException("Win32s is not supported"),
-                PlatformID.WinCE => throw new PlatformNotSupportedException("Windows CE is not supported"),
-                PlatformID.Xbox => throw new PlatformNotSupportedException("Xbox is not supported"),
-                PlatformID.Other => throw new PlatformNotSupportedException("Unknown platform"),
-                _ => throw new PlatformNotSupportedException("Unknown platform"),
-            };
-        }
-        private static readonly string BaseDirectory = Path.Combine(
-            Environment.OSVersion.Platform is PlatformID.Unix or
-            PlatformID.MacOSX
-                ? Environment.GetEnvironmentVariable("XDG_DATA_HOME")
-                    ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), ".local/share")
-                : Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            GetApplicationFolder()
-        );
+        private static readonly string BaseDirectory = PathUtilities.GetSettingsDirectory();
 
         private static readonly string SaveDirectory = Path.Combine(BaseDirectory, "Saves");
 

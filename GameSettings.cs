@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using RPG.Utils;
 
 namespace RPG
 {
@@ -49,30 +50,7 @@ namespace RPG
     [method: JsonConstructor]
     public class GameSettings()
     {
-        private static string GetApplicationFolder()
-        {
-            return Environment.OSVersion.Platform switch
-            {
-                PlatformID.Unix => "demorpg",
-                PlatformID.MacOSX => "Library/Application Support/DemoRPG",
-                PlatformID.Win32NT => "DemoRPG",
-                PlatformID.Win32Windows => "DemoRPG",
-                PlatformID.Win32S => throw new PlatformNotSupportedException("Win32s is not supported"),
-                PlatformID.WinCE => throw new PlatformNotSupportedException("Windows CE is not supported"),
-                PlatformID.Xbox => throw new PlatformNotSupportedException("Xbox is not supported"),
-                PlatformID.Other => throw new PlatformNotSupportedException("Unknown platform"),
-                _ => throw new PlatformNotSupportedException("Unknown platform"),
-            };
-        }
-
-        private static readonly string SettingsDirectory = Path.Combine(
-            Environment.OSVersion.Platform is PlatformID.Unix or
-            PlatformID.MacOSX
-                ? Environment.GetEnvironmentVariable("XDG_DATA_HOME")
-                    ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), ".local/share")
-                : Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            GetApplicationFolder()
-        );
+        private static readonly string SettingsDirectory = PathUtilities.GetSettingsDirectory();
         private static readonly string SettingsPath = Path.Combine(SettingsDirectory, "settings.json");
         private static GameSettings? _instance;
 
@@ -118,17 +96,22 @@ namespace RPG
         {
             try
             {
-                // Ensure directory exists
-                Directory.CreateDirectory(SettingsDirectory);
+                if (!Directory.Exists(SettingsDirectory))
+                {
+                    Directory.CreateDirectory(SettingsDirectory);
+                    if (!Directory.Exists(SettingsDirectory))
+                    {
+                        throw new DirectoryNotFoundException($"Could not create settings directory: {SettingsDirectory}");
+                    }
+                }
 
-                // Serialize settings
                 JsonSerializerOptions options = new() { WriteIndented = true };
                 string jsonString = JsonSerializer.Serialize(this, options);
                 File.WriteAllText(SettingsPath, jsonString);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to save settings: {ex.Message}");
+                throw new InvalidOperationException($"Failed to save settings to {SettingsPath}: {ex.Message}", ex);
             }
         }
 
