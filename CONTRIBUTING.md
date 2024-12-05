@@ -22,7 +22,7 @@ Thanks for your interest in contributing. We welcome contributions from everyone
 ### Code Style
 
 - Use consistent indentation (4 spaces)
-- Following existing naming conventions
+- Follow existing naming conventions
 - Add XML documentation comments for public methods
 - Keep methods focused and concise
 - Use meaningful variable and method names **(self-documenting code)**
@@ -30,12 +30,12 @@ Thanks for your interest in contributing. We welcome contributions from everyone
 ### Commits
 
 - Use clear, descriptive commit messages
-- Each commit should represent a single logical cahnge
+- Each commit should represent a single logical change
 - Reference any relevant issue numbers
 
 ### Pull Requests
 
-1. Udpate your fork to the latest upstream version
+1. Update your fork to the latest upstream version
 2. Test your changes thoroughly
 3. Update documentation if needed
 4. Push to your fork and submit a pull request
@@ -64,7 +64,7 @@ Thanks for your interest in contributing. We welcome contributions from everyone
 - Wiki pages
 - Tutorials and guides
 
-### Localisation
+### Localization
 
 - New language translations
 - Improvements to existing translations
@@ -73,7 +73,7 @@ Thanks for your interest in contributing. We welcome contributions from everyone
 ## Development Setup
 
 1. Install .NET 9.0 SDK
-2. Install your preferred IDe (Visual Studio, VS Code, etc.)
+2. Install your preferred IDE (Visual Studio, VS Code, etc.)
 3. Restore NuGet packages
 4. Build the project
 5. Run tests if available
@@ -81,9 +81,9 @@ Thanks for your interest in contributing. We welcome contributions from everyone
 ## Testing
 
 - Add tests for new features
-- Ensure exisitng tests pass
+- Ensure existing tests pass
 - Test on different platforms if possible
-- Verify localisation works
+- Verify localization works
 
 ## Questions?
 
@@ -93,7 +93,7 @@ Thanks for your interest in contributing. We welcome contributions from everyone
 
 ## Code of Conduct
 
-Please note that this project follows a Code of Conduct. By participating, you expected to uphold this code.
+Please note that this project follows a Code of Conduct. By participating, you are expected to uphold this code.
 
 ### Our Standards
 
@@ -102,7 +102,7 @@ Please note that this project follows a Code of Conduct. By participating, you e
 - Focus on what's best for the community
 - Show empathy towards others
 
-### Unacceptable Behaviour
+### Unacceptable Behavior
 
 - Harassment or discrimination
 - Trolling, insulting, or derogatory comments
@@ -114,7 +114,7 @@ Please note that this project follows a Code of Conduct. By participating, you e
 Contributors will be:
 
 - Listed in CONTRIBUTORS.md
-- Mentioned in release notes for signifcant contributions
+- Mentioned in release notes for significant contributions
 - Thanked in commit messages
 
 Thanks for your help! We look forward to your contributions.
