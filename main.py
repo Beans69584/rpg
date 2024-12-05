@@ -19,6 +19,7 @@ def proxy(url):
     
     username = parts[0]
     path = parts[1] if len(parts) > 1 else ''
+    path = path.replace('public/', '')  # Remove public/ prefix
     
     # Construct target URL preserving full path
     target_url = f"{base_url.format(username)}/{path}"
@@ -38,20 +39,26 @@ def proxy(url):
             url=target_url,
             headers=headers,
             data=request.get_data(),
-            cookies=request.cookies,
+            cookies=request.cookies
         )
         
-        # Filter response headers
-        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-        headers = [(name, value) for (name, value) in response.headers.items()
-                  if name.lower() not in excluded_headers]
+        # Keep important headers for content handling
+        excluded_headers = ['content-length', 'connection', 'transfer-encoding']
+        response_headers = [(name, value) for (name, value) in response.headers.items()
+                          if name.lower() not in excluded_headers]
         
-        return Response(
-            response.raw,
+        # Create response with proper mimetype handling
+        flask_response = Response(
+            response.content,
             response.status_code,
-            headers,
-            direct_passthrough=True
+            response_headers
         )
+        
+        # Ensure content type is preserved
+        if 'Content-Type' in response.headers:
+            flask_response.headers['Content-Type'] = response.headers['Content-Type']
+            
+        return flask_response
     
     except requests.RequestException as e:
         print(f"Error proxying request: {e}")
