@@ -3,18 +3,15 @@ import os
 import shutil
 import subprocess
 import sys
-from typing import List, Dict, Tuple
+from typing import List, Tuple
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeElapsedColumn
 from rich.table import Table
-from rich.live import Live
-from rich.layout import Layout
 from rich import box
 import questionary
 from questionary import Choice
 from datetime import datetime
-import platform
 import threading
 import queue
 

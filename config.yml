@@ -10,6 +10,10 @@ ignored_dirs:
   - Scripts
   - .git
   - .vscode
+  - _site
+  - api
+  - build_logs
+  - docs
 
 ignored_files: []
 source_dir: "."

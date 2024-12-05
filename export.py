@@ -207,21 +207,37 @@ class FileProcessor:
 
         contents = []
         try:
-            paths = sorted(path.iterdir(), key=lambda p: (p.is_file(), p.name.lower()))
+            # Get all valid paths (files with correct extensions and directories)
+            paths = [p for p in path.iterdir() if 
+                    (p.is_file() and any(str(p).endswith(ext) for ext in self.config.extensions)) or 
+                    (p.is_dir() and p.name not in self.config.ignored_dirs)]
+
+            # For directories, check if they contain any valid files (recursively)
+            valid_paths = []
+            for p in paths:
+                if p.is_file():
+                    valid_paths.append(p)
+                else:
+                    # Only include directory if it contains valid files
+                    tree_content = self._generate_tree(p, "")
+                    if tree_content:  # If directory has valid content
+                        valid_paths.append(p)
+
+            # Sort the valid paths
+            valid_paths = sorted(valid_paths, key=lambda p: (p.is_file(), p.name.lower()))
+            
+            # Generate tree structure for valid paths
+            for i, p in enumerate(valid_paths):
+                is_last = i == len(valid_paths) - 1
+                connector = "└── " if is_last else "├── "
+                contents.append(f"{prefix}{connector}{p.name}")
+                
+                if p.is_dir():
+                    extension = "    " if is_last else "│   "
+                    contents.extend(self._generate_tree(p, prefix + extension))
+            
         except PermissionError:
             return []
-            
-        for i, p in enumerate(paths):
-            if p.name in self.config.ignored_dirs:
-                continue
-                
-            is_last = i == len(paths) - 1
-            connector = "└── " if is_last else "├── "
-            contents.append(f"{prefix}{connector}{p.name}")
-            
-            if p.is_dir():
-                extension = "    " if is_last else "│   "
-                contents.extend(self._generate_tree(p, prefix + extension))
         
         return contents
 
