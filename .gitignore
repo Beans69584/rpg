@@ -8,3 +8,6 @@ World/
 *.txt
 output/
 build_logs/
+_site/
+api/
+docs/
