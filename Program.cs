@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using Serilog;
 using RPG.Utils;
 
 namespace RPG
@@ -26,51 +27,74 @@ namespace RPG
         /// <returns>A task that represents the asynchronous operation.</returns>
         public static async Task Main()
         {
-            // Add these lines at the start of Main
-            Console.OutputEncoding = Encoding.UTF8;
-            if (OperatingSystem.IsWindows())
+            try
             {
-                try
+                // Initialize logger
+                Logger.Instance.Information("Application starting...");
+
+                // Add these lines at the start of Main
+                Console.OutputEncoding = Encoding.UTF8;
+                if (OperatingSystem.IsWindows())
                 {
-                    // Try to set UTF-8 codepage
-                    Console.OutputEncoding = Encoding.UTF8;
-                    nint handle = GetStdHandle(-11); // STD_OUTPUT_HANDLE
-                    GetConsoleMode(handle, out uint mode);
-                    SetConsoleMode(handle, mode | 0x4); // ENABLE_VIRTUAL_TERMINAL_PROCESSING
+                    try
+                    {
+                        // Try to set UTF-8 codepage
+                        Console.OutputEncoding = Encoding.UTF8;
+                        nint handle = GetStdHandle(-11); // STD_OUTPUT_HANDLE
+                        GetConsoleMode(handle, out uint mode);
+                        SetConsoleMode(handle, mode | 0x4); // ENABLE_VIRTUAL_TERMINAL_PROCESSING
+                        Logger.Instance.Debug("Windows console mode configured for UTF-8");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Instance.Warning(ex, "Failed to configure Windows console mode for UTF-8");
+                        // Fallback to ASCII if UTF-8 setup fails
+                        GameSettings.Instance.Display.UseUnicodeBorders = false;
+                        GameSettings.Instance.Save();
+                    }
                 }
-                catch
+
+                while (true)
                 {
-                    // Fallback to ASCII if UTF-8 setup fails
-                    GameSettings.Instance.Display.UseUnicodeBorders = false;
-                    GameSettings.Instance.Save();
+                    if (!CheckMinimumSize())
+                    {
+                        Logger.Instance.Warning("Window size too small: {Width}x{Height}",
+                            Console.WindowWidth, Console.WindowHeight);
+                        await ShowSizeErrorAsync();
+                        continue;
+                    }
+
+                    int choice = await ShowMainMenuAsync();
+                    switch (choice)
+                    {
+                        case 1: // Start New Game
+                            Logger.Instance.Information("Starting new game");
+                            await StartGameAsync(null);
+                            break;
+                        case 2: // Load Game
+                            Logger.Instance.Information("Opening load game menu");
+                            await ShowLoadGameMenuAsync();
+                            break;
+                        case 3: // Options
+                            Logger.Instance.Information("Opening options menu");
+                            await ShowOptionsMenuAsync();
+                            break;
+                        case 4: // Exit
+                            Logger.Instance.Information("Application shutting down normally");
+                            return;
+                        default:
+                            break;
+                    }
                 }
             }
-
-            while (true)
+            catch (Exception ex)
             {
-                if (!CheckMinimumSize())
-                {
-                    await ShowSizeErrorAsync();
-                    continue;
-                }
-
-                int choice = await ShowMainMenuAsync();
-                switch (choice)
-                {
-                    case 1: // Start New Game
-                        await StartGameAsync(null);
-                        break;
-                    case 2: // Load Game
-                        await ShowLoadGameMenuAsync();
-                        break;
-                    case 3: // Options
-                        await ShowOptionsMenuAsync();
-                        break;
-                    case 4: // Exit
-                        return;
-                    default:
-                        break;
-                }
+                Logger.Instance.Fatal(ex, "Unhandled exception in main loop");
+                throw;
+            }
+            finally
+            {
+                Logger.Shutdown();
             }
         }
 
@@ -165,7 +189,7 @@ namespace RPG
                     [
                         @"██████╗ ███████╗███╗   ███╗ ██████╗ ",
                         @"██╔══██╗██╔════╝████╗ ████║██╔═══██╗",
-                        @"██║  ██���█████╗  ██╔████╔██║██║   ██║",
+                        @"██║  ██╗█████╗  ██╔████╔██║██║   ██║",
                         @"██║  ██║██╔══╝  ██║╚██╔╝██║██║   ██║",
                         @"██████╔╝███████╗██║ ╚═╝ ██║╚██████╔╝",
                         @"╚═════╝ ╚══════╝╚═╝     ╚═╝ ╚═════╝ "
@@ -256,197 +280,219 @@ namespace RPG
 
         private static async Task StartGameAsync(string? loadSlot = null)
         {
-            using ConsoleWindowManager manager = new();
-            GameState state = new(manager);
-
-            if (loadSlot == null)
+            try
             {
-                // Generate new world with unique seed
-                int worldSeed = Guid.NewGuid().GetHashCode();
-                ProceduralWorldGenerator generator = new(worldSeed);
-                WorldConfig worldConfig = generator.GenerateWorld();
+                Logger.Instance.Information("Starting game session. Load slot: {LoadSlot}",
+                    loadSlot ?? "New Game");
 
-                // Create world directory under settings directory
-                string worldDir = Path.Combine(PathUtilities.GetSettingsDirectory(), "Worlds", worldConfig.Name.Replace(" ", "_"));
-                Directory.CreateDirectory(worldDir);
+                using ConsoleWindowManager manager = new();
+                GameState state = new(manager);
 
-                OptimizedWorldBuilder builder = new(worldDir, worldConfig);
-                builder.Build();
-
-                state.LoadWorld(Path.Combine(worldDir, "world.dat"), true);
-            }
-            else if (!state.LoadGame(loadSlot))
-            {
-                state.GameLog.Add($"Failed to load save: {loadSlot}");
-                await Task.Delay(2000);
-                return;
-            }
-
-            SetupCommands(state);
-
-            void UpdateLayout()
-            {
-                int mapHeight = Console.WindowHeight - 6;
-                int mapWidth = 40;
-
-                manager.UpdateRegion("GameLog", r =>
+                if (loadSlot == null)
                 {
-                    r.X = 1;
-                    r.Y = 1;
-                    r.Width = Console.WindowWidth - mapWidth - 42;
-                    r.Height = mapHeight;
-                });
+                    // Generate new world with unique seed
+                    int worldSeed = Guid.NewGuid().GetHashCode();
+                    Logger.Instance.Debug("Generating new world with seed: {Seed}", worldSeed);
+                    ProceduralWorldGenerator generator = new(worldSeed);
+                    WorldConfig worldConfig = generator.GenerateWorld();
 
-                manager.UpdateRegion("Map", r =>
-                {
-                    r.X = Console.WindowWidth - mapWidth - 41;
-                    r.Y = 1;
-                    r.Width = mapWidth;
-                    r.Height = mapHeight / 2;
-                });
+                    // Create world directory under settings directory
+                    string worldDir = Path.Combine(PathUtilities.GetSettingsDirectory(), "Worlds", worldConfig.Name.Replace(" ", "_"));
+                    Directory.CreateDirectory(worldDir);
 
-                manager.UpdateRegion("RegionMap", r =>
-                {
-                    r.X = Console.WindowWidth - mapWidth - 41;
-                    r.Y = (mapHeight / 2) + 2;
-                    r.Width = mapWidth;
-                    r.Height = (mapHeight / 2) - 1;
-                });
+                    OptimizedWorldBuilder builder = new(worldDir, worldConfig);
+                    builder.Build();
 
-                manager.UpdateRegion("Stats", r =>
-                {
-                    r.X = Console.WindowWidth - 40;
-                    r.Y = 1;
-                    r.Width = 39;
-                    r.Height = mapHeight;
-                });
-
-                manager.UpdateRegion("Input", r =>
-                {
-                    r.X = 1;
-                    r.Y = Console.WindowHeight - 4;
-                    r.Width = Console.WindowWidth - 2;
-                    r.Height = 3;
-                });
-            }
-
-            Region worldMap = new()
-            {
-                Name = "World Map",
-                BorderColor = ConsoleColor.Blue,
-                TitleColor = ConsoleColor.Cyan,
-                RenderContent = (region) => manager.RenderMap(region, state.World?.GetWorldData() ?? new(), state.CurrentRegion ?? throw new InvalidOperationException("Current region is null"))
-            };
-
-            Region regionMap = new()
-            {
-                Name = "Region Map",
-                BorderColor = ConsoleColor.Green,
-                TitleColor = ConsoleColor.Green,
-                RenderContent = (region) => manager.RenderRegionMap(region, state.CurrentRegion ?? throw new InvalidOperationException("Current region is null"))
-            };
-
-            Region gameLog = new()
-            {
-                Name = "Game Log",
-                BorderColor = ConsoleColor.Blue,
-                TitleColor = ConsoleColor.Cyan,
-                RenderContent = (region) =>
-                {
-                    manager.RenderWrappedText(region, state.GameLog.TakeLast(50));
+                    state.LoadWorld(Path.Combine(worldDir, "world.dat"), true);
                 }
-            };
-
-            Region statsPanel = new()
-            {
-                Name = "Character Stats",
-                BorderColor = ConsoleColor.Green,
-                TitleColor = ConsoleColor.Green,
-                RenderContent = (region) =>
+                else if (!state.LoadGame(loadSlot))
                 {
-                    List<ColoredText> stats =
-                    [
-                        $"Player: {state.PlayerName}",
-                        $"Level: {state.Level}",
-                        $"HP: {state.HP}/{state.MaxHP}",
-                        "Equipment:",
-                        "- Rusty Sword",
-                        "- Leather Armor",
-                        "Gold: 100"
-                    ];
-                    manager.RenderWrappedText(region, stats);
+                    Logger.Instance.Error("Failed to load game from slot: {Slot}", loadSlot);
+                    state.GameLog.Add($"Failed to load save: {loadSlot}");
+                    await Task.Delay(2000);
+                    return;
                 }
-            };
 
-            Region inputRegion = new()
-            {
-                Name = "Input",
-                BorderColor = ConsoleColor.Yellow,
-                TitleColor = ConsoleColor.Yellow
-            };
+                SetupCommands(state);
 
-            manager.AddRegion("GameLog", gameLog);
-            manager.AddRegion("Stats", statsPanel);
-            manager.AddRegion("Input", inputRegion);
-            manager.AddRegion("Map", worldMap);
-            manager.AddRegion("RegionMap", regionMap);
-            UpdateLayout();
-
-            StringBuilder inputBuffer = new();
-
-            while (state.Running)
-            {
-                if (Console.KeyAvailable)
+                void UpdateLayout()
                 {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
+                    int mapHeight = Console.WindowHeight - 6;
+                    int mapWidth = 40;
 
-                    switch (key.Key)
+                    manager.UpdateRegion("GameLog", r =>
                     {
-                        case ConsoleKey.Enter:
-                            string command = inputBuffer.ToString().Trim();
-                            if (!string.IsNullOrEmpty(command))
-                            {
-                                ProcessCommand(command, state);
-                            }
-                            inputBuffer.Clear();
-                            manager.UpdateInputText("", ConsoleColor.White);
-                            break;
+                        r.X = 1;
+                        r.Y = 1;
+                        r.Width = Console.WindowWidth - mapWidth - 42;
+                        r.Height = mapHeight;
+                    });
 
-                        case ConsoleKey.Backspace:
-                            if (inputBuffer.Length > 0)
-                            {
-                                inputBuffer.Length--;
-                                manager.UpdateInputText(inputBuffer.ToString(), ConsoleColor.White);
-                            }
-                            break;
+                    manager.UpdateRegion("Map", r =>
+                    {
+                        r.X = Console.WindowWidth - mapWidth - 41;
+                        r.Y = 1;
+                        r.Width = mapWidth;
+                        r.Height = mapHeight / 2;
+                    });
 
-                        case ConsoleKey.Escape:
-                            return;
+                    manager.UpdateRegion("RegionMap", r =>
+                    {
+                        r.X = Console.WindowWidth - mapWidth - 41;
+                        r.Y = (mapHeight / 2) + 2;
+                        r.Width = mapWidth;
+                        r.Height = (mapHeight / 2) - 1;
+                    });
 
-                        default:
-                            if (!char.IsControl(key.KeyChar) && inputBuffer.Length < 100)
-                            {
-                                inputBuffer.Append(key.KeyChar);
-                                manager.UpdateInputText(inputBuffer.ToString(), ConsoleColor.White);
-                            }
-                            break;
+                    manager.UpdateRegion("Stats", r =>
+                    {
+                        r.X = Console.WindowWidth - 40;
+                        r.Y = 1;
+                        r.Width = 39;
+                        r.Height = mapHeight;
+                    });
+
+                    manager.UpdateRegion("Input", r =>
+                    {
+                        r.X = 1;
+                        r.Y = Console.WindowHeight - 4;
+                        r.Width = Console.WindowWidth - 2;
+                        r.Height = 3;
+                    });
+                }
+
+                Region worldMap = new()
+                {
+                    Name = "World Map",
+                    BorderColor = ConsoleColor.Blue,
+                    TitleColor = ConsoleColor.Cyan,
+                    RenderContent = (region) => manager.RenderMap(region, state.World?.GetWorldData() ?? new(), state.CurrentRegion ?? throw new InvalidOperationException("Current region is null"))
+                };
+
+                Region regionMap = new()
+                {
+                    Name = "Region Map",
+                    BorderColor = ConsoleColor.Green,
+                    TitleColor = ConsoleColor.Green,
+                    RenderContent = (region) => manager.RenderRegionMap(region, state.CurrentRegion ?? throw new InvalidOperationException("Current region is null"))
+                };
+
+                Region gameLog = new()
+                {
+                    Name = "Game Log",
+                    BorderColor = ConsoleColor.Blue,
+                    TitleColor = ConsoleColor.Cyan,
+                    RenderContent = (region) =>
+                    {
+                        manager.RenderWrappedText(region, state.GameLog.TakeLast(50));
+                    }
+                };
+
+                Region statsPanel = new()
+                {
+                    Name = "Character Stats",
+                    BorderColor = ConsoleColor.Green,
+                    TitleColor = ConsoleColor.Green,
+                    RenderContent = (region) =>
+                    {
+                        List<ColoredText> stats =
+                        [
+                            $"Player: {state.PlayerName}",
+                            $"Level: {state.Level}",
+                            $"HP: {state.HP}/{state.MaxHP}",
+                            "Equipment:",
+                            "- Rusty Sword",
+                            "- Leather Armor",
+                            "Gold: 100"
+                        ];
+                        manager.RenderWrappedText(region, stats);
+                    }
+                };
+
+                Region inputRegion = new()
+                {
+                    Name = "Input",
+                    BorderColor = ConsoleColor.Yellow,
+                    TitleColor = ConsoleColor.Yellow
+                };
+
+                manager.AddRegion("GameLog", gameLog);
+                manager.AddRegion("Stats", statsPanel);
+                manager.AddRegion("Input", inputRegion);
+                manager.AddRegion("Map", worldMap);
+                manager.AddRegion("RegionMap", regionMap);
+                UpdateLayout();
+
+                StringBuilder inputBuffer = new();
+
+                while (state.Running)
+                {
+                    if (Console.KeyAvailable)
+                    {
+                        ConsoleKeyInfo key = Console.ReadKey(true);
+
+                        switch (key.Key)
+                        {
+                            case ConsoleKey.Enter:
+                                string command = inputBuffer.ToString().Trim();
+                                if (!string.IsNullOrEmpty(command))
+                                {
+                                    ProcessCommand(command, state);
+                                }
+                                inputBuffer.Clear();
+                                manager.UpdateInputText("", ConsoleColor.White);
+                                break;
+
+                            case ConsoleKey.Backspace:
+                                if (inputBuffer.Length > 0)
+                                {
+                                    inputBuffer.Length--;
+                                    manager.UpdateInputText(inputBuffer.ToString(), ConsoleColor.White);
+                                }
+                                break;
+
+                            case ConsoleKey.Escape:
+                                return;
+
+                            default:
+                                if (!char.IsControl(key.KeyChar) && inputBuffer.Length < 100)
+                                {
+                                    inputBuffer.Append(key.KeyChar);
+                                    manager.UpdateInputText(inputBuffer.ToString(), ConsoleColor.White);
+                                }
+                                break;
+                        }
+
+                        manager.QueueRender();
                     }
 
-                    manager.QueueRender();
-                }
+                    if (manager.CheckResize())
+                    {
+                        UpdateLayout();
+                    }
 
-                if (manager.CheckResize())
-                {
-                    UpdateLayout();
+                    await Task.Delay(16);
                 }
-
-                await Task.Delay(16);
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.Error(ex, "Error in StartGameAsync");
+                throw;
             }
         }
 
         private static void ProcessCommand(string input, GameState state)
         {
-            state.CommandHandler.ExecuteCommand(input, state);
+            try
+            {
+                Logger.Instance.Debug("Processing command: {Command}", input);
+                state.CommandHandler.ExecuteCommand(input, state);
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.Error(ex, "Error processing command: {Command}", input);
+                state.GameLog.Add($"Error executing command: {ex.Message}");
+            }
         }
 
         private static void SetupCommands(GameState state)
