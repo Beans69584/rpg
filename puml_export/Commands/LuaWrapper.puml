@@ -1,0 +1,17 @@
+@startuml
+class RegionWrapper {
+    + Name : string <<get>>
+    + Description : string <<get>>
+}
+class LocationWrapper {
+    + Name : string <<get>>
+    + Description : string <<get>>
+    + Type : string <<get>>
+}
+class LuaTableExtensions <<static>> {
+    + {static} ToLuaTable(items:IEnumerable<RegionWrapper>, lua:Lua) : LuaTable?
+    + {static} ToLuaTable(items:IEnumerable<LocationWrapper>, lua:Lua) : LuaTable?
+}
+RegionWrapper o-> "Region" WorldRegion
+LocationWrapper o-> "Location" Location
+@enduml

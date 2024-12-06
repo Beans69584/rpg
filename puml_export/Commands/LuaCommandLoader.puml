@@ -1,0 +1,6 @@
+@startuml
+class LuaCommandLoader {
+    + LuaCommandLoader(state:GameState)
+    + LoadCommands() : IEnumerable<ICommand>
+}
+@enduml

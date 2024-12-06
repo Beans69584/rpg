@@ -1,0 +1,27 @@
+@startuml
+class SaveData {
+    + PlayerName : string <<get>> <<set>> = "Hero"
+    + Level : int <<get>> <<set>> = 1
+    + HP : int <<get>> <<set>> = 100
+    + MaxHP : int <<get>> <<set>> = 100
+    + CurrentRegionId : string <<get>> <<set>> = ""
+    + WorldPath : string <<get>> <<set>> = ""
+    + Gold : int <<get>> <<set>> = 100
+    + WorldSeed : string <<get>> <<set>> = ""
+    + WorldName : string <<get>> <<set>> = ""
+    + DisplayName : string <<get>>
+    + Description : string <<get>>
+    + UpdatePlayTime() : void
+}
+class "Dictionary`2"<T1,T2> {
+}
+class "List`1"<T> {
+}
+SaveData --> "SaveTime" DateTime
+SaveData o-> "Stats<string,int>" "Dictionary`2"
+SaveData o-> "Inventory<string>" "List`1"
+SaveData o-> "GameFlags<string,bool>" "Dictionary`2"
+SaveData o-> "TotalPlayTime" TimeSpan
+SaveData o-> "LastPlayTime" DateTime
+SaveData --> "WorldCreatedAt" DateTime
+@enduml

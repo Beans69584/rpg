@@ -1,0 +1,10 @@
+@startuml
+class LuaCommand {
+    + <<override>> Name : string <<get>>
+    + <<override>> Description : string <<get>>
+    + Usage : string <<get>>
+    + Category : string <<get>>
+    + <<override>> Execute(args:string, state:GameState) : void
+}
+BaseCommand <|-- LuaCommand
+@enduml

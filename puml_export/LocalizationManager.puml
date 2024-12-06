@@ -1,0 +1,10 @@
+@startuml
+class LocalizationManager {
+    +  <<event>> LanguageChanged : Action<string>? 
+    + LocalizationManager()
+    + GetString(key:string, args:object[]) : string
+    + SetLanguage(cultureName:string) : void
+    + {static} GetAvailableLanguages() : IEnumerable<CultureInfo>
+}
+LocalizationManager --> "CurrentCulture" CultureInfo
+@enduml

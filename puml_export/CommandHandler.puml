@@ -1,0 +1,12 @@
+@startuml
+class CommandHandler {
+    + CommandHandler()
+    + RegisterCommand(command:ICommand) : void
+    + ProcessInput(input:string) : void
+    + ExecuteCommand(input:string, state:GameState) : bool
+    + GetCommands() : IEnumerable<ICommand>
+}
+class "Action`1"<T> {
+}
+CommandHandler --> "InputHandler<string>" "Action`1"
+@enduml

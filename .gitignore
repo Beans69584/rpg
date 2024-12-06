@@ -11,3 +11,4 @@ build_logs/
 _site/
 api/
 docs/
+plantuml.jar

@@ -1,0 +1,35 @@
+@startuml
+class SaveManager <<static>> {
+    + {static} Save(saveData:SaveData, slot:string, isAutosave:bool) : void
+    + {static} Load(slot:string, isAutosave:bool) : (SaveMetadata? Metadata, SaveData? Data)
+    + {static} GetSaveFiles(includeAutosaves:bool) : List<SaveInfo>
+    + {static} CreateAutosave(saveData:SaveData) : void
+    + {static} DeleteSave(slot:string, isAutosave:bool) : void
+    + {static} RestoreBackup(slot:string, backupIndex:int) : bool
+    + {static} SaveExists(slot:string, isAutosave:bool) : bool
+}
+class SaveInfo {
+    + Slot : string <<get>> <<set>> = ""
+    + IsAutosave : bool <<get>> <<set>>
+    + FilePath : string <<get>> <<set>> = ""
+    + Deconstruct(slot:string, data:SaveData) : void
+}
+class SaveMetadata {
+    + Version : int <<get>> <<set>>
+    + LastPlayedCharacter : string <<get>> <<set>> = ""
+    + WorldPath : string <<get>> <<set>> = ""
+    + CharacterLevel : int <<get>> <<set>>
+}
+enum SaveType {
+    Manual,
+    Autosave,
+    Quicksave,
+}
+class "Dictionary`2"<T1,T2> {
+}
+SaveInfo o-> "Metadata" SaveMetadata
+SaveMetadata --> "SaveTime" DateTime
+SaveMetadata --> "TotalPlayTime" TimeSpan
+SaveMetadata --> "SaveType" SaveType
+SaveMetadata o-> "CustomData<string,string>" "Dictionary`2"
+@enduml

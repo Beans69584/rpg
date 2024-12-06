@@ -1,0 +1,54 @@
+@startuml
+class Region {
+    + X : int <<get>> <<set>>
+    + Y : int <<get>> <<set>>
+    + Width : int <<get>> <<set>>
+    + Height : int <<get>> <<set>>
+    + Padding : int <<get>> <<set>> = 1
+    + ZIndex : int <<get>> <<set>> = 0
+    + Name : string? <<get>> <<set>>
+    + IsVisible : bool <<get>> <<set>> = true
+}
+struct Rectangle {
+    + X : int <<get>>
+    + Y : int <<get>>
+    + Width : int <<get>>
+    + Height : int <<get>>
+    + Intersects(other:Rectangle) : bool
+}
+class ConsoleWindowManager {
+    + ConsoleWindowManager()
+    + AddRegion(name:string, region:Region) : void
+    + UpdateRegion(name:string, updateAction:Action<Region>) : void
+    + CheckResize() : bool
+    + {static} IsDoubleWidth(c:char) : bool
+    + RenderWrappedText(region:Region, lines:IEnumerable<ColoredText>) : void
+    + <<async>> DisposeAsync() : ValueTask
+    + ClearDisplay() : void
+    + Dispose() : void
+    + QueueRender() : void
+    + UpdateInputText(text:string, color:ConsoleColor) : void
+    + UpdateDisplaySettings(newConfig:ConsoleDisplayConfig) : void
+    + RenderMap(region:Region, world:WorldData, currentRegion:WorldRegion) : void
+    + RenderRegionMap(region:Region, currentRegion:WorldRegion) : void
+    + GetRegions() : Dictionary<string, Region>
+    + RemoveRegion(name:string) : void
+}
+class ConsoleBuffer {
+    + Width : int <<get>>
+    + Height : int <<get>>
+    + ConsoleBuffer(width:int, height:int)
+    + Resize(newWidth:int, newHeight:int) : void
+    + Clear() : void
+    + SetChar(x:int, y:int, c:char, color:ConsoleColor) : void
+    + WriteString(x:int, y:int, text:string, color:ConsoleColor) : void
+    + Flush() : void
+    + GetChar(x:int, y:int) : char
+}
+Region o-> "BorderColor" ConsoleColor
+Region o-> "TitleColor" ConsoleColor
+Region --> "RenderContent<Region>" "Action`1"
+Region --> "Bounds" Rectangle
+Region --> "ContentBounds" Rectangle
+IDisposable <|-- ConsoleWindowManager
+@enduml

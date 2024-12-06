@@ -1,0 +1,111 @@
+@startuml
+class OptimizedWorldBuilder {
+    + Build() : void
+}
+class ProceduralWorldGenerator {
+    + ProceduralWorldGenerator(seed:int, width:int, height:int)
+    + GenerateWorld() : WorldConfig
+}
+class WorldConfig {
+    + Name : string <<get>> <<set>> = "Demo World"
+    + Description : string <<get>> <<set>> = "A sample RPG world"
+}
+class RegionConfig {
+    + Name : string <<get>> <<set>> = ""
+    + Description : string <<get>> <<set>> = ""
+}
+class LocationConfig {
+    + Name : string <<get>> <<set>> = ""
+    + Type : string <<get>> <<set>> = ""
+    + Description : string <<get>> <<set>> = ""
+}
+class RoutePoint {
+    + DescriptionId : int <<get>> <<set>>
+    + DirectionsId : int <<get>> <<set>>
+    + Description : string <<get>> <<set>> = ""
+    + Directions : string <<get>> <<set>> = ""
+}
+class Header {
+    + Magic : string <<get>> <<set>> = "RPGW"
+    + Name : string <<get>> <<set>> = ""
+    + Description : string <<get>> <<set>> = ""
+    + Version : string <<get>> <<set>> = "1.0"
+    + RegionCount : int <<get>> <<set>>
+    + NPCCount : int <<get>> <<set>>
+    + ItemCount : int <<get>> <<set>>
+}
+class ResourceTable {
+}
+class GenWorldRegion {
+    + NameId : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+}
+class Location {
+    + NameId : int <<get>> <<set>>
+    + TypeId : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+}
+class Entity {
+    + NameId : int <<get>> <<set>>
+    + Level : int <<get>> <<set>>
+    + HP : int <<get>> <<set>>
+}
+class Item {
+    + NameId : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+}
+class Vector2 {
+    + X : float <<get>> <<set>>
+    + Y : float <<get>> <<set>>
+}
+class EntityStats {
+    + Strength : int <<get>> <<set>>
+    + Dexterity : int <<get>> <<set>>
+    + Intelligence : int <<get>> <<set>>
+    + Defense : int <<get>> <<set>>
+}
+class ItemStats {
+    + Value : int <<get>> <<set>>
+    + Weight : int <<get>> <<set>>
+    + Durability : int <<get>> <<set>>
+}
+enum ItemType {
+    Weapon,
+    Armor,
+    Consumable,
+    Quest,
+    Misc,
+}
+class "List`1"<T> {
+}
+class "Dictionary`2"<T1,T2> {
+}
+WorldConfig o-> "Regions<RegionConfig>" "List`1"
+WorldConfig o-> "NPCs<string>" "List`1"
+WorldConfig o-> "Items<string>" "List`1"
+RegionConfig o-> "Connections<string>" "List`1"
+RegionConfig o-> "NPCs<string>" "List`1"
+RegionConfig o-> "Items<string>" "List`1"
+RegionConfig o-> "Locations<LocationConfig>" "List`1"
+RegionConfig o-> "Routes<string,List<RoutePoint>>" "Dictionary`2"
+LocationConfig o-> "NPCs<string>" "List`1"
+LocationConfig o-> "Items<string>" "List`1"
+RoutePoint o-> "Landmarks<LocationConfig>" "List`1"
+Header o-> "CreatedAt" DateTime
+ResourceTable o-> "StringPool<string,int>" "Dictionary`2"
+ResourceTable o-> "TextureRefs<string,int>" "Dictionary`2"
+ResourceTable o-> "SoundRefs<string,int>" "Dictionary`2"
+ResourceTable o-> "SharedDialogue<string>" "List`1"
+GenWorldRegion o-> "Connections<int>" "List`1"
+GenWorldRegion o-> "NPCs<int>" "List`1"
+GenWorldRegion o-> "Items<int>" "List`1"
+GenWorldRegion o-> "Position" Vector2
+GenWorldRegion o-> "Locations<Location>" "List`1"
+GenWorldRegion o-> "Routes<int,List<RoutePoint>>" "Dictionary`2"
+Location o-> "NPCs<int>" "List`1"
+Location o-> "Items<int>" "List`1"
+Entity o-> "DialogueRefs<int>" "List`1"
+Entity o-> "Stats" EntityStats
+Item o-> "Stats" ItemStats
+ItemStats --> "Type" ItemType
+@enduml

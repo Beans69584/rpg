@@ -1,0 +1,474 @@
+@startuml
+
+' Layout improvements
+left to right direction
+skinparam linetype ortho
+skinparam nodesep 80
+skinparam ranksep 100
+
+' Visual styling
+skinparam class {
+    BackgroundColor White
+    ArrowColor #2C3E50
+    BorderColor #34495E
+    BorderThickness 2
+    FontSize 14
+    FontName Arial
+    AttributeFontColor #2C3E50
+    AttributeFontSize 12
+    Padding 20
+    Margin 20
+}
+
+' Arrow styling
+skinparam arrow {
+    Color #2C3E50
+    Thickness 2
+    FontSize 12
+}
+
+' Relationship styling
+skinparam relationship {
+    BackgroundColor White
+    FontSize 12
+}
+
+class OptimizedWorldBuilder {
+    + Build() : void
+}
+class ProceduralWorldGenerator {
+    + ProceduralWorldGenerator(seed:int, width:int, height:int)
+    + GenerateWorld() : WorldConfig
+}
+class WorldConfig {
+    + Name : string <<get>> <<set>> = "Demo World"
+    + Description : string <<get>> <<set>> = "A sample RPG world"
+}
+class RegionConfig {
+    + Name : string <<get>> <<set>> = ""
+    + Description : string <<get>> <<set>> = ""
+}
+class LocationConfig {
+    + Name : string <<get>> <<set>> = ""
+    + Type : string <<get>> <<set>> = ""
+    + Description : string <<get>> <<set>> = ""
+}
+class RoutePoint {
+    + DescriptionId : int <<get>> <<set>>
+    + DirectionsId : int <<get>> <<set>>
+    + Description : string <<get>> <<set>> = ""
+    + Directions : string <<get>> <<set>> = ""
+}
+class Header {
+    + Magic : string <<get>> <<set>> = "RPGW"
+    + Name : string <<get>> <<set>> = ""
+    + Description : string <<get>> <<set>> = ""
+    + Version : string <<get>> <<set>> = "1.0"
+    + RegionCount : int <<get>> <<set>>
+    + NPCCount : int <<get>> <<set>>
+    + ItemCount : int <<get>> <<set>>
+}
+class ResourceTable {
+}
+class GenWorldRegion {
+    + NameId : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+}
+class Location {
+    + NameId : int <<get>> <<set>>
+    + TypeId : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+}
+class Entity {
+    + NameId : int <<get>> <<set>>
+    + Level : int <<get>> <<set>>
+    + HP : int <<get>> <<set>>
+}
+class Item {
+    + NameId : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+}
+class Vector2 {
+    + X : float <<get>> <<set>>
+    + Y : float <<get>> <<set>>
+}
+class EntityStats {
+    + Strength : int <<get>> <<set>>
+    + Dexterity : int <<get>> <<set>>
+    + Intelligence : int <<get>> <<set>>
+    + Defense : int <<get>> <<set>>
+}
+class ItemStats {
+    + Value : int <<get>> <<set>>
+    + Weight : int <<get>> <<set>>
+    + Durability : int <<get>> <<set>>
+}
+enum ItemType {
+    Weapon,
+    Armor,
+    Consumable,
+    Quest,
+    Misc,
+}
+class "List`1"<T> {
+}
+class "Dictionary`2"<T1,T2> {
+}
+WorldConfig o-> "Regions<RegionConfig>" "List`1"
+WorldConfig o-> "NPCs<string>" "List`1"
+WorldConfig o-> "Items<string>" "List`1"
+RegionConfig o-> "Connections<string>" "List`1"
+RegionConfig o-> "NPCs<string>" "List`1"
+RegionConfig o-> "Items<string>" "List`1"
+RegionConfig o-> "Locations<LocationConfig>" "List`1"
+RegionConfig o-> "Routes<string,List<RoutePoint>>" "Dictionary`2"
+LocationConfig o-> "NPCs<string>" "List`1"
+LocationConfig o-> "Items<string>" "List`1"
+RoutePoint o-> "Landmarks<LocationConfig>" "List`1"
+Header o-> "CreatedAt" DateTime
+ResourceTable o-> "StringPool<string,int>" "Dictionary`2"
+ResourceTable o-> "TextureRefs<string,int>" "Dictionary`2"
+ResourceTable o-> "SoundRefs<string,int>" "Dictionary`2"
+ResourceTable o-> "SharedDialogue<string>" "List`1"
+GenWorldRegion o-> "Connections<int>" "List`1"
+GenWorldRegion o-> "NPCs<int>" "List`1"
+GenWorldRegion o-> "Items<int>" "List`1"
+GenWorldRegion o-> "Position" Vector2
+GenWorldRegion o-> "Locations<Location>" "List`1"
+GenWorldRegion o-> "Routes<int,List<RoutePoint>>" "Dictionary`2"
+Location o-> "NPCs<int>" "List`1"
+Location o-> "Items<int>" "List`1"
+Entity o-> "DialogueRefs<int>" "List`1"
+Entity o-> "Stats" EntityStats
+Item o-> "Stats" ItemStats
+ItemStats --> "Type" ItemType
+struct ColoredText <<record>> {
+    + Text : string <<get>> <<init>>
+}
+class GameState {
+    + AddLogMessage(message:ColoredText) : void
+    + PlayerName : string <<get>> <<set>> = "Hero"
+    + Level : int <<get>> <<set>> = 1
+    + HP : int <<get>> <<set>> = 100
+    + MaxHP : int <<get>> <<set>> = 100
+    + Gold : int <<get>> <<set>> = 100
+    + Running : bool <<get>> <<set>> = true
+    + CurrentWorldPath : string <<get>> = ""
+    + GameState(manager:ConsoleWindowManager)
+    + SaveGame(slot:string) : void
+    + LoadGame(slot:string) : bool
+    + LoadWorld(worldPath:string, isNewGame:bool) : void
+    + NavigateToLocation(location:Location) : void
+}
+class "List`1"<T> {
+}
+class "Dictionary`2"<T1,T2> {
+}
+ColoredText o-> "Color" ConsoleColor
+GameState o-> "GameLog<ColoredText>" "List`1"
+GameState --> "WindowManager" ConsoleWindowManager
+GameState o-> "Stats<string,int>" "Dictionary`2"
+GameState o-> "Inventory<string>" "List`1"
+GameState o-> "GameFlags<string,bool>" "Dictionary`2"
+GameState --> "CommandHandler" CommandHandler
+GameState --> "Localization" LocalizationManager
+GameState --> "World" WorldLoader
+GameState --> "CurrentRegion" WorldRegion
+GameState --> "CurrentLocation" Location
+class CommandHandler {
+    + CommandHandler()
+    + RegisterCommand(command:ICommand) : void
+    + ProcessInput(input:string) : void
+    + ExecuteCommand(input:string, state:GameState) : bool
+    + GetCommands() : IEnumerable<ICommand>
+}
+class "Action`1"<T> {
+}
+CommandHandler --> "InputHandler<string>" "Action`1"
+class WorldLoader {
+    + WorldLoader(worldPath:string)
+    + GetString(id:int) : string
+    + GetWorldData() : WorldData
+    + GetStartingRegion() : WorldRegion?
+    + GetRegionByName(name:string) : WorldRegion?
+    + GetConnectedRegions(region:WorldRegion) : IEnumerable<WorldRegion>
+    + GetLocationByName(region:WorldRegion, name:string) : Location?
+    + GetLocationDescription(location:Location) : string
+    + LocationNameMatches(location:Location, name:string) : bool
+    + {static} GetLocationsInRegion(region:WorldRegion) : IEnumerable<Location>
+    + GetNPCsInRegion(region:WorldRegion) : IEnumerable<Entity>
+    + GetNPCsInLocation(location:Location) : List<Entity>
+    + GetNPCDialogue(npc:Entity) : string
+    + GetItemsInRegion(region:WorldRegion) : IEnumerable<Item>
+    + GetItemsInLocation(location:Location) : List<Item>
+    + GetRoute(from:WorldRegion, to:WorldRegion) : List<RoutePoint>
+    + GetRouteDescription(point:RoutePoint) : string
+    + GetRouteDirections(point:RoutePoint) : string
+    + GetRouteLandmarks(point:RoutePoint) : IEnumerable<Location>
+    + GetEntityName(entity:Entity) : string
+    + GetItemName(item:Item) : string
+    + GetItemDescription(item:Item) : string
+    + GetRegionName(region:WorldRegion) : string
+    + GetRegionDescription(region:WorldRegion) : string
+    + GetLocationName(location:Location) : string
+}
+class LocalizationManager {
+    +  <<event>> LanguageChanged : Action<string>? 
+    + LocalizationManager()
+    + GetString(key:string, args:object[]) : string
+    + SetLanguage(cultureName:string) : void
+    + {static} GetAvailableLanguages() : IEnumerable<CultureInfo>
+}
+LocalizationManager --> "CurrentCulture" CultureInfo
+class Region {
+    + X : int <<get>> <<set>>
+    + Y : int <<get>> <<set>>
+    + Width : int <<get>> <<set>>
+    + Height : int <<get>> <<set>>
+    + Padding : int <<get>> <<set>> = 1
+    + ZIndex : int <<get>> <<set>> = 0
+    + Name : string? <<get>> <<set>>
+    + IsVisible : bool <<get>> <<set>> = true
+}
+struct Rectangle {
+    + X : int <<get>>
+    + Y : int <<get>>
+    + Width : int <<get>>
+    + Height : int <<get>>
+    + Intersects(other:Rectangle) : bool
+}
+class ConsoleWindowManager {
+    + ConsoleWindowManager()
+    + AddRegion(name:string, region:Region) : void
+    + UpdateRegion(name:string, updateAction:Action<Region>) : void
+    + CheckResize() : bool
+    + {static} IsDoubleWidth(c:char) : bool
+    + RenderWrappedText(region:Region, lines:IEnumerable<ColoredText>) : void
+    + <<async>> DisposeAsync() : ValueTask
+    + ClearDisplay() : void
+    + Dispose() : void
+    + QueueRender() : void
+    + UpdateInputText(text:string, color:ConsoleColor) : void
+    + UpdateDisplaySettings(newConfig:ConsoleDisplayConfig) : void
+    + RenderMap(region:Region, world:WorldData, currentRegion:WorldRegion) : void
+    + RenderRegionMap(region:Region, currentRegion:WorldRegion) : void
+    + GetRegions() : Dictionary<string, Region>
+    + RemoveRegion(name:string) : void
+}
+class ConsoleBuffer {
+    + Width : int <<get>>
+    + Height : int <<get>>
+    + ConsoleBuffer(width:int, height:int)
+    + Resize(newWidth:int, newHeight:int) : void
+    + Clear() : void
+    + SetChar(x:int, y:int, c:char, color:ConsoleColor) : void
+    + WriteString(x:int, y:int, text:string, color:ConsoleColor) : void
+    + Flush() : void
+    + GetChar(x:int, y:int) : char
+}
+Region o-> "BorderColor" ConsoleColor
+Region o-> "TitleColor" ConsoleColor
+Region --> "RenderContent<Region>" "Action`1"
+Region --> "Bounds" Rectangle
+Region --> "ContentBounds" Rectangle
+IDisposable <|-- ConsoleWindowManager
+class WorldRegion {
+    + NameId : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+}
+class WorldData {
+}
+class "List`1"<T> {
+}
+class "Dictionary`2"<T1,T2> {
+}
+WorldRegion o-> "Connections<int>" "List`1"
+WorldRegion o-> "NPCs<int>" "List`1"
+WorldRegion o-> "Items<int>" "List`1"
+WorldRegion o-> "Position" Vector2
+WorldRegion o-> "Locations<Location>" "List`1"
+WorldRegion o-> "Routes<int,List<RoutePoint>>" "Dictionary`2"
+WorldData o-> "Header" Header
+WorldData o-> "Resources" ResourceTable
+WorldData o-> "Regions<WorldRegion>" "List`1"
+WorldData o-> "NPCs<Entity>" "List`1"
+WorldData o-> "Items<Item>" "List`1"
+class Program <<static>> {
+    + {static} <<async>> Main() : Task
+}
+class SaveData {
+    + PlayerName : string <<get>> <<set>> = "Hero"
+    + Level : int <<get>> <<set>> = 1
+    + HP : int <<get>> <<set>> = 100
+    + MaxHP : int <<get>> <<set>> = 100
+    + CurrentRegionId : string <<get>> <<set>> = ""
+    + WorldPath : string <<get>> <<set>> = ""
+    + Gold : int <<get>> <<set>> = 100
+    + WorldSeed : string <<get>> <<set>> = ""
+    + WorldName : string <<get>> <<set>> = ""
+    + DisplayName : string <<get>>
+    + Description : string <<get>>
+    + UpdatePlayTime() : void
+}
+class "Dictionary`2"<T1,T2> {
+}
+class "List`1"<T> {
+}
+SaveData --> "SaveTime" DateTime
+SaveData o-> "Stats<string,int>" "Dictionary`2"
+SaveData o-> "Inventory<string>" "List`1"
+SaveData o-> "GameFlags<string,bool>" "Dictionary`2"
+SaveData o-> "TotalPlayTime" TimeSpan
+SaveData o-> "LastPlayTime" DateTime
+SaveData --> "WorldCreatedAt" DateTime
+class SaveManager <<static>> {
+    + {static} Save(saveData:SaveData, slot:string, isAutosave:bool) : void
+    + {static} Load(slot:string, isAutosave:bool) : (SaveMetadata? Metadata, SaveData? Data)
+    + {static} GetSaveFiles(includeAutosaves:bool) : List<SaveInfo>
+    + {static} CreateAutosave(saveData:SaveData) : void
+    + {static} DeleteSave(slot:string, isAutosave:bool) : void
+    + {static} RestoreBackup(slot:string, backupIndex:int) : bool
+    + {static} SaveExists(slot:string, isAutosave:bool) : bool
+}
+class SaveInfo {
+    + Slot : string <<get>> <<set>> = ""
+    + IsAutosave : bool <<get>> <<set>>
+    + FilePath : string <<get>> <<set>> = ""
+    + Deconstruct(slot:string, data:SaveData) : void
+}
+class SaveMetadata {
+    + Version : int <<get>> <<set>>
+    + LastPlayedCharacter : string <<get>> <<set>> = ""
+    + WorldPath : string <<get>> <<set>> = ""
+    + CharacterLevel : int <<get>> <<set>>
+}
+enum SaveType {
+    Manual,
+    Autosave,
+    Quicksave,
+}
+class "Dictionary`2"<T1,T2> {
+}
+SaveInfo o-> "Metadata" SaveMetadata
+SaveMetadata --> "SaveTime" DateTime
+SaveMetadata --> "TotalPlayTime" TimeSpan
+SaveMetadata --> "SaveType" SaveType
+SaveMetadata o-> "CustomData<string,string>" "Dictionary`2"
+class ConsoleDisplayConfig {
+    + UseColors : bool <<get>> <<set>> = true
+    + UseUnicodeBorders : bool <<get>> <<set>> = true
+    + EnableCursorBlink : bool <<get>> <<set>> = true
+    + UseBold : bool <<get>> <<set>> = true
+    + RefreshRateMs : int <<get>> <<set>> = 16
+    + CursorBlinkRateMs : int <<get>> <<set>> = 530
+    + UseCurvedBorders : bool <<get>> <<set>> = true
+}
+class GameSettings {
+    + Language : string <<get>> <<set>> = "en"
+    + WindowWidth : int <<get>> <<set>> = 80
+    + WindowHeight : int <<get>> <<set>> = 24
+    + FullScreen : bool <<get>> <<set>> = false
+    + Save() : void
+    + {static} CurrentLanguage : string <<get>> <<set>>
+    + UpdateLanguage(language:string) : void
+    <<internal>> HasChanges() : bool
+}
+GameSettings o-> "Display" ConsoleDisplayConfig
+GameSettings --> "Instance" GameSettings
+abstract class BaseCommand {
+    + {abstract} Name : string <<get>>
+    + {abstract} Description : string <<get>>
+    + {abstract} Execute(args:string, state:GameState) : void
+}
+ICommand <|-- BaseCommand
+class LuaCommand {
+    + <<override>> Name : string <<get>>
+    + <<override>> Description : string <<get>>
+    + Usage : string <<get>>
+    + Category : string <<get>>
+    + <<override>> Execute(args:string, state:GameState) : void
+}
+BaseCommand <|-- LuaCommand
+class LuaGameApi {
+    + Log(message:string) : void
+    + LogColor(message:string, color:string) : void
+    + ClearLog() : void
+    + GetPlayerName() : string
+    + SetPlayerName(name:string) : void
+    + GetPlayerHP() : int
+    + SetPlayerHP(hp:int) : void
+    + GetPlayerMaxHP() : int
+    + SetPlayerMaxHP(maxHp:int) : void
+    + GetPlayerLevel() : int
+    + SetPlayerLevel(level:int) : void
+    + {static} Sleep(milliseconds:int) : void
+    + AskQuestion(question:string) : string
+    + {static} RollDice(sides:int) : bool
+    + {static} GetRandomNumber(min:int, max:int) : int
+    + GetRegionName(region:WorldRegion) : string
+    + GetRegionDescription(region:WorldRegion) : string
+    + GetCurrentRegion() : RegionWrapper?
+    + SetCurrentRegion(region:RegionWrapper) : void
+    + GetConnectedRegions() : LuaTable
+    + GetConnectedRegions(region:WorldRegion) : LuaTable?
+    + {static} RegionNameMatches(region:RegionWrapper, name:string) : bool
+    + GetCurrentLocation() : LocationWrapper?
+    + SetCurrentLocation(location:LocationWrapper) : void
+    + GetLocationsInRegion() : LuaTable
+    + {static} LocationNameMatches(location:LocationWrapper, name:string) : bool
+    + NavigateToLocation(location:LocationWrapper) : void
+    + {static} GetDistanceBetweenRegions(from:RegionWrapper, to:RegionWrapper) : double
+    + {static} GetRegionPosition(region:RegionWrapper) : Vector2
+    + CalculateTravelTime(from:RegionWrapper, to:RegionWrapper) : int
+    + {static} SimulateTravelTime(minutes:int) : void
+    + SimulateTravelTimeWithProgress(totalMinutes:int, timeScale:float) : void
+}
+class LuaCommandLoader {
+    + LuaCommandLoader(state:GameState)
+    + LoadCommands() : IEnumerable<ICommand>
+}
+class HelpCommand {
+    + <<override>> Name : string <<get>>
+    + <<override>> Description : string <<get>>
+    + <<override>> Execute(args:string, state:GameState) : void
+}
+BaseCommand <|-- HelpCommand
+class LoadCommand {
+    + <<override>> Name : string <<get>>
+    + <<override>> Description : string <<get>>
+    + <<override>> Execute(args:string, state:GameState) : void
+}
+BaseCommand <|-- LoadCommand
+class SaveCommand {
+    + <<override>> Name : string <<get>>
+    + <<override>> Description : string <<get>>
+    + <<override>> Execute(args:string, state:GameState) : void
+}
+BaseCommand <|-- SaveCommand
+class RegionWrapper {
+    + Name : string <<get>>
+    + Description : string <<get>>
+}
+class LocationWrapper {
+    + Name : string <<get>>
+    + Description : string <<get>>
+    + Type : string <<get>>
+}
+class LuaTableExtensions <<static>> {
+    + {static} ToLuaTable(items:IEnumerable<RegionWrapper>, lua:Lua) : LuaTable?
+    + {static} ToLuaTable(items:IEnumerable<LocationWrapper>, lua:Lua) : LuaTable?
+}
+RegionWrapper o-> "Region" WorldRegion
+LocationWrapper o-> "Location" Location
+interface ICommand {
+}
+class Logger <<static>> {
+    + {static} Shutdown() : void
+}
+Logger --> "Instance" ILogger
+class PathUtilities <<static>> {
+    + {static} GetApplicationFolder() : string
+    + {static} GetBaseDirectory() : string
+    + {static} GetSettingsDirectory() : string
+}
+@enduml

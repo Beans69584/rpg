@@ -1,0 +1,7 @@
+@startuml
+class PathUtilities <<static>> {
+    + {static} GetApplicationFolder() : string
+    + {static} GetBaseDirectory() : string
+    + {static} GetSettingsDirectory() : string
+}
+@enduml

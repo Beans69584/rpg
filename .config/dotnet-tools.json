@@ -7,6 +7,12 @@
             "commands": [
                 "docfx"
             ]
+        },
+        "plantumlclassdiagramgenerator": {
+            "version": "1.4.0",
+            "commands": [
+                "puml-gen"
+            ]
         }
     }
 }

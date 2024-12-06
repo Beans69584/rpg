@@ -1,0 +1,35 @@
+@startuml
+struct ColoredText <<record>> {
+    + Text : string <<get>> <<init>>
+}
+class GameState {
+    + AddLogMessage(message:ColoredText) : void
+    + PlayerName : string <<get>> <<set>> = "Hero"
+    + Level : int <<get>> <<set>> = 1
+    + HP : int <<get>> <<set>> = 100
+    + MaxHP : int <<get>> <<set>> = 100
+    + Gold : int <<get>> <<set>> = 100
+    + Running : bool <<get>> <<set>> = true
+    + CurrentWorldPath : string <<get>> = ""
+    + GameState(manager:ConsoleWindowManager)
+    + SaveGame(slot:string) : void
+    + LoadGame(slot:string) : bool
+    + LoadWorld(worldPath:string, isNewGame:bool) : void
+    + NavigateToLocation(location:Location) : void
+}
+class "List`1"<T> {
+}
+class "Dictionary`2"<T1,T2> {
+}
+ColoredText o-> "Color" ConsoleColor
+GameState o-> "GameLog<ColoredText>" "List`1"
+GameState --> "WindowManager" ConsoleWindowManager
+GameState o-> "Stats<string,int>" "Dictionary`2"
+GameState o-> "Inventory<string>" "List`1"
+GameState o-> "GameFlags<string,bool>" "Dictionary`2"
+GameState --> "CommandHandler" CommandHandler
+GameState --> "Localization" LocalizationManager
+GameState --> "World" WorldLoader
+GameState --> "CurrentRegion" WorldRegion
+GameState --> "CurrentLocation" Location
+@enduml

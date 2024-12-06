@@ -1,0 +1,36 @@
+@startuml
+class LuaGameApi {
+    + Log(message:string) : void
+    + LogColor(message:string, color:string) : void
+    + ClearLog() : void
+    + GetPlayerName() : string
+    + SetPlayerName(name:string) : void
+    + GetPlayerHP() : int
+    + SetPlayerHP(hp:int) : void
+    + GetPlayerMaxHP() : int
+    + SetPlayerMaxHP(maxHp:int) : void
+    + GetPlayerLevel() : int
+    + SetPlayerLevel(level:int) : void
+    + {static} Sleep(milliseconds:int) : void
+    + AskQuestion(question:string) : string
+    + {static} RollDice(sides:int) : bool
+    + {static} GetRandomNumber(min:int, max:int) : int
+    + GetRegionName(region:WorldRegion) : string
+    + GetRegionDescription(region:WorldRegion) : string
+    + GetCurrentRegion() : RegionWrapper?
+    + SetCurrentRegion(region:RegionWrapper) : void
+    + GetConnectedRegions() : LuaTable
+    + GetConnectedRegions(region:WorldRegion) : LuaTable?
+    + {static} RegionNameMatches(region:RegionWrapper, name:string) : bool
+    + GetCurrentLocation() : LocationWrapper?
+    + SetCurrentLocation(location:LocationWrapper) : void
+    + GetLocationsInRegion() : LuaTable
+    + {static} LocationNameMatches(location:LocationWrapper, name:string) : bool
+    + NavigateToLocation(location:LocationWrapper) : void
+    + {static} GetDistanceBetweenRegions(from:RegionWrapper, to:RegionWrapper) : double
+    + {static} GetRegionPosition(region:RegionWrapper) : Vector2
+    + CalculateTravelTime(from:RegionWrapper, to:RegionWrapper) : int
+    + {static} SimulateTravelTime(minutes:int) : void
+    + SimulateTravelTimeWithProgress(totalMinutes:int, timeScale:float) : void
+}
+@enduml

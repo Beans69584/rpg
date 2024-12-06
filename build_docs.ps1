@@ -2,12 +2,22 @@
 param(
     [Parameter()]
     [ValidateSet('local', 'production', 'gitlab')]
-    [string]$Environment = 'local'
+    [string]$Environment = 'local',
+    
+    [Parameter()]
+    [string]$SourcePath = (Join-Path $PSScriptRoot "src"),
+
+    [Parameter()]
+    [string]$Host = "localhost",
+
+    [Parameter()]
+    [ValidateRange(1, 65535)]
+    [int]$Port = 8080
 )
 
 # Setup base paths and logging
 $scriptRoot = $PSScriptRoot
-$docsPath = Join-Path $scriptRoot "docs"
+$docsPath = Join-Path $scriptRoot
 $logsPath = Join-Path $docsPath "logs"
 $sitePath = Join-Path $docsPath "_site"
 $publicPath = Join-Path $scriptRoot "public"
@@ -93,6 +103,23 @@ try {
         }
     }
 
+    # Generate API metadata
+    if (Test-Path $SourcePath) {
+        Write-Log "Generating API metadata..."
+        $metadataPath = Join-Path $docsPath "api"
+        if (-not (Test-Path $metadataPath)) {
+            New-Item -ItemType Directory -Force -Path $metadataPath | Out-Null
+        }
+
+        $metadataResult = dotnet docfx metadata (Join-Path $docsPath "docfx.json") --force
+        if ($LASTEXITCODE -ne 0) {
+            throw "API metadata generation failed: $metadataResult"
+        }
+        Write-Log "API metadata generation completed"
+    } else {
+        Write-Log "Warning: Source path not found, skipping API metadata generation"
+    }
+
     # Build the documentation
     Write-Log "Building documentation..."
     $buildResult = dotnet docfx (Join-Path $docsPath "docfx.json")
@@ -103,10 +130,10 @@ try {
     # Handle environment-specific operations
     switch ($Environment) {
         'local' {
-            Write-Log "Starting local server..."
+            Write-Log "Starting local server on $Host`:$Port..."
             Write-Log "Press Ctrl+C to stop the server"
             try {
-                & dotnet docfx serve $sitePath
+                & dotnet docfx serve $sitePath -n $Host -p $Port
             } catch {
                 Write-Log "Server stopped: $_"
             }

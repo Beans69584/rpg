@@ -1,0 +1,6 @@
+@startuml
+class Logger <<static>> {
+    + {static} Shutdown() : void
+}
+Logger --> "Instance" ILogger
+@enduml
