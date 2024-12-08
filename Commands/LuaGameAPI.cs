@@ -135,7 +135,7 @@ namespace RPG.Commands
         /// Gets the player's experience points.
         /// </summary>
         /// <param name="milliseconds">The number of milliseconds to sleep.</param>
-        public static void Sleep(int milliseconds)
+        public void Sleep(int milliseconds)
         {
             Thread.Sleep(milliseconds);
         }
@@ -208,7 +208,7 @@ namespace RPG.Commands
         /// </summary>
         /// <param name="sides">The number of sides on the dice.</param>
         /// <returns>True if the dice roll is successful, false otherwise.</returns>
-        public static bool RollDice(int sides)
+        public bool RollDice(int sides)
         {
             return Random.Shared.Next(1, sides + 1) == sides;
         }
@@ -219,7 +219,7 @@ namespace RPG.Commands
         /// <param name="min">The minimum value of the random number.</param>
         /// <param name="max">The maximum value of the random number.</param>
         /// <returns>A random number between the specified range.</returns>
-        public static int GetRandomNumber(int min, int max)
+        public int GetRandomNumber(int min, int max)
         {
             return Random.Shared.Next(min, max + 1);
         }
@@ -309,7 +309,7 @@ namespace RPG.Commands
         /// <param name="region">The region to check.</param>
         /// <param name="name">The name to check against.</param>
         /// <returns>True if the names match, false otherwise.</returns>
-        public static bool RegionNameMatches(RegionWrapper region, string name)
+        public bool RegionNameMatches(RegionWrapper region, string name)
         {
             return region.Name.Equals(name, StringComparison.OrdinalIgnoreCase);
         }
@@ -353,7 +353,7 @@ namespace RPG.Commands
         /// <param name="location">The location to check.</param>
         /// <param name="name">The name to check against.</param>
         /// <returns>True if the names match, false otherwise.</returns>
-        public static bool LocationNameMatches(LocationWrapper location, string name)
+        public bool LocationNameMatches(LocationWrapper location, string name)
         {
             return location.Name.Equals(name, StringComparison.OrdinalIgnoreCase);
         }
@@ -374,7 +374,7 @@ namespace RPG.Commands
         /// <param name="from">The starting region.</param>
         /// <param name="to">The destination region.</param>
         /// <returns>The distance between the regions.</returns>
-        public static double GetDistanceBetweenRegions(RegionWrapper from, RegionWrapper to)
+        public double GetDistanceBetweenRegions(RegionWrapper from, RegionWrapper to)
         {
             if (from?.Region == null || to?.Region == null) return 0;
 
@@ -388,7 +388,7 @@ namespace RPG.Commands
         /// </summary>
         /// <param name="region">The region to get the position of.</param>
         /// <returns>The position of the region.</returns>
-        public static Vector2 GetRegionPosition(RegionWrapper region)
+        public Vector2 GetRegionPosition(RegionWrapper region)
         {
             return region?.Region?.Position ?? new Vector2();
         }
@@ -409,7 +409,7 @@ namespace RPG.Commands
         /// Simulates travel time in minutes.
         /// </summary>
         /// <param name="minutes"></param>
-        public static void SimulateTravelTime(int minutes)
+        public void SimulateTravelTime(int minutes)
         {
             // This is where you would add any time-based game mechanics
             Thread.Sleep(Math.Min(minutes * 100, 2000)); // Cap at 2 seconds real time
