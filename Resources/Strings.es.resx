@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
     <data name="MainMenu_Title" xml:space="preserve">
-        <value>Juego RPG Demo {0}</value>
+        <value>Juego RPG de Demostración {0}</value>
     </data>
     <data name="MainMenu_Start" xml:space="preserve">
         <value>Iniciar Nuevo Juego</value>
@@ -19,16 +19,16 @@
         <value>Salir del Juego</value>
     </data>
     <data name="Welcome_Message" xml:space="preserve">
-        <value>¡Bienvenido al Juego RPG Demo!</value>
+        <value>¡Bienvenido al Juego RPG de Demostración!</value>
     </data>
     <data name="Help_Hint" xml:space="preserve">
-        <value>Escribe 'ayuda' para ver la lista de comandos.</value>
+        <value>Escribe 'help' para una lista de comandos.</value>
     </data>
     <data name="MainMenu_NavigationHint" xml:space="preserve">
-        <value>Usa las flechas para navegar y Enter para seleccionar</value>
+        <value>Usa las teclas de flecha para navegar y Enter para seleccionar</value>
     </data>
     <data name="MainMenu_Copyright" xml:space="preserve">
-        <value>© {0} Juego RPG Demo - Todos los derechos reservados</value>
+        <value>© {0} Juego RPG de Demostración - Todos los derechos reservados</value>
     </data>
     <data name="MainMenu_CreatedFor" xml:space="preserve">
         <value>Creado con fines educativos</value>
@@ -49,7 +49,7 @@
         <value>Error</value>
     </data>
     <data name="Error_WindowTooSmall" xml:space="preserve">
-        <value>ERROR: ¡La ventana de la consola es demasiado pequeña!</value>
+        <value>ERROR: ¡La ventana de consola es demasiado pequeña!</value>
     </data>
     <data name="Error_MinimumSize" xml:space="preserve">
         <value>Tamaño mínimo requerido: {0}x{1}</value>
@@ -58,25 +58,25 @@
         <value>Tamaño actual: {0}x{1}</value>
     </data>
     <data name="Error_ResizePrompt" xml:space="preserve">
-        <value>Por favor, redimensiona la ventana de la consola y presiona Enter para continuar</value>
+        <value>Por favor, cambia el tamaño de tu ventana de consola y presiona Enter para continuar</value>
     </data>
     <data name="Error_ExitPrompt" xml:space="preserve">
         <value>o presiona Escape para salir.</value>
     </data>
     <data name="Error_ResizeTip" xml:space="preserve">
-        <value>Consejo: Intenta maximizar la ventana de la consola.</value>
+        <value>Consejo: Intenta maximizar tu ventana de consola.</value>
     </data>
     <data name="Load_NoSaves" xml:space="preserve">
-        <value>No se encontraron juegos guardados.</value>
+        <value>No se encontraron partidas guardadas.</value>
     </data>
     <data name="Load_Title" xml:space="preserve">
         <value>Cargar Juego</value>
     </data>
     <data name="Load_Instructions" xml:space="preserve">
-        <value>Usa las flechas Arriba/Abajo para seleccionar, Enter para cargar, Escape para volver</value>
+        <value>Usa las flechas Arriba/Abajo para seleccionar una partida, Enter para cargar, Escape para volver</value>
     </data>
     <data name="Load_ConfirmDelete" xml:space="preserve">
-        <value>¿Estás seguro de que quieres eliminar la partida {0}?</value>
+        <value>¿Estás seguro de que deseas eliminar la partida {0}?</value>
     </data>
     <data name="Load_DeleteInstructions" xml:space="preserve">
         <value>Presiona Delete para eliminar una partida</value>
@@ -118,7 +118,7 @@
         <value>Velocidad de Parpadeo: {0}</value>
     </data>
     <data name="Settings_FrameRate_Label" xml:space="preserve">
-        <value>Fotogrammas por Segundo: {0} FPS</value>
+        <value>Tasa de Frames: {0} FPS</value>
     </data>
     <data name="Settings_NavigationHint" xml:space="preserve">
         <value>Flechas para navegar | Espacio/Enter para alternar | Esc para volver</value>
@@ -134,5 +134,107 @@
     </data>
     <data name="Common_Disable" xml:space="preserve">
         <value>desactivar</value>
+    </data>
+    <data name="BorderStyle_ASCII" xml:space="preserve">
+        <value>ASCII</value>
+    </data>
+    <data name="BorderStyle_Classic" xml:space="preserve">
+        <value>Clásico</value>
+    </data>
+    <data name="BorderStyle_Curved" xml:space="preserve">
+        <value>Curvo</value>
+    </data>
+    <data name="BlinkSpeed_Fast" xml:space="preserve">
+        <value>Rápido</value>
+    </data>
+    <data name="BlinkSpeed_Normal" xml:space="preserve">
+        <value>Normal</value>
+    </data>
+    <data name="BlinkSpeed_Slow" xml:space="preserve">
+        <value>Lento</value>
+    </data>
+    <data name="BlinkSpeed_VerySlow" xml:space="preserve">
+        <value>Muy Lento</value>
+    </data>
+    <data name="Load_Save_Auto" xml:space="preserve">
+        <value>[Automático]</value>
+    </data>
+    <data name="Load_Save_Manual" xml:space="preserve">
+        <value>[Manual]</value>
+    </data>
+    <data name="Load_Save_Info" xml:space="preserve">
+        <value>{0}: {1} {2}</value>
+    </data>
+    <data name="Load_Character_Info" xml:space="preserve">
+        <value>{0} - Nivel {1}</value>
+    </data>
+    <data name="Load_PlayTime_Info" xml:space="preserve">
+        <value>Tiempo de juego: {0}</value>
+    </data>
+    <data name="Load_Page_Info" xml:space="preserve">
+        <value>Página {0} de {1}</value>
+    </data>
+    <data name="Load_Page_Navigation" xml:space="preserve">
+        <value>Usa las flechas Izquierda/Derecha para navegar páginas</value>
+    </data>
+    <data name="PlayTime_Days" xml:space="preserve">
+        <value>{0}d {1}h {2}m</value>
+    </data>
+    <data name="PlayTime_Hours" xml:space="preserve">
+        <value>{0}h {1}m</value>
+    </data>
+    <data name="PlayTime_Minutes" xml:space="preserve">
+        <value>{0}m {1}s</value>
+    </data>
+    <data name="GameLog_Title" xml:space="preserve">
+        <value>Registro del Juego</value>
+    </data>
+    <data name="Stats_Title" xml:space="preserve">
+        <value>Estadísticas del Personaje</value>
+    </data>
+    <data name="Input_Title" xml:space="preserve">
+        <value>Entrada</value>
+    </data>
+    <data name="World_Generating" xml:space="preserve">
+        <value>Generando nuevo mundo...</value>
+    </data>
+    <data name="World_Generated" xml:space="preserve">
+        <value>Mundo generado '{0}' con {1} regiones</value>
+    </data>
+    <data name="World_LoadError" xml:space="preserve">
+        <value>Error al cargar/generar mundo: {0}</value>
+    </data>
+    <data name="World_LoadErrorPrompt" xml:space="preserve">
+        <value>Presiona cualquier tecla para volver al menú...</value>
+    </data>
+    <data name="Load_SaveError" xml:space="preserve">
+        <value>Error al cargar la partida: {0}</value>
+    </data>
+    <data name="Load_PressKeyToReturn" xml:space="preserve">
+        <value>Presiona cualquier tecla para regresar...</value>
+    </data>
+    <data name="MainMenu_AvailableSaves" xml:space="preserve">
+        <value>Partidas Disponibles:</value>
+    </data>
+    <data name="MainMenu_SaveInfo" xml:space="preserve">
+        <value>{0}: {1}</value>
+    </data>
+    <data name="Settings_On" xml:space="preserve">
+        <value>Activado</value>
+    </data>
+    <data name="Settings_Off" xml:space="preserve">
+        <value>Desactivado</value>
+    </data>
+    <data name="Settings_Enable" xml:space="preserve">
+        <value>activar</value>
+    </data>
+    <data name="Settings_Disable" xml:space="preserve">
+        <value>desactivar</value>
+    </data>
+    <data name="Settings_BackToMainMenu" xml:space="preserve">
+        <value>Volver al Menú Principal</value>
+    </data>
+    <data name="Load_PlayTime" xml:space="preserve">
+        <value>Tiempo de juego: {0}</value>
     </data>
 </root>

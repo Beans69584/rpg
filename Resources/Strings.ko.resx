@@ -4,28 +4,28 @@
         <value>데모 RPG 게임 {0}</value>
     </data>
     <data name="MainMenu_Start" xml:space="preserve">
-        <value>새 게임</value>
+        <value>새 게임 시작</value>
     </data>
     <data name="MainMenu_Load" xml:space="preserve">
-        <value>불러오기</value>
+        <value>게임 불러오기</value>
     </data>
     <data name="MainMenu_Options" xml:space="preserve">
-        <value>설정</value>
+        <value>옵션</value>
     </data>
     <data name="MainMenu_Credits" xml:space="preserve">
         <value>크레딧</value>
     </data>
     <data name="MainMenu_Exit" xml:space="preserve">
-        <value>종료</value>
+        <value>게임 종료</value>
     </data>
     <data name="Welcome_Message" xml:space="preserve">
         <value>데모 RPG 게임에 오신 것을 환영합니다!</value>
     </data>
     <data name="Help_Hint" xml:space="preserve">
-        <value>명령어 목록을 보려면 '도움말'을 입력하세요.</value>
+        <value>'도움말'을 입력하여 명령어 목록을 확인하세요.</value>
     </data>
     <data name="MainMenu_NavigationHint" xml:space="preserve">
-        <value>방향키로 이동하고 Enter로 선택하세요</value>
+        <value>화살표 키로 이동하고 Enter 키로 선택하세요</value>
     </data>
     <data name="MainMenu_Copyright" xml:space="preserve">
         <value>© {0} 데모 RPG 게임 - 모든 권리 보유</value>
@@ -34,10 +34,10 @@
         <value>교육 목적으로 제작됨</value>
     </data>
     <data name="Options_Title" xml:space="preserve">
-        <value>설정</value>
+        <value>옵션</value>
     </data>
     <data name="Options_Instructions" xml:space="preserve">
-        <value>좌/우 방향키로 언어 변경, 위/아래로 이동</value>
+        <value>언어 변경은 좌/우 화살표, 탐색은 상/하 화살표 사용</value>
     </data>
     <data name="Options_Language" xml:space="preserve">
         <value>언어</value>
@@ -52,18 +52,189 @@
         <value>오류: 콘솔 창이 너무 작습니다!</value>
     </data>
     <data name="Error_MinimumSize" xml:space="preserve">
-        <value>최소 필요 크기: {0}x{1}</value>
+        <value>필요한 최소 크기: {0}x{1}</value>
     </data>
     <data name="Error_CurrentSize" xml:space="preserve">
         <value>현재 크기: {0}x{1}</value>
     </data>
     <data name="Error_ResizePrompt" xml:space="preserve">
-        <value>콘솔 창 크기를 조절하고 Enter를 눌러 계속하세요</value>
+        <value>콘솔 창 크기를 조정한 후 Enter 키를 누르세요</value>
     </data>
     <data name="Error_ExitPrompt" xml:space="preserve">
-        <value>또는 Escape를 눌러 종료하세요.</value>
+        <value>또는 Escape 키를 눌러 종료하세요.</value>
     </data>
     <data name="Error_ResizeTip" xml:space="preserve">
         <value>팁: 콘솔 창을 최대화해 보세요.</value>
+    </data>
+    <data name="Load_NoSaves" xml:space="preserve">
+        <value>저장된 게임이 없습니다.</value>
+    </data>
+    <data name="Load_Title" xml:space="preserve">
+        <value>게임 불러오기</value>
+    </data>
+    <data name="Load_Instructions" xml:space="preserve">
+        <value>저장을 선택하려면 상/하 화살표, 불러오려면 Enter, 돌아가려면 Escape 사용</value>
+    </data>
+    <data name="Load_ConfirmDelete" xml:space="preserve">
+        <value>저장 {0}을(를) 삭제하시겠습니까?</value>
+    </data>
+    <data name="Load_DeleteInstructions" xml:space="preserve">
+        <value>저장을 삭제하려면 Delete 키를 누르세요</value>
+    </data>
+    <data name="Load_DeleteWarning" xml:space="preserve">
+        <value>이 작업은 취소할 수 없습니다!</value>
+    </data>
+    <data name="Settings_General" xml:space="preserve">
+        <value>일반 설정</value>
+    </data>
+    <data name="Settings_Visual" xml:space="preserve">
+        <value>시각 설정</value>
+    </data>
+    <data name="Settings_Cursor" xml:space="preserve">
+        <value>커서 설정</value>
+    </data>
+    <data name="Settings_Performance" xml:space="preserve">
+        <value>성능</value>
+    </data>
+    <data name="Settings_Language_Label" xml:space="preserve">
+        <value>언어: {0}</value>
+    </data>
+    <data name="Settings_Colors_Label" xml:space="preserve">
+        <value>색상: {0}</value>
+    </data>
+    <data name="Settings_Colors_Toggle" xml:space="preserve">
+        <value>색상 [스페이스로 {0}]</value>
+    </data>
+    <data name="Settings_BorderStyle_Label" xml:space="preserve">
+        <value>테두리 스타일: {0}</value>
+    </data>
+    <data name="Settings_CursorBlink_Label" xml:space="preserve">
+        <value>커서 깜박임: {0}</value>
+    </data>
+    <data name="Settings_CursorBlink_Toggle" xml:space="preserve">
+        <value>커서 깜박임 [스페이스로 {0}]</value>
+    </data>
+    <data name="Settings_BlinkSpeed_Label" xml:space="preserve">
+        <value>깜박임 속도: {0}</value>
+    </data>
+    <data name="Settings_FrameRate_Label" xml:space="preserve">
+        <value>프레임 속도: {0} FPS</value>
+    </data>
+    <data name="Settings_NavigationHint" xml:space="preserve">
+        <value>화살표 키로 탐색 | 스페이스/엔터로 전환 | Esc로 돌아가기</value>
+    </data>
+    <data name="Common_On" xml:space="preserve">
+        <value>켬</value>
+    </data>
+    <data name="Common_Off" xml:space="preserve">
+        <value>끔</value>
+    </data>
+    <data name="Common_Enable" xml:space="preserve">
+        <value>활성화</value>
+    </data>
+    <data name="Common_Disable" xml:space="preserve">
+        <value>비활성화</value>
+    </data>
+    <data name="BorderStyle_ASCII" xml:space="preserve">
+        <value>ASCII</value>
+    </data>
+    <data name="BorderStyle_Classic" xml:space="preserve">
+        <value>클래식</value>
+    </data>
+    <data name="BorderStyle_Curved" xml:space="preserve">
+        <value>곡선</value>
+    </data>
+    <data name="BlinkSpeed_Fast" xml:space="preserve">
+        <value>빠름</value>
+    </data>
+    <data name="BlinkSpeed_Normal" xml:space="preserve">
+        <value>보통</value>
+    </data>
+    <data name="BlinkSpeed_Slow" xml:space="preserve">
+        <value>느림</value>
+    </data>
+    <data name="BlinkSpeed_VerySlow" xml:space="preserve">
+        <value>매우 느림</value>
+    </data>
+    <data name="Load_Save_Auto" xml:space="preserve">
+        <value>[자동]</value>
+    </data>
+    <data name="Load_Save_Manual" xml:space="preserve">
+        <value>[수동]</value>
+    </data>
+    <data name="Load_Save_Info" xml:space="preserve">
+        <value>{0}: {1} {2}</value>
+    </data>
+    <data name="Load_Character_Info" xml:space="preserve">
+        <value>{0} - 레벨 {1}</value>
+    </data>
+    <data name="Load_PlayTime_Info" xml:space="preserve">
+        <value>플레이 시간: {0}</value>
+    </data>
+    <data name="Load_Page_Info" xml:space="preserve">
+        <value>페이지 {0} / {1}</value>
+    </data>
+    <data name="Load_Page_Navigation" xml:space="preserve">
+        <value>페이지를 이동하려면 좌/우 화살표를 사용하세요</value>
+    </data>
+    <data name="PlayTime_Days" xml:space="preserve">
+        <value>{0}일 {1}시간 {2}분</value>
+    </data>
+    <data name="PlayTime_Hours" xml:space="preserve">
+        <value>{0}시간 {1}분</value>
+    </data>
+    <data name="PlayTime_Minutes" xml:space="preserve">
+        <value>{0}분 {1}초</value>
+    </data>
+    <data name="GameLog_Title" xml:space="preserve">
+        <value>게임 로그</value>
+    </data>
+    <data name="Stats_Title" xml:space="preserve">
+        <value>캐릭터 통계</value>
+    </data>
+    <data name="Input_Title" xml:space="preserve">
+        <value>입력</value>
+    </data>
+    <data name="World_Generating" xml:space="preserve">
+        <value>새 월드 생성 중...</value>
+    </data>
+    <data name="World_Generated" xml:space="preserve">
+        <value>월드 '{0}'을(를) {1} 지역과 함께 생성했습니다</value>
+    </data>
+    <data name="World_LoadError" xml:space="preserve">
+        <value>월드 로드/생성 실패: {0}</value>
+    </data>
+    <data name="World_LoadErrorPrompt" xml:space="preserve">
+        <value>메뉴로 돌아가려면 아무 키나 누르세요...</value>
+    </data>
+    <data name="Load_SaveError" xml:space="preserve">
+        <value>저장 로드 실패: {0}</value>
+    </data>
+    <data name="Load_PressKeyToReturn" xml:space="preserve">
+        <value>돌아가려면 아무 키��� 누르세요...</value>
+    </data>
+    <data name="MainMenu_AvailableSaves" xml:space="preserve">
+        <value>사용 가능한 저장:</value>
+    </data>
+    <data name="MainMenu_SaveInfo" xml:space="preserve">
+        <value>{0}: {1}</value>
+    </data>
+    <data name="Settings_On" xml:space="preserve">
+        <value>켬</value>
+    </data>
+    <data name="Settings_Off" xml:space="preserve">
+        <value>끔</value>
+    </data>
+    <data name="Settings_Enable" xml:space="preserve">
+        <value>활성화</value>
+    </data>
+    <data name="Settings_Disable" xml:space="preserve">
+        <value>비활성화</value>
+    </data>
+    <data name="Settings_BackToMainMenu" xml:space="preserve">
+        <value>메인 메뉴로 돌아가기</value>
+    </data>
+    <data name="Load_PlayTime" xml:space="preserve">
+        <value>플레이 시간: {0}</value>
     </data>
 </root>

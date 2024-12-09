@@ -4,28 +4,28 @@
         <value>Демо RPG Игра {0}</value>
     </data>
     <data name="MainMenu_Start" xml:space="preserve">
-        <value>Новая игра</value>
+        <value>Начать новую игру</value>
     </data>
     <data name="MainMenu_Load" xml:space="preserve">
         <value>Загрузить игру</value>
     </data>
     <data name="MainMenu_Options" xml:space="preserve">
-        <value>Настройки</value>
+        <value>Опции</value>
     </data>
     <data name="MainMenu_Credits" xml:space="preserve">
-        <value>Титры</value>
+        <value>Кредиты</value>
     </data>
     <data name="MainMenu_Exit" xml:space="preserve">
-        <value>Выход</value>
+        <value>Выйти из игры</value>
     </data>
     <data name="Welcome_Message" xml:space="preserve">
         <value>Добро пожаловать в Демо RPG Игру!</value>
     </data>
     <data name="Help_Hint" xml:space="preserve">
-        <value>Введите 'помощь' для списка команд.</value>
+        <value>Введите 'help' для списка команд.</value>
     </data>
     <data name="MainMenu_NavigationHint" xml:space="preserve">
-        <value>Используйте стрелки для навигации и Enter для выбора</value>
+        <value>Используйте клавиши со стрелками для навигации и Enter для выбора</value>
     </data>
     <data name="MainMenu_Copyright" xml:space="preserve">
         <value>© {0} Демо RPG Игра - Все права защищены</value>
@@ -34,10 +34,10 @@
         <value>Создано в образовательных целях</value>
     </data>
     <data name="Options_Title" xml:space="preserve">
-        <value>Настройки</value>
+        <value>Опции</value>
     </data>
     <data name="Options_Instructions" xml:space="preserve">
-        <value>Используйте стрелки Влево/Вправо для смены языка, Вверх/Вниз для навигации</value>
+        <value>Используйте стрелки ��лево / вправо для изменения языка, вверх / вниз для навигации</value>
     </data>
     <data name="Options_Language" xml:space="preserve">
         <value>Язык</value>
@@ -49,21 +49,192 @@
         <value>Ошибка</value>
     </data>
     <data name="Error_WindowTooSmall" xml:space="preserve">
-        <value>ОШИБКА: Окно консоли слишком маленькое!</value>
+        <value>ОШИБКА: Консольное окно слишком маленькое!</value>
     </data>
     <data name="Error_MinimumSize" xml:space="preserve">
-        <value>Минимальный размер: {0}x{1}</value>
+        <value>Требуемый минимальный размер: {0}x{1}</value>
     </data>
     <data name="Error_CurrentSize" xml:space="preserve">
         <value>Текущий размер: {0}x{1}</value>
     </data>
     <data name="Error_ResizePrompt" xml:space="preserve">
-        <value>Пожалуйста, измените размер окна консоли и нажмите Enter для продолжения</value>
+        <value>Пожалуйста, измените размер консольного окна и нажмите Enter, чтобы продолжить</value>
     </data>
     <data name="Error_ExitPrompt" xml:space="preserve">
-        <value>или нажмите Escape для выхода.</value>
+        <value>или нажмите Escape, чтобы выйти.</value>
     </data>
     <data name="Error_ResizeTip" xml:space="preserve">
-        <value>Совет: Попробуйте развернуть окно консоли.</value>
+        <value>Совет: Попробуйте развернуть консольное окно на весь экран.</value>
+    </data>
+    <data name="Load_NoSaves" xml:space="preserve">
+        <value>Сохраненных игр не найдено.</value>
+    </data>
+    <data name="Load_Title" xml:space="preserve">
+        <value>Загрузить игру</value>
+    </data>
+    <data name="Load_Instructions" xml:space="preserve">
+        <value>Используйте стрелки вверх / вниз для выбора сохранения, Enter для загрузки, Escape для возврата</value>
+    </data>
+    <data name="Load_ConfirmDelete" xml:space="preserve">
+        <value>Вы уверены, что хотите удалить сохранение {0}?</value>
+    </data>
+    <data name="Load_DeleteInstructions" xml:space="preserve">
+        <value>Нажмите Delete для удаления сохранения</value>
+    </data>
+    <data name="Load_DeleteWarning" xml:space="preserve">
+        <value>Это действие невозможно отменить!</value>
+    </data>
+    <data name="Settings_General" xml:space="preserve">
+        <value>ОБЩИЕ НАСТРОЙКИ</value>
+    </data>
+    <data name="Settings_Visual" xml:space="preserve">
+        <value>ВИЗУАЛЬНЫЕ НАСТРОЙКИ</value>
+    </data>
+    <data name="Settings_Cursor" xml:space="preserve">
+        <value>НАСТРОЙКИ КУРСОРА</value>
+    </data>
+    <data name="Settings_Performance" xml:space="preserve">
+        <value>ПРОИЗВОДИТЕЛЬНОСТЬ</value>
+    </data>
+    <data name="Settings_Language_Label" xml:space="preserve">
+        <value>Язык: {0}</value>
+    </data>
+    <data name="Settings_Colors_Label" xml:space="preserve">
+        <value>Цвета: {0}</value>
+    </data>
+    <data name="Settings_Colors_Toggle" xml:space="preserve">
+        <value>Цвета [Пробел для {0}]</value>
+    </data>
+    <data name="Settings_BorderStyle_Label" xml:space="preserve">
+        <value>Стиль границы: {0}</value>
+    </data>
+    <data name="Settings_CursorBlink_Label" xml:space="preserve">
+        <value>Мигание курсора: {0}</value>
+    </data>
+    <data name="Settings_CursorBlink_Toggle" xml:space="preserve">
+        <value>Мигание курсора [Пробел для {0}]</value>
+    </data>
+    <data name="Settings_BlinkSpeed_Label" xml:space="preserve">
+        <value>Скорость мигания: {0}</value>
+    </data>
+    <data name="Settings_FrameRate_Label" xml:space="preserve">
+        <value>Частота кадров: {0} FPS</value>
+    </data>
+    <data name="Settings_NavigationHint" xml:space="preserve">
+        <value>Клавиши со стрелками для навигации | Пробел/Enter для переключения | Esc для возврата</value>
+    </data>
+    <data name="Common_On" xml:space="preserve">
+        <value>Включено</value>
+    </data>
+    <data name="Common_Off" xml:space="preserve">
+        <value>Выключено</value>
+    </data>
+    <data name="Common_Enable" xml:space="preserve">
+        <value>включить</value>
+    </data>
+    <data name="Common_Disable" xml:space="preserve">
+        <value>выключить</value>
+    </data>
+    <data name="BorderStyle_ASCII" xml:space="preserve">
+        <value>ASCII</value>
+    </data>
+    <data name="BorderStyle_Classic" xml:space="preserve">
+        <value>Классический</value>
+    </data>
+    <data name="BorderStyle_Curved" xml:space="preserve">
+        <value>Изогнутый</value>
+    </data>
+    <data name="BlinkSpeed_Fast" xml:space="preserve">
+        <value>Быстро</value>
+    </data>
+    <data name="BlinkSpeed_Normal" xml:space="preserve">
+        <value>Нормально</value>
+    </data>
+    <data name="BlinkSpeed_Slow" xml:space="preserve">
+        <value>Медленно</value>
+    </data>
+    <data name="BlinkSpeed_VerySlow" xml:space="preserve">
+        <value>Очень медленно</value>
+    </data>
+    <data name="Load_Save_Auto" xml:space="preserve">
+        <value>[Авто]</value>
+    </data>
+    <data name="Load_Save_Manual" xml:space="preserve">
+        <value>[Вручную]</value>
+    </data>
+    <data name="Load_Save_Info" xml:space="preserve">
+        <value>{0}: {1} {2}</value>
+    </data>
+    <data name="Load_Character_Info" xml:space="preserve">
+        <value>{0} - Уровень {1}</value>
+    </data>
+    <data name="Load_PlayTime_Info" xml:space="preserve">
+        <value>Время игры: {0}</value>
+    </data>
+    <data name="Load_Page_Info" xml:space="preserve">
+        <value>Страница {0} из {1}</value>
+    </data>
+    <data name="Load_Page_Navigation" xml:space="preserve">
+        <value>Используйте стрелки влево / вправо для навигации по страница��</value>
+    </data>
+    <data name="PlayTime_Days" xml:space="preserve">
+        <value>{0}д {1}ч {2}м</value>
+    </data>
+    <data name="PlayTime_Hours" xml:space="preserve">
+        <value>{0}ч {1}м</value>
+    </data>
+    <data name="PlayTime_Minutes" xml:space="preserve">
+        <value>{0}м {1}с</value>
+    </data>
+    <data name="GameLog_Title" xml:space="preserve">
+        <value>Журнал игры</value>
+    </data>
+    <data name="Stats_Title" xml:space="preserve">
+        <value>Статистика персонажа</value>
+    </data>
+    <data name="Input_Title" xml:space="preserve">
+        <value>Ввод</value>
+    </data>
+    <data name="World_Generating" xml:space="preserve">
+        <value>Генерация нового мира...</value>
+    </data>
+    <data name="World_Generated" xml:space="preserve">
+        <value>Сгенерирован мир '{0}' с {1} регионами</value>
+    </data>
+    <data name="World_LoadError" xml:space="preserve">
+        <value>Не удалось загрузить/создать мир: {0}</value>
+    </data>
+    <data name="World_LoadErrorPrompt" xml:space="preserve">
+        <value>Нажмите любую клавишу, чтобы вернуться в меню...</value>
+    </data>
+    <data name="Load_SaveError" xml:space="preserve">
+        <value>Не удалось загрузить сохранение: {0}</value>
+    </data>
+    <data name="Load_PressKeyToReturn" xml:space="preserve">
+        <value>Нажмите любую клавишу, чтобы вернуться...</value>
+    </data>
+    <data name="MainMenu_AvailableSaves" xml:space="preserve">
+        <value>Доступные сохранения:</value>
+    </data>
+    <data name="MainMenu_SaveInfo" xml:space="preserve">
+        <value>{0}: {1}</value>
+    </data>
+    <data name="Settings_On" xml:space="preserve">
+        <value>Включено</value>
+    </data>
+    <data name="Settings_Off" xml:space="preserve">
+        <value>Выключено</value>
+    </data>
+    <data name="Settings_Enable" xml:space="preserve">
+        <value>включить</value>
+    </data>
+    <data name="Settings_Disable" xml:space="preserve">
+        <value>выключить</value>
+    </data>
+    <data name="Settings_BackToMainMenu" xml:space="preserve">
+        <value>Назад в главное меню</value>
+    </data>
+    <data name="Load_PlayTime" xml:space="preserve">
+        <value>Время игры: {0}</value>
     </data>
 </root>
