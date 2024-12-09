@@ -135,7 +135,7 @@ namespace RPG.Commands
         /// Gets the player's experience points.
         /// </summary>
         /// <param name="milliseconds">The number of milliseconds to sleep.</param>
-        public void Sleep(int milliseconds)
+        public static void Sleep(int milliseconds)
         {
             Thread.Sleep(milliseconds);
         }
@@ -208,7 +208,7 @@ namespace RPG.Commands
         /// </summary>
         /// <param name="sides">The number of sides on the dice.</param>
         /// <returns>True if the dice roll is successful, false otherwise.</returns>
-        public bool RollDice(int sides)
+        public static bool RollDice(int sides)
         {
             return Random.Shared.Next(1, sides + 1) == sides;
         }
@@ -219,7 +219,7 @@ namespace RPG.Commands
         /// <param name="min">The minimum value of the random number.</param>
         /// <param name="max">The maximum value of the random number.</param>
         /// <returns>A random number between the specified range.</returns>
-        public int GetRandomNumber(int min, int max)
+        public static int GetRandomNumber(int min, int max)
         {
             return Random.Shared.Next(min, max + 1);
         }

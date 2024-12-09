@@ -276,17 +276,17 @@ namespace RPG
                     Grad(_random.Next(256), xf - 1, yf - 1)));
         }
 
-        private float Fade(float t)
+        private static float Fade(float t)
         {
             return t * t * t * ((t * ((t * 6) - 15)) + 10);
         }
 
-        private float Lerp(float t, float a, float b)
+        private static float Lerp(float t, float a, float b)
         {
             return a + (t * (b - a));
         }
 
-        private float Grad(int hash, float x, float y)
+        private static float Grad(int hash, float x, float y)
         {
             return ((hash & 1) == 0 ? x : -x) + ((hash & 2) == 0 ? y : -y);
         }
@@ -725,7 +725,7 @@ namespace RPG
             return [.. items.Distinct()];
         }
 
-        private double Distance((int x, int y) a, (int x, int y) b)
+        private static double Distance((int x, int y) a, (int x, int y) b)
         {
             int dx = a.x - b.x;
             int dy = a.y - b.y;

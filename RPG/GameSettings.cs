@@ -166,7 +166,7 @@ namespace RPG
             Save();
         }
 
-        internal bool HasChanges()
+        internal static bool HasChanges()
         {
             throw new NotImplementedException();
         }

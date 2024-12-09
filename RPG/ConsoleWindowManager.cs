@@ -485,7 +485,7 @@ namespace RPG
             }
         }
 
-        private IEnumerable<string> WrapText(string text, int width)
+        private static IEnumerable<string> WrapText(string text, int width)
         {
             if (string.IsNullOrEmpty(text))
             {
@@ -975,9 +975,8 @@ namespace RPG
             }
         }
 
-        private char GetLocationSymbol(Location location)
+        private static char GetLocationSymbol(Location location)
         {
-            // Assuming location.TypeId indicates the type of location
             return location.TypeId switch
             {
                 var id when id == 0 => '◆',  // Important location
@@ -993,7 +992,7 @@ namespace RPG
             };
         }
 
-        private ConsoleColor GetLocationColor(Location location)
+        private static ConsoleColor GetLocationColor(Location location)
         {
             // Assuming location.TypeId indicates the type of location
             return location.TypeId switch
@@ -1190,7 +1189,7 @@ namespace RPG
             }
         }
 
-        private bool IsDoubleWidth(char c)
+        private static bool IsDoubleWidth(char c)
         {
             return ConsoleWindowManager.IsDoubleWidth(c);
         }
