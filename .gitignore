@@ -1,14 +1,24 @@
+# Build directories
 bin/
 obj/
+output/
+build_logs/
+publish/
+
+# IDE directories
 .vscode/
+
+# Project-specific directories
 World/
+_site/
+api/
+docs/
+
+# File types
 *.dat
 *.snk
 *.log
 *.txt
-output/
-build_logs/
-_site/
-api/
-docs/
+
+# Other files
 plantuml.jar
