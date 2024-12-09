@@ -32,7 +32,6 @@ namespace RPG
                 // Initialize logger
                 Logger.Instance.Information("Application starting...");
 
-                // Add these lines at the start of Main
                 Console.OutputEncoding = Encoding.UTF8;
                 if (OperatingSystem.IsWindows())
                 {
@@ -518,7 +517,7 @@ namespace RPG
             List<System.Globalization.CultureInfo> languages = [.. LocalizationManager.GetAvailableLanguages()];
             int currentLanguageIndex = languages.FindIndex(c => c.Name == GameSettings.CurrentLanguage);
             GameSettings settings = GameSettings.Instance;
-            const int MAX_OPTIONS = 7; // Updated number of options
+            const int MAX_OPTIONS = 7;
 
             // FPS options (will be converted to refresh rate ms)
             int[] fpsOptions = [30, 60, 120];
@@ -658,7 +657,7 @@ namespace RPG
                             settingsChanged = true;
                             switch (currentOption)
                             {
-                                case 2: // Colors toggle
+                                case 2: // Colours toggle
                                     settings.Display.UseColors = !settings.Display.UseColors;
                                     manager.UpdateDisplaySettings(settings.Display);
                                     break;
@@ -1054,7 +1053,7 @@ namespace RPG
 
         private static void CycleBorderStyle(ConsoleDisplayConfig config, bool forward)
         {
-            // Cycle order: ASCII -> Unicode Classic -> Unicode Curved -> ASCII
+            // Cycle order: Unicode Curved -> Unicode Classic -> ASCII -> Unicode Curved
             if (forward)
             {
                 if (!config.UseUnicodeBorders)
@@ -1091,7 +1090,6 @@ namespace RPG
             }
         }
 
-        // Add these P/Invoke declarations at the bottom of the Program class
         [System.Runtime.InteropServices.DllImport("kernel32.dll")]
         private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
 
