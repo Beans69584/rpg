@@ -40,7 +40,8 @@
 
     <!-- Assembly Signing -->
     <SignAssembly>true</SignAssembly>
-    <DelaySign>true</DelaySign>
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
 
     <!-- Build Configuration -->
     <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
