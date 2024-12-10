@@ -6,6 +6,7 @@ using System.Threading;
 using NLua;
 
 using RPG.Core;
+using RPG.Common;
 using RPG.World;
 using RPG.World.Data;
 using RPG.World.Generation;
@@ -137,10 +138,34 @@ namespace RPG.Commands.Lua
         }
 
         /// <summary>
+        /// Gets the player's gold amount.
+        /// </summary>
+        public int GetPlayerGold()
+        {
+            return _state.Gold;
+        }
+
+        /// <summary>
+        /// Modifies the player's gold amount.
+        /// </summary>
+        public void ModifyPlayerGold(int amount)
+        {
+            _state.Gold = Math.Max(0, _state.Gold + amount);
+        }
+
+        /// <summary>
+        /// Gets whether the player has enough gold.
+        /// </summary>
+        public bool HasEnoughGold(int amount)
+        {
+            return _state.Gold >= amount;
+        }
+
+        /// <summary>
         /// Gets the player's experience points.
         /// </summary>
         /// <param name="milliseconds">The number of milliseconds to sleep.</param>
-        public static void Sleep(int milliseconds)
+        public void Sleep(int milliseconds)
         {
             Thread.Sleep(milliseconds);
         }
@@ -213,7 +238,7 @@ namespace RPG.Commands.Lua
         /// </summary>
         /// <param name="sides">The number of sides on the dice.</param>
         /// <returns>True if the dice roll is successful, false otherwise.</returns>
-        public static bool RollDice(int sides)
+        public bool RollDice(int sides)
         {
             return Random.Shared.Next(1, sides + 1) == sides;
         }
@@ -224,7 +249,7 @@ namespace RPG.Commands.Lua
         /// <param name="min">The minimum value of the random number.</param>
         /// <param name="max">The maximum value of the random number.</param>
         /// <returns>A random number between the specified range.</returns>
-        public static int GetRandomNumber(int min, int max)
+        public int GetRandomNumber(int min, int max)
         {
             return Random.Shared.Next(min, max + 1);
         }
@@ -461,6 +486,273 @@ namespace RPG.Commands.Lua
             int hours = minutes / 60;
             int mins = minutes % 60;
             return mins > 0 ? $"{hours}h {mins}m" : $"{hours}h";
+        }
+
+        /// <summary>
+        /// Gets a list of NPCs in the current location.
+        /// </summary>
+        public LuaTable GetNPCsInLocation()
+        {
+            if (_state?.World == null || _state.CurrentLocation == null)
+                return CreateEmptyTable();
+
+            List<Entity> npcs = _state.World.GetNPCsInLocation(_state.CurrentLocation);
+            LuaTable table = CreateEmptyTable();
+            for (int i = 0; i < npcs.Count; i++)
+            {
+                Entity npc = npcs[i];
+                table[i + 1] = new Dictionary<string, object>
+                {
+                    ["name"] = _state.World.GetEntityName(npc),
+                    ["level"] = npc.Level,
+                    ["hp"] = npc.HP
+                };
+            }
+            return table;
+        }
+
+        /// <summary>
+        /// Gets a list of items in the current location.
+        /// </summary>
+        public LuaTable GetItemsInLocation()
+        {
+            if (_state?.World == null || _state.CurrentLocation == null)
+                return CreateEmptyTable();
+
+            List<Item> items = _state.World.GetItemsInLocation(_state.CurrentLocation);
+            LuaTable table = CreateEmptyTable();
+            for (int i = 0; i < items.Count; i++)
+            {
+                Item item = items[i];
+                table[i + 1] = new Dictionary<string, object>
+                {
+                    ["name"] = _state.World.GetItemName(item),
+                    ["description"] = _state.World.GetItemDescription(item)
+                };
+            }
+            return table;
+        }
+
+        /// <summary>
+        /// Gets random dialogue from an NPC.
+        /// </summary>
+        public string GetRandomNPCDialogue(Dictionary<string, object> npc)
+        {
+            if (_state?.World == null || npc == null)
+                return "...";
+
+            // Find the NPC in the current location
+            List<Entity> npcs = _state.CurrentLocation == null ? [] : _state.World.GetNPCsInLocation(_state.CurrentLocation);
+            Entity? targetNpc = npcs.FirstOrDefault(n => _state.World.GetEntityName(n) == npc["name"]?.ToString());
+
+            return targetNpc != null ? _state.World.GetNPCDialogue(targetNpc) : "...";
+        }
+
+        /// <summary>
+        /// Gets the route description between two regions.
+        /// </summary>
+        public LuaTable GetRoute(RegionWrapper from, RegionWrapper to)
+        {
+            if (_state?.World == null || from?.Region == null || to?.Region == null)
+                return CreateEmptyTable();
+
+            List<RoutePoint> route = _state.World.GetRoute(from.Region, to.Region);
+            LuaTable table = CreateEmptyTable();
+
+            for (int i = 0; i < route.Count; i++)
+            {
+                RoutePoint point = route[i];
+                table[i + 1] = new Dictionary<string, object>
+                {
+                    ["description"] = _state.World.GetRouteDescription(point),
+                    ["directions"] = _state.World.GetRouteDirections(point)
+                };
+            }
+
+            return table;
+        }
+
+        /// <summary>
+        /// Gets the buildings in the current location if it's a settlement.
+        /// </summary>
+        public LuaTable GetBuildings()
+        {
+            if (_state?.World == null || _state.CurrentLocation?.Buildings == null)
+                return CreateEmptyTable();
+
+            LuaTable table = CreateEmptyTable();
+            for (int i = 0; i < _state.CurrentLocation.Buildings.Count; i++)
+            {
+                Building building = _state.CurrentLocation.Buildings[i];
+                table[i + 1] = new Dictionary<string, object>
+                {
+                    ["name"] = _state.World.GetString(building.NameId),
+                    ["description"] = _state.World.GetString(building.DescriptionId),
+                    ["type"] = building.Type
+                };
+            }
+            return table;
+        }
+
+        /// <summary>
+        /// Gets the landmarks along a route point.
+        /// </summary>
+        public LuaTable GetLandmarksAtPoint(Dictionary<string, object> routePoint)
+        {
+            if (_state?.World == null || routePoint == null)
+                return CreateEmptyTable();
+
+            // Find the actual route point from current route
+            List<RoutePoint>? currentRoute = _state.CurrentRegion == null ? null :
+                _state.World.GetRoute(_state.CurrentRegion, _state.CurrentRegion);
+            RoutePoint? point = currentRoute?.FirstOrDefault(p =>
+                _state.World.GetRouteDescription(p) == routePoint["description"]?.ToString());
+
+            if (point == null)
+                return CreateEmptyTable();
+
+            IEnumerable<Landmark> landmarks = _state.World.GetRouteLandmarks(point);
+            LuaTable table = CreateEmptyTable();
+
+            int index = 1;
+            foreach (Landmark landmark in landmarks)
+            {
+                table[index++] = new Dictionary<string, object>
+                {
+                    ["name"] = _state.World.GetString(landmark.NameId),
+                    ["description"] = _state.World.GetString(landmark.DescriptionId),
+                    ["type"] = landmark.Type
+                };
+            }
+
+            return table;
+        }
+
+        /// <summary>
+        /// Gets the NPCs in a specific building.
+        /// </summary>
+        public LuaTable GetNPCsInBuilding(Dictionary<string, object> building)
+        {
+            if (_state?.World == null || building == null)
+                return CreateEmptyTable();
+
+            // Find the building in the current location
+            Building? currentBuilding = _state.CurrentLocation?.Buildings
+                .FirstOrDefault(b => _state.World.GetString(b.NameId).Equals(
+                    building["name"]?.ToString(),
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (currentBuilding == null)
+            {
+                Log($"Debug: Building not found: {building["name"]}");
+                return CreateEmptyTable();
+            }
+
+            LuaTable table = CreateEmptyTable();
+            int index = 1;
+            var worldData = _state.World.GetWorldData();
+
+            foreach (int npcId in currentBuilding.NPCs)
+            {
+                // Skip invalid IDs
+                if (npcId < 0 || npcId >= worldData.NPCs.Count)
+                {
+                    Log($"Warning: Skipping invalid NPC ID: {npcId}");
+                    continue;
+                }
+
+                Entity npc = worldData.NPCs[npcId];
+                string name = _state.World.GetEntityName(npc);
+
+                table[index++] = new Dictionary<string, object>
+                {
+                    ["name"] = name,
+                    ["level"] = npc.Level,
+                    ["hp"] = npc.HP
+                };
+            }
+            return table;
+        }
+
+        /// <summary>
+        /// Gets the items in a specific building.
+        /// </summary>
+        public LuaTable GetItemsInBuilding(Dictionary<string, object> building)
+        {
+            if (_state?.World == null || building == null)
+                return CreateEmptyTable();
+
+            // Find the building in the current location
+            Building? currentBuilding = _state.CurrentLocation?.Buildings
+                .FirstOrDefault(b => _state.World.GetString(b.NameId) == building["name"]?.ToString());
+
+            if (currentBuilding == null)
+                return CreateEmptyTable();
+
+            LuaTable table = CreateEmptyTable();
+            int index = 1;
+            var worldData = _state.World.GetWorldData();
+
+            foreach (int itemId in currentBuilding.Items)
+            {
+                // Add bounds checking
+                if (itemId >= 0 && itemId < worldData.Items.Count)
+                {
+                    Item item = worldData.Items[itemId];
+                    table[index++] = new Dictionary<string, object>
+                    {
+                        ["name"] = _state.World.GetItemName(item),
+                        ["description"] = _state.World.GetItemDescription(item)
+                    };
+                }
+            }
+
+            return table;
+        }
+
+        /// <summary>
+        /// Gets the current building if the player is in one.
+        /// </summary>
+        public Dictionary<string, object>? GetCurrentBuilding()
+        {
+            if (_state?.World == null || _state.CurrentLocation?.CurrentBuilding == null)
+                return null;
+
+            var building = _state.CurrentLocation.CurrentBuilding;
+            return new Dictionary<string, object>
+            {
+                ["name"] = _state.World.GetString(building.NameId),
+                ["description"] = _state.World.GetString(building.DescriptionId),
+                ["type"] = building.Type
+            };
+        }
+
+        /// <summary>
+        /// Sets the current building.
+        /// </summary>
+        public void SetCurrentBuilding(Dictionary<string, object>? building)
+        {
+            if (_state?.CurrentLocation == null)
+                return;
+
+            if (building == null)
+            {
+                _state.CurrentLocation.CurrentBuilding = null;
+                return;
+            }
+
+            var targetBuilding = _state.CurrentLocation.Buildings.FirstOrDefault(b =>
+                _state.World?.GetString(b.NameId) == building["name"]?.ToString());
+            _state.CurrentLocation.CurrentBuilding = targetBuilding;
+        }
+
+        /// <summary>
+        /// Takes gold from the player.
+        /// </summary>
+        /// <param name="amount">The amount of gold to take.</param>
+        public void TakeGold(int amount)
+        {
+            _state.Gold = Math.Max(0, _state.Gold - amount);
         }
     }
 }

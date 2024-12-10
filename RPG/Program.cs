@@ -13,10 +13,12 @@ using RPG.Save;
 using RPG.Core;
 using RPG.Utils;
 using RPG.World;
+using RPG.World.Data;
 using RPG.World.Generation;
 using RPG.Commands;
 using RPG.Commands.Lua;
 using RPG.Commands.Builtin;
+using RPG.Common;
 
 namespace RPG
 {
@@ -301,21 +303,63 @@ namespace RPG
                     int worldSeed = Guid.NewGuid().GetHashCode();
                     Logger.Instance.Debug("Generating new world with seed: {Seed}", worldSeed);
                     ProceduralWorldGenerator generator = new(worldSeed);
-                    WorldConfig worldConfig = generator.GenerateWorld();
+                    WorldData worldData = generator.GenerateWorld();
+
+                    if (worldData.Regions.Count == 0)
+                    {
+                        Logger.Instance.Error("World generation failed - no regions created");
+                        state.GameLog.Add("Error: World generation failed");
+                        await Task.Delay(2000);
+                        return;
+                    }
 
                     // Create world directory under settings directory
-                    string worldDir = Path.Combine(PathUtilities.GetSettingsDirectory(), "Worlds", worldConfig.Name.Replace(" ", "_"));
+                    string worldDir = Path.Combine(PathUtilities.GetSettingsDirectory(), "Worlds",
+                        $"world_{DateTime.Now:yyyyMMddHHmmss}");
                     Directory.CreateDirectory(worldDir);
 
-                    OptimizedWorldBuilder builder = new(worldDir, worldConfig);
-                    builder.Build();
+                    // Save world data
+                    string worldPath = Path.Combine(worldDir, "world.dat");
+                    using (FileStream fs = File.Create(worldPath))
+                    using (GZipStream gzip = new(fs, CompressionMode.Compress))
+                    {
+                        JsonSerializerOptions options = new()
+                        {
+                            WriteIndented = true,
+                            Converters = { new Vector2JsonConverter() }
+                        };
 
-                    state.LoadWorld(Path.Combine(worldDir, "world.dat"), true);
+                        await JsonSerializer.SerializeAsync(gzip, worldData, options);
+                    }
+
+                    // Initialize game state with new world
+                    state.WorldPath = worldPath;
+                    state.LoadWorld(worldPath, true);
+
+                    if (state.World == null || state.CurrentRegion == null)
+                    {
+                        Logger.Instance.Error("Failed to initialize new world");
+                        state.GameLog.Add("Error: Failed to create new world");
+                        await Task.Delay(2000);
+                        return;
+                    }
+
+                    // Create initial save
+                    SaveData initialSave = SaveData.CreateFromState(state);
+                    SaveManager.Save(initialSave, "initial", false);
                 }
                 else if (!state.LoadGame(loadSlot))
                 {
                     Logger.Instance.Error("Failed to load game from slot: {Slot}", loadSlot);
                     state.GameLog.Add($"Failed to load save: {loadSlot}");
+                    await Task.Delay(2000);
+                    return;
+                }
+
+                if (state.World == null || state.CurrentRegion == null)
+                {
+                    Logger.Instance.Error("World or current region is null after load");
+                    state.GameLog.Add("Error: Failed to load world data");
                     await Task.Delay(2000);
                     return;
                 }
@@ -410,7 +454,7 @@ namespace RPG
                             "Equipment:",
                             "- Rusty Sword",
                             "- Leather Armor",
-                            "Gold: 100"
+                            $"Gold: {state.Gold}",
                         ];
                         manager.RenderWrappedText(region, stats);
                     }

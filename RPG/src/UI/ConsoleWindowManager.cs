@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using RPG.Core;
+using RPG.Common;
 using RPG.World.Data;
 using RPG.World.Generation;
 
@@ -981,36 +982,35 @@ namespace RPG.UI
 
         private static char GetLocationSymbol(Location location)
         {
-            return location.TypeId switch
+            return location.Type switch
             {
-                var id when id == 0 => '◆',  // Important location
-                var id when id == 1 => '■',  // Building
-                var id when id == 2 => '▲',  // Mountain/Hill
-                var id when id == 3 => '☘',  // Nature location
-                var id when id == 4 => '♠',  // Forest location
-                var id when id == 5 => '≈',  // Water location
-                var id when id == 6 => '†',  // Temple/Shrine
-                var id when id == 7 => '⌂',  // House/Inn
-                var id when id == 8 => '♦',  // Shop/Market
-                _ => '○'                     // Default unknown location
+                LocationType.Town => '◆',       // Important location
+                LocationType.Village => '■',     // Building
+                LocationType.Peak => '▲',       // Mountain/Hill
+                LocationType.Landmark => '☘',    // Nature location
+                LocationType.Camp => '♠',        // Forest location
+                LocationType.Lake => '≈',        // Water location
+                LocationType.Temple => '†',      // Temple/Shrine
+                LocationType.Cave => '⌂',        // House/Inn
+                LocationType.Outpost => '♦',     // Shop/Market
+                _ => '○'                        // Default unknown location
             };
         }
 
         private static ConsoleColor GetLocationColor(Location location)
         {
-            // Assuming location.TypeId indicates the type of location
-            return location.TypeId switch
+            return location.Type switch
             {
-                var id when id == 0 => ConsoleColor.Yellow,     // Important location
-                var id when id == 1 => ConsoleColor.White,      // Building
-                var id when id == 2 => ConsoleColor.DarkGray,   // Mountain/Hill
-                var id when id == 3 => ConsoleColor.Green,      // Nature location
-                var id when id == 4 => ConsoleColor.DarkGreen,  // Forest location
-                var id when id == 5 => ConsoleColor.Blue,       // Water location
-                var id when id == 6 => ConsoleColor.Cyan,       // Temple/Shrine
-                var id when id == 7 => ConsoleColor.DarkYellow, // House/Inn
-                var id when id == 8 => ConsoleColor.Magenta,    // Shop/Market
-                _ => ConsoleColor.Gray                          // Default unknown location
+                LocationType.Town => ConsoleColor.Yellow,      // Important location
+                LocationType.Village => ConsoleColor.White,    // Building
+                LocationType.Peak => ConsoleColor.DarkGray,    // Mountain/Hill
+                LocationType.Landmark => ConsoleColor.Green,   // Nature location
+                LocationType.Camp => ConsoleColor.DarkGreen,   // Forest location
+                LocationType.Lake => ConsoleColor.Blue,        // Water location
+                LocationType.Temple => ConsoleColor.Cyan,      // Temple/Shrine
+                LocationType.Cave => ConsoleColor.DarkYellow,  // House/Inn
+                LocationType.Outpost => ConsoleColor.Magenta,  // Shop/Market
+                _ => ConsoleColor.Gray                         // Default unknown location
             };
         }
 

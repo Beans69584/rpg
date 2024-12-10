@@ -1,9 +1,11 @@
 using System;
 using NLua;
+using NLua.Exceptions;
 
 using RPG.Core;
 using RPG.Commands;
 using RPG.Commands.Lua;
+using RPG.Utils;
 
 namespace RPG.Commands.Lua
 {
@@ -57,10 +59,22 @@ namespace RPG.Commands.Lua
         {
             try
             {
+                Logger.Debug($"Executing Lua command '{_name}' with args: {args}");
                 _executeFunction.Call(args, state);
+            }
+            catch (LuaScriptException ex)
+            {
+                // Log the Lua error details
+                Logger.Error(ex, $"Lua error in command '{_name}': {ex.Message}\nLua Source: {ex.Source}");
+                if (ex.InnerException != null)
+                {
+                    Logger.Error(ex.InnerException, $"Inner exception in Lua command '{_name}'");
+                }
+                state.GameLog.Add($"Error executing command '{_name}': {ex.Message}");
             }
             catch (Exception ex)
             {
+                Logger.Error(ex, $"Error executing Lua command '{_name}'");
                 state.GameLog.Add($"Error executing command '{_name}': {ex.Message}");
             }
         }

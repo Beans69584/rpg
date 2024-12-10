@@ -111,6 +111,31 @@ namespace RPG.Core
         public Location? CurrentLocation { get; set; }
 
         /// <summary>
+        /// Path to the current world file
+        /// </summary>
+        public string? WorldPath { get; set; }
+
+        /// <summary>
+        /// Discovered locations in the world
+        /// </summary>
+        public HashSet<string> DiscoveredLocations { get; } = [];
+
+        /// <summary>
+        /// Region exploration progress
+        /// </summary>
+        public Dictionary<int, float> RegionExploration { get; } = [];
+
+        /// <summary>
+        /// Total play time for this save
+        /// </summary>
+        public TimeSpan TotalPlayTime { get; set; } = TimeSpan.Zero;
+
+        /// <summary>
+        /// Last play session start time
+        /// </summary>
+        private DateTime SessionStartTime { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="GameState"/> class.
         /// </summary>
         /// <param name="manager">The console window manager to use.</param>
@@ -120,33 +145,30 @@ namespace RPG.Core
             Localization = new LocalizationManager() { CurrentCulture = System.Globalization.CultureInfo.CurrentCulture };
             Localization.SetLanguage(GameSettings.CurrentLanguage);
             CommandHandler = new CommandHandler();
+            SessionStartTime = DateTime.Now;
             GameLog.Add(new ColoredText(Localization.GetString("Welcome_Message")));
             GameLog.Add(new ColoredText(Localization.GetString("Help_Hint")));
         }
 
         /// <summary>
-        /// Processes the player input and updates the game state.
+        /// Updates total play time and saves the game
         /// </summary>
-        /// <param name="slot">The save slot to use.</param>
         public void SaveGame(string slot)
         {
-            SaveData saveData = new()
-            {
-                PlayerName = PlayerName,
-                Level = Level,
-                HP = HP,
-                MaxHP = MaxHP,
-                CurrentRegionId = World?.GetString(CurrentRegion?.NameId ?? 0) ?? "",
-                SaveTime = DateTime.Now,
-                WorldPath = CurrentWorldPath,
-                Gold = Gold,
-                Stats = new Dictionary<string, int>(Stats),
-                Inventory = [.. Inventory],
-                GameFlags = new Dictionary<string, bool>(GameFlags)
-            };
-
+            UpdatePlayTime();
+            SaveData saveData = SaveData.CreateFromState(this);
             SaveManager.Save(saveData, slot);
             GameLog.Add(new ColoredText($"Game saved to slot {slot}"));
+        }
+
+        /// <summary>
+        /// Updates the total play time
+        /// </summary>
+        private void UpdatePlayTime()
+        {
+            TimeSpan sessionTime = DateTime.Now - SessionStartTime;
+            TotalPlayTime += sessionTime;
+            SessionStartTime = DateTime.Now;
         }
 
         /// <summary>
@@ -157,68 +179,57 @@ namespace RPG.Core
         public bool LoadGame(string slot)
         {
             (SaveMetadata? metadata, SaveData? saveData) = SaveManager.Load(slot);
-            if (metadata == null || saveData == null) return false;
+            if (metadata == null || saveData == null || saveData.World == null) return false;
 
-            // Load world first without setting starting region
-            if (!string.IsNullOrEmpty(saveData.WorldPath))
+            try
             {
-                try
+                // Load world data first
+                if (!string.IsNullOrEmpty(saveData.WorldPath))
                 {
                     LoadWorld(saveData.WorldPath, false);
                 }
-                catch (Exception ex)
-                {
-                    GameLog.Add(new ColoredText($"Failed to load world: {ex.Message}"));
-                    return false;
-                }
-            }
 
-            // Restore player state
-            PlayerName = saveData.PlayerName;
-            Level = saveData.Level;
-            HP = saveData.HP;
-            MaxHP = saveData.MaxHP;
-            Gold = saveData.Gold;
-            Stats.Clear();
-            foreach (KeyValuePair<string, int> stat in saveData.Stats)
-                Stats[stat.Key] = stat.Value;
-            Inventory.Clear();
-            Inventory.AddRange(saveData.Inventory);
-            GameFlags.Clear();
-            foreach (KeyValuePair<string, bool> flag in saveData.GameFlags)
-                GameFlags[flag.Key] = flag.Value;
+                // Load player state
+                PlayerName = saveData.PlayerName;
+                Level = saveData.Level;
+                HP = saveData.HP;
+                MaxHP = saveData.MaxHP;
+                Gold = saveData.Gold;
+                Stats.Clear();
+                foreach (var stat in saveData.Stats)
+                    Stats[stat.Key] = stat.Value;
+                Inventory.Clear();
+                Inventory.AddRange(saveData.Inventory);
+                GameFlags.Clear();
+                foreach (var flag in saveData.GameFlags)
+                    GameFlags[flag.Key] = flag.Value;
+                TotalPlayTime = saveData.TotalPlayTime;
+                SessionStartTime = DateTime.Now;
 
-            // Restore location with fallback to default
-            if (World != null)
-            {
-                if (!string.IsNullOrEmpty(saveData.CurrentRegionId))
+                // Load world state
+                if (World != null && World.GetWorldData().Regions.Count > saveData.CurrentRegionIndex)
                 {
-                    CurrentRegion = World.GetRegionByName(saveData.CurrentRegionId);
-                }
-
-                // If region is null or invalid, move to default location
-                if (CurrentRegion == null)
-                {
-                    CurrentRegion = FindDefaultLocation();
-                    if (CurrentRegion != null)
-                    {
-                        GameLog.Add(new ColoredText("Your previous location was not found. Moving to a safe location..."));
-                    }
-                }
-
-                if (CurrentRegion != null)
-                {
-                    GameLog.Add(new ColoredText($"You are in: {World.GetString(CurrentRegion.NameId)}"));
-                    DescribeCurrentRegion();
+                    CurrentRegion = World.GetWorldData().Regions[saveData.CurrentRegionIndex];
+                    DiscoveredLocations.Clear();
+                    DiscoveredLocations.UnionWith(saveData.DiscoveredLocations);
+                    RegionExploration.Clear();
+                    foreach (var kvp in saveData.RegionExploration)
+                        RegionExploration[kvp.Key] = kvp.Value;
                 }
                 else
                 {
-                    GameLog.Add(new ColoredText("ERROR: Could not find any valid location in the world!"));
+                    GameLog.Add(new ColoredText("Warning: Could not restore previous location", ConsoleColor.Yellow));
+                    CurrentRegion = FindDefaultLocation();
                 }
-            }
 
-            GameLog.Add(new ColoredText($"Game loaded from slot {slot}"));
-            return true;
+                GameLog.Add(new ColoredText($"Game loaded from slot {slot}"));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                GameLog.Add(new ColoredText($"Error loading save: {ex.Message}", ConsoleColor.Red));
+                return false;
+            }
         }
 
         private WorldRegion? FindDefaultLocation()
@@ -240,6 +251,7 @@ namespace RPG.Core
         /// <param name="isNewGame">Whether this is a new game or not.</param>
         public void LoadWorld(string worldPath, bool isNewGame = false)
         {
+            WorldPath = worldPath;
             World = new WorldLoader(worldPath);
             CurrentWorldPath = worldPath;
 
@@ -247,13 +259,16 @@ namespace RPG.Core
 
             if (isNewGame)
             {
-                // Only set starting region for new games
-                CurrentRegion = World.GetStartingRegion();
+                // Initialize new game state
+                CurrentRegion = FindDefaultLocation();
+                SessionStartTime = DateTime.Now;
+                TotalPlayTime = TimeSpan.Zero;
+            }
+
+            if (CurrentRegion != null)
+            {
                 GameLog.Add(new ColoredText($"You are in: {World.GetString(CurrentRegion?.NameId ?? 0)}"));
-                if (CurrentRegion != null)
-                {
-                    DescribeCurrentRegion();
-                }
+                DescribeCurrentRegion();
             }
         }
 

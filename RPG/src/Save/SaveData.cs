@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using RPG.Core;
+using RPG.World.Data;
 
 namespace RPG.Save
 {
@@ -98,6 +100,26 @@ namespace RPG.Save
             }
         }
 
+        /// <summary>
+        /// Gets or sets the world data at time of save
+        /// </summary>
+        public WorldData? World { get; set; }
+
+        /// <summary>
+        /// Gets or sets the current region ID
+        /// </summary>
+        public int CurrentRegionIndex { get; set; }
+
+        /// <summary>
+        /// Gets or sets the discovered locations
+        /// </summary>
+        public HashSet<string> DiscoveredLocations { get; set; } = [];
+
+        /// <summary>
+        /// Gets or sets the region exploration progress
+        /// </summary>
+        public Dictionary<int, float> RegionExploration { get; set; } = [];
+
         private static string FormatPlayTime(TimeSpan time)
         {
             if (time.TotalDays >= 1)
@@ -116,6 +138,32 @@ namespace RPG.Save
             TimeSpan sessionTime = now - LastPlayTime;
             TotalPlayTime += sessionTime;
             LastPlayTime = now;
+        }
+
+        /// <summary>
+        /// Creates a new save from the current game state
+        /// </summary>
+        public static SaveData CreateFromState(GameState state)
+        {
+            return new SaveData
+            {
+                PlayerName = state.PlayerName,
+                Level = state.Level,
+                HP = state.HP,
+                MaxHP = state.MaxHP,
+                Gold = state.Gold,
+                World = state.World?.GetWorldData(),
+                CurrentRegionIndex = state.World?.GetWorldData().Regions.IndexOf(state.CurrentRegion ??
+                    throw new InvalidOperationException("Current region is null")) ?? 0,
+                DiscoveredLocations = state.DiscoveredLocations,
+                RegionExploration = state.RegionExploration,
+                SaveTime = DateTime.Now,
+                TotalPlayTime = state.TotalPlayTime,
+                LastPlayTime = DateTime.Now,
+                WorldPath = state.WorldPath ?? "",
+                WorldName = state.World?.GetWorldData().Header.Name ?? "Unknown World",
+                WorldCreatedAt = state.World?.GetWorldData().Header.CreatedAt ?? DateTime.Now
+            };
         }
     }
 }

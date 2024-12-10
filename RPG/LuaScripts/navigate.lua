@@ -79,29 +79,57 @@ return CreateCommand({
             return
         end
 
-        -- Calculate and simulate travel time between regions
+        -- Get the route information
+        local route = game:GetRoute(currentRegion, targetRegion)
+        
+        -- Start the journey
+        game:Log("Beginning journey to " .. targetRegion.Name)
+        game:Log("")
+
+        -- Show route details
+        for _, point in pairs(route) do
+            game:Log(point.description)
+            game:Log(" -> " .. point.directions)
+            
+            -- Check for landmarks
+            local landmarks = game:GetLandmarksAtPoint(point)
+            if #landmarks > 0 then
+                game:Log("Landmarks along the way:")
+                for _, landmark in pairs(landmarks) do
+                    game:Log(" * " .. landmark.name .. ": " .. landmark.description)
+                end
+            end
+            
+            game:Log("")
+            game:Sleep(1000) -- Pause between points
+        end
+
+        -- Simulate travel time
         local travelTime = game:CalculateTravelTime(currentRegion, targetRegion)
         game:SimulateTravelTimeWithProgress(travelTime)
 
-        -- Update player position and display new region information
+        -- Arrive at destination
         game:SetCurrentRegion(targetRegion)
         game:Log("You arrive at " .. targetRegion.Name)
         game:Log(targetRegion.Description)
         game:Log("")
 
-        -- Display available locations in the new region
+        -- Show available locations with more detail
         game:Log("You see these locations:")
         local locations = game:GetLocationsInRegion()
         for _, location in pairs(locations) do
-            game:Log(" - " .. location.Name)
+            game:Log(" - " .. location.Name .. " (" .. location.Type .. ")")
         end
         game:Log("")
 
-        -- Display new connected regions
+        -- List connected regions with distances
         game:Log("From here you can travel to:")
         local newConnections = game:GetConnectedRegions()
         for _, connection in pairs(newConnections) do
-            game:Log(" - " .. connection.Name)
+            local distance = game:GetDistanceBetweenRegions(targetRegion, connection)
+            local time = game:CalculateTravelTime(targetRegion, connection)
+            game:Log(string.format(" - %s (about %s away)", 
+                connection.Name, formatTravelTime(time)))
         end
     end
 })

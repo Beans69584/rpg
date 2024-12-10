@@ -56,7 +56,7 @@ namespace RPG.Commands.Lua
         /// <summary>
         /// Gets the type of the location.
         /// </summary>
-        public string Type => _world.GetString(Location.TypeId);
+        public string Type => Location.Type.ToFriendlyString();
         /// <summary>
         /// Gets the location.
         /// </summary>
