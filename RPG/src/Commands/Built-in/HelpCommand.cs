@@ -1,4 +1,6 @@
-namespace RPG.Commands
+using RPG.Core;
+
+namespace RPG.Commands.Builtin
 {
     /// <summary>
     /// Built-in command that shows a list of available commands.

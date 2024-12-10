@@ -1,7 +1,11 @@
 using System.Collections.Generic;
 using NLua;
 
-namespace RPG.Commands
+using RPG.World;
+using RPG.World.Data;
+using RPG.World.Generation;
+
+namespace RPG.Commands.Lua
 {
     /// <summary>
     /// Wrapper for lua commands to access the world state.
@@ -70,7 +74,7 @@ namespace RPG.Commands
         /// <param name="items">The items to convert.</param>
         /// <param name="lua">The lua instance to use.</param>
         /// <returns>The lua table.</returns>
-        public static LuaTable? ToLuaTable(this IEnumerable<RegionWrapper> items, Lua lua)
+        public static LuaTable? ToLuaTable(this IEnumerable<RegionWrapper> items, NLua.Lua lua)
         {
             if (lua.DoString("return {}")[0] is not LuaTable table) return null;
 
@@ -89,7 +93,7 @@ namespace RPG.Commands
         /// <param name="items">The items to convert.</param>
         /// <param name="lua">The lua instance to use.</param>
         /// <returns>The lua table.</returns>
-        public static LuaTable? ToLuaTable(this IEnumerable<LocationWrapper> items, Lua lua)
+        public static LuaTable? ToLuaTable(this IEnumerable<LocationWrapper> items, NLua.Lua lua)
         {
             if (lua.DoString("return {}")[0] is not LuaTable table) return null;
 

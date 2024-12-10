@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 
-namespace RPG
+using RPG.World.Data;
+
+namespace RPG.World.Generation
 {
     /// <summary>
     /// Configuration for the world generation process.

@@ -6,7 +6,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace RPG
+using RPG.Core;
+using RPG.World.Data;
+using RPG.World.Generation;
+
+namespace RPG.UI
 {
     /// <summary>
     /// Represents a rectangular region within a console window that can display content with borders and titles.

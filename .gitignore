@@ -9,7 +9,6 @@ publish/
 .vscode/
 
 # Project-specific directories
-World/
 _site/
 api/
 docs/

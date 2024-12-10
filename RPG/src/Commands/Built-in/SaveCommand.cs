@@ -1,9 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using RPG;
 
-namespace RPG.Commands
+using RPG;
+using RPG.UI;
+using RPG.Core;
+using RPG.Commands;
+using RPG.Save;
+
+namespace RPG.Commands.Builtin
 {
     /// <summary>
     /// Built-in command that saves the game to a save slot.

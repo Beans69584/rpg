@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using RPG.Utils;
 
-namespace RPG
+namespace RPG.Save
 {
     /// <summary>
     /// Manages saving and loading game data to disk.

@@ -1,4 +1,6 @@
-namespace RPG.Commands
+using RPG.Core;
+
+namespace RPG.Commands.Builtin
 {
     /// <summary>
     /// Command that loads a game from a save slot.

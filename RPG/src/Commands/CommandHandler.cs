@@ -1,9 +1,10 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using RPG.Commands;
 
-namespace RPG
+using RPG.Core;
+
+namespace RPG.Commands
 {
     /// <summary>
     /// Handles commands for the game.

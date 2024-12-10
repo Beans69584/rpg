@@ -2,7 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RPG
+using RPG.UI;
+using RPG.Save;
+using RPG.Commands;
+using RPG.World;
+using RPG.World.Data;
+using RPG.World.Generation;
+
+namespace RPG.Core
 {
     /// <summary>
     /// Represents a colored text entry in the game log.

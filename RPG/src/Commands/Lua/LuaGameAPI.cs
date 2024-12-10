@@ -5,7 +5,12 @@ using System.Text;
 using System.Threading;
 using NLua;
 
-namespace RPG.Commands
+using RPG.Core;
+using RPG.World;
+using RPG.World.Data;
+using RPG.World.Generation;
+
+namespace RPG.Commands.Lua
 {
     /// <summary>
     /// Represents a Lua game API that abstracts game state and provides helper methods for Lua scripts.
@@ -15,12 +20,12 @@ namespace RPG.Commands
     /// </remarks>
     /// <param name="state">The current game state.</param>
     /// <param name="lua">The Lua interpreter to use.</param>
-    public class LuaGameApi(GameState state, Lua lua)
+    public class LuaGameApi(GameState state, NLua.Lua lua)
     {
         private const float DEFAULT_TIME_SCALE = 0.1f;
         private const int MAX_TRAVEL_DURATION_MS = 3000; // 3 seconds max
         private readonly GameState _state = state;
-        private readonly Lua _lua = lua;
+        private readonly NLua.Lua _lua = lua;
 
         /// <summary>
         /// Logs a message to the game log.

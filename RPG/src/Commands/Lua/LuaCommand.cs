@@ -1,7 +1,11 @@
 using System;
 using NLua;
 
-namespace RPG.Commands
+using RPG.Core;
+using RPG.Commands;
+using RPG.Commands.Lua;
+
+namespace RPG.Commands.Lua
 {
     /// <summary>
     /// Represents a lua command that can be executed by the player.

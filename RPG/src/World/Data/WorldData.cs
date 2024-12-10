@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace RPG
+using RPG.World.Generation;
+
+namespace RPG.World.Data
 {
     /// <summary>
     /// Represents a region in the game world with its properties and connections

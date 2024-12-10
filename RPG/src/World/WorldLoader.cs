@@ -5,7 +5,11 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text.Json;
 
-namespace RPG
+using RPG.World;
+using RPG.World.Data;
+using RPG.World.Generation;
+
+namespace RPG.World
 {
     /// <summary>
     /// Loads and provides access to world data from a compressed JSON file.

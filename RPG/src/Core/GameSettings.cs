@@ -2,9 +2,11 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
+using RPG.UI;
 using RPG.Utils;
 
-namespace RPG
+namespace RPG.Core
 {
     /// <summary>
     /// Configuration for <see cref="ConsoleWindowManager"/> display settings. 

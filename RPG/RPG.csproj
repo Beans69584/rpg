@@ -14,6 +14,83 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AnalysisLevel>preview</AnalysisLevel>
     <AnalysisModeStyle>All</AnalysisModeStyle>
+
+    <!-- Disable auto-generation of assembly attributes -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+    <!-- Set the default namespace -->
+    <RootNamespace>RPG</RootNamespace>
+
+    <!-- Assembly Metadata and Manifest -->
+    <AssemblyName>RPG</AssemblyName>
+    <Version>0.1.0</Version>
+    <Authors>Jacob Walton</Authors>
+    <Company>Independent</Company>
+    <Product>RPG</Product>
+    <Description>A simple RPG game.</Description>
+    <Copyright>Copyright © 2024 Jacob Walton</Copyright>
+    <PackageId>RPG</PackageId>
+    <PackageVersion>0.1.0</PackageVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Beans69584/rpg</PackageProjectUrl>
+
+    <!-- Signing Configuration -->
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
+
+    <!-- Cross-platform Runtime Support -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+
+    <!-- Windows Specific -->
+    <Win32Resource></Win32Resource>
+
+    <!-- macOS Bundle Settings -->
+    <CFBundleName>RPG</CFBundleName>
+    <CFBundleDisplayName>RPG Game</CFBundleDisplayName>
+    <CFBundleIdentifier>co.uk.konpeki.rpg</CFBundleIdentifier>
+    <CFBundleVersion>0.1.0</CFBundleVersion>
+    <CFBundlePackageType>APPL</CFBundlePackageType>
+    <CFBundleSignature>????</CFBundleSignature>
+    <CFBundleExecutable>RPG</CFBundleExecutable>
+    <NSHighResolutionCapable>true</NSHighResolutionCapable>
+
+    <!-- Trust and Security Settings -->
+    <Features>strict</Features>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Deterministic>true</Deterministic>
+    <!-- Remove duplicate ContinuousIntegrationBuild -->
+
+    <!-- Source Control and SourceLink Settings -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true' or '$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <DeterministicSourcePaths Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</DeterministicSourcePaths>
+
+    <!-- Additional Metadata -->
+    <Title>RPG Game</Title>
+    <PackageTags>game;rpg;dotnet</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Remove AOT-related settings -->
+    <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
+
+    <!-- Source Control and SourceLink Settings -->
+    <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <ScmRepositoryUrl>$(RepositoryUrl)</ScmRepositoryUrl>
+    <DeterministicSourcePaths>true</DeterministicSourcePaths>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +98,19 @@
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+
+    <!-- Source Link Support -->
+    <PackageReference Include="Microsoft.SourceLink.Common" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Build.Tasks.Git" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
+    <!-- Add Git host configuration -->
+    <SourceLinkGitHost Include="github.com" />
   </ItemGroup>
 
   <ItemGroup>
@@ -65,5 +155,28 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <!-- Ignore the output/ folder -->
+  <ItemGroup>
+    <Compile Remove="output\**" />
+    <EmbeddedResource Remove="output\**" />
+    <None Remove="output\**" />
+  </ItemGroup>
+
+  <!-- Linux .desktop file template -->
+  <ItemGroup>
+    <None Include="Resources\rpg.desktop">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <!-- <None Include="Resources\icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None> -->
+    <!-- <None Include="Resources\icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None> -->
+    <!-- Additional Documentation -->
+    <None Include="../README.md" Pack="true" PackagePath="/" />
+    <!-- <None Include="../../icon.png" Pack="true" PackagePath="/" /> -->
   </ItemGroup>
 </Project>

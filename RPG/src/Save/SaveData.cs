@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace RPG
+namespace RPG.Save
 {
     /// <summary>
     /// Represents save data for the game state

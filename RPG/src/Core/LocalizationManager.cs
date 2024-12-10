@@ -3,7 +3,7 @@ using System.Globalization;
 using System;
 using System.Collections.Generic;
 
-namespace RPG
+namespace RPG.Core
 {
     /// <summary>
     /// Manages localization of strings in the game.

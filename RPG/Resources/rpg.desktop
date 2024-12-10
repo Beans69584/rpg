@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=0.1.0
+Name=RPG
+Comment=A simple RPG game
+Path=/usr/local/bin
+Exec=RPG
+Terminal=true
+Categories=Game;RolePlaying;
+Keywords=RPG;Game;

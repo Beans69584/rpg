@@ -1,3 +1,5 @@
+using RPG.Core;
+
 namespace RPG.Commands
 {
     /// <summary>

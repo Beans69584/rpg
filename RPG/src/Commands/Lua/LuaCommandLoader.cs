@@ -6,7 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace RPG.Commands
+using RPG.Core;
+
+namespace RPG.Commands.Lua
 {
     /// <summary>
     /// Lua command loader, in charge of loading user and system commands from Lua scripts.
@@ -14,7 +16,7 @@ namespace RPG.Commands
     public class LuaCommandLoader
     {
         private readonly GameState _state;
-        private readonly Lua _lua;
+        private readonly NLua.Lua _lua;
         private readonly Assembly _assembly;
         private readonly string _userScriptsPath;
 
@@ -25,7 +27,7 @@ namespace RPG.Commands
         public LuaCommandLoader(GameState state)
         {
             _state = state;
-            _lua = new Lua();
+            _lua = new NLua.Lua();
             _assembly = Assembly.GetExecutingAssembly();
 
             _userScriptsPath = Path.Combine(
