@@ -21,7 +21,7 @@ namespace RPG.Core
         private readonly ResourceManager resourceManager;
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="LocalizationManager"/> class.
+        /// Initializes a new instance of the <see cref="LocalizationManager"/> class.
         /// </summary>
         public LocalizationManager()
         {

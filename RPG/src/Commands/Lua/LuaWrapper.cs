@@ -11,7 +11,7 @@ namespace RPG.Commands.Lua
     /// Wrapper for lua commands to access the world state.
     /// </summary>
     /// <remarks>
-    /// Initialises a new instance of the <see cref="RegionWrapper"/> class.
+    /// Initializes a new instance of the <see cref="RegionWrapper"/> class.
     /// </remarks>
     /// <param name="region">The region to wrap.</param>
     /// <param name="world">The world loader to use.</param>
@@ -37,7 +37,7 @@ namespace RPG.Commands.Lua
     /// Wrapper for lua commands to access the world state.
     /// </summary>
     /// <remarks>
-    /// Initialises a new instance of the <see cref="LocationWrapper"/> class.
+    /// Initializes a new instance of the <see cref="LocationWrapper"/> class.
     /// </remarks>
     /// <param name="location">The location to wrap.</param>
     /// <param name="world">The world loader to use.</param>

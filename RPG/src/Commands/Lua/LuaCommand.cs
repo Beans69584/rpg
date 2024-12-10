@@ -11,7 +11,7 @@ namespace RPG.Commands.Lua
     /// Represents a lua command that can be executed by the player.
     /// </summary>
     /// <remarks>
-    /// Initialises a new instance of the <see cref="LuaCommand"/> class.
+    /// Initializes a new instance of the <see cref="LuaCommand"/> class.
     /// </remarks>
     /// <param name="name">The name of the command.</param>
     /// <param name="description">A brief description of the command.</param>

@@ -16,7 +16,7 @@ namespace RPG.Commands.Lua
     /// Represents a Lua game API that abstracts game state and provides helper methods for Lua scripts.
     /// </summary>
     /// <remarks>
-    /// Initialises a new instance of the <see cref="LuaGameApi"/> class.
+    /// Initializes a new instance of the <see cref="LuaGameApi"/> class.
     /// </remarks>
     /// <param name="state">The current game state.</param>
     /// <param name="lua">The Lua interpreter to use.</param>

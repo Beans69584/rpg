@@ -53,12 +53,12 @@ namespace RPG.UI
         public string? Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the colour of the region's border.
+        /// Gets or sets the color of the region's border.
         /// </summary>
         public ConsoleColor BorderColor { get; set; } = ConsoleColor.Gray;
 
         /// <summary>
-        /// Gets or sets the colour of the region's title text.
+        /// Gets or sets the color of the region's title text.
         /// </summary>
         public ConsoleColor TitleColor { get; set; } = ConsoleColor.White;
 
@@ -187,7 +187,7 @@ namespace RPG.UI
         private ConsoleDisplayConfig displayConfig;
 
         /// <summary>
-        /// Initialises a new instance of the ConsoleWindowManager class.
+        /// Initializes a new instance of the ConsoleWindowManager class.
         /// </summary>
         public ConsoleWindowManager()
         {

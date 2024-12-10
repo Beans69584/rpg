@@ -111,7 +111,7 @@ namespace RPG.Core
         public Location? CurrentLocation { get; set; }
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="GameState"/> class.
+        /// Initializes a new instance of the <see cref="GameState"/> class.
         /// </summary>
         /// <param name="manager">The console window manager to use.</param>
         public GameState(ConsoleWindowManager manager)

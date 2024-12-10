@@ -21,7 +21,7 @@ namespace RPG.Commands.Lua
         private readonly string _userScriptsPath;
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="LuaCommandLoader"/> class.
+        /// Initializes a new instance of the <see cref="LuaCommandLoader"/> class.
         /// </summary>
         /// <param name="state">The current game state.</param>
         public LuaCommandLoader(GameState state)
@@ -31,7 +31,7 @@ namespace RPG.Commands.Lua
 
             _systemScriptsPath = Path.Combine(
                 PathUtilities.GetAssemblyDirectory(),
-                "Scripts"
+                "scripts"
             );
 
             _userScriptsPath = Path.Combine(
@@ -49,7 +49,7 @@ namespace RPG.Commands.Lua
             string? coreScriptPath = Path.Combine(_systemScriptsPath, "core.lua");
             if (File.Exists(coreScriptPath))
             {
-                _lua["core"] = _lua.DoString(coreScriptPath)[0];
+                _lua["core"] = _lua.DoFile(coreScriptPath)[0];
             }
 
             // Add helper functions and command creation API

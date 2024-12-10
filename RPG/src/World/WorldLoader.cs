@@ -20,7 +20,7 @@ namespace RPG.World
         private readonly Dictionary<int, string> _stringCache;
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="WorldLoader"/> class.
+        /// Initializes a new instance of the <see cref="WorldLoader"/> class.
         /// </summary>
         /// <param name="worldPath">The path to the compressed world data file.</param>
         public WorldLoader(string worldPath)

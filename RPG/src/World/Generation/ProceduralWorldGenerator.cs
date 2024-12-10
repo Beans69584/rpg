@@ -13,7 +13,7 @@ namespace RPG.World.Generation
     /// Configuration for the world generation process.
     /// </summary>
     /// <remarks>
-    /// Initialises a new instance of the <see cref="OptimizedWorldBuilder"/> class.
+    /// Initializes a new instance of the <see cref="OptimizedWorldBuilder"/> class.
     /// </remarks>
     /// <param name="outputPath">The output directory for the generated world data.</param>
     /// <param name="sourceConfig">The source configuration for the world generation.</param>
@@ -210,7 +210,7 @@ namespace RPG.World.Generation
         private readonly float[,] _moistureMap;
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="ProceduralWorldGenerator"/> class.
+        /// Initializes a new instance of the <see cref="ProceduralWorldGenerator"/> class.
         /// </summary>
         /// <param name="seed">The seed value for the random number generator.</param>
         /// <param name="width">The width of the generated world.</param>
