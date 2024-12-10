@@ -1,7 +1,8 @@
-using System;
-using System.Collections.Generic;
-using RPG;
 using Xunit;
+
+using RPG.Core;
+using RPG.UI;
+using RPG.World.Generation;
 
 namespace RPG.Tests
 {

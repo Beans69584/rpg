@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Reflection;
 
 namespace RPG.Utils
 {
@@ -51,6 +52,15 @@ namespace RPG.Utils
         public static string GetSettingsDirectory()
         {
             return Path.Combine(GetBaseDirectory(), GetApplicationFolder());
+        }
+
+        /// <summary>
+        /// Gets the directory containing the executing assembly.
+        /// </summary>
+        /// <returns>The directory containing the executing assembly.</returns>
+        public static string GetAssemblyDirectory()
+        {
+            return AppContext.BaseDirectory ?? throw new InvalidOperationException("Unable to determine the assembly directory.");
         }
     }
 }
