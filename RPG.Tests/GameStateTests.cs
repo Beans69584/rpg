@@ -3,6 +3,7 @@ using Xunit;
 using RPG.Core;
 using RPG.UI;
 using RPG.World.Generation;
+using RPG.World.Data;
 
 namespace RPG.Tests
 {
