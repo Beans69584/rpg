@@ -10,12 +10,6 @@ function core.getPlayerInfo()
     }
 end
 
--- Argument handling helpers
-function core.parseNumber(value, default)
-    local num = tonumber(value)
-    return num or default
-end
-
 -- String utilities
 function core.formatHealthChange(amount, action)
     local player = core.getPlayerInfo()

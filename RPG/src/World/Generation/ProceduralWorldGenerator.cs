@@ -12,6 +12,7 @@ namespace RPG.World.Generation
         private readonly NoiseGenerator terrainNoise;
         private readonly NoiseGenerator moistureNoise;
         private readonly NoiseGenerator riverNoise;
+        private readonly int seed;
         private readonly int width;
         private readonly int height;
         private Dictionary<Vector2, TerrainType> worldMap = [];
@@ -24,6 +25,7 @@ namespace RPG.World.Generation
 
         public ProceduralWorldGenerator(int seed = 0, int width = 256, int height = 256)
         {
+            this.seed = seed;
             random = seed == 0 ? Random.Shared : new Random(seed);
             terrainNoise = new NoiseGenerator(random.Next());
             moistureNoise = new NoiseGenerator(random.Next());
@@ -52,7 +54,8 @@ namespace RPG.World.Generation
                     Description = stringPool.FirstOrDefault(x => x.Value == AddToStringPool("A world of adventure and mystery.")).Key,
                     Magic = "RPGW",
                     Version = "1.0",
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+                    Seed = seed.ToString() // Store the actual seed used for generation
                 },
                 Resources = new ResourceTable
                 {

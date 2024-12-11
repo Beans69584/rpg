@@ -237,4 +237,28 @@
     <data name="Load_PlayTime" xml:space="preserve">
         <value>Play time: {0}</value>
     </data>
+    <data name="NewWorld_Title" xml:space="preserve">
+        <value>New World</value>
+    </data>
+    <data name="NewWorld_EnterDetails" xml:space="preserve">
+        <value>Enter world details</value>
+    </data>
+    <data name="NewWorld_Name" xml:space="preserve">
+        <value>World Name</value>
+    </data>
+    <data name="NewWorld_Seed" xml:space="preserve">
+        <value>Seed</value>
+    </data>
+    <data name="NewWorld_SeedOptional" xml:space="preserve">
+        <value>(Seed is optional, leave blank for random)</value>
+    </data>
+    <data name="NewWorld_Controls" xml:space="preserve">
+        <value>Press ENTER to create, ESC to cancel</value>
+    </data>
+    <data name="NewWorld_TabSwitch" xml:space="preserve">
+        <value>Press TAB to switch between fields</value>
+    </data>
+    <data name="NewWorld_InvalidName" xml:space="preserve">
+        <value>Please enter a valid world name</value>
+    </data>
 </root>

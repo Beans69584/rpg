@@ -291,17 +291,20 @@ namespace RPG
         {
             try
             {
-                Logger.Instance.Information("Starting game session. Load slot: {LoadSlot}",
-                    loadSlot ?? "New Game");
-
                 using ConsoleWindowManager manager = new();
                 GameState state = new(manager);
 
                 if (loadSlot == null)
                 {
-                    // Generate new world with unique seed
-                    int worldSeed = Guid.NewGuid().GetHashCode();
-                    Logger.Instance.Debug("Generating new world with seed: {Seed}", worldSeed);
+                    // Add new world dialog
+                    (string? worldName, int? seed) = await ShowNewWorldDialogAsync(manager, state);
+                    if (worldName == null) // User cancelled
+                        return;
+
+                    // Generate new world
+                    int worldSeed = seed ?? Guid.NewGuid().GetHashCode();
+                    Logger.Instance.Debug("Generating new world '{Name}' with seed: {Seed}", worldName, worldSeed);
+
                     ProceduralWorldGenerator generator = new(worldSeed);
                     WorldData worldData = generator.GenerateWorld();
 
@@ -313,10 +316,17 @@ namespace RPG
                         return;
                     }
 
-                    // Create world directory under settings directory
+                    // Set world metadata
+                    worldData.Header.Name = worldName;
+                    worldData.Header.CreatedAt = DateTime.Now;
+                    worldData.Header.Seed = worldSeed.ToString();
+
+                    // Create world directory
                     string worldDir = Path.Combine(PathUtilities.GetSettingsDirectory(), "Worlds",
-                        $"world_{DateTime.Now:yyyyMMddHHmmss}");
+                        SanitizeWorldName(worldName));
                     Directory.CreateDirectory(worldDir);
+                    Directory.CreateDirectory(Path.Combine(worldDir, "backups"));
+                    Directory.CreateDirectory(Path.Combine(worldDir, "autosaves"));
 
                     // Save world data
                     string worldPath = Path.Combine(worldDir, "world.dat");
@@ -343,10 +353,6 @@ namespace RPG
                         await Task.Delay(2000);
                         return;
                     }
-
-                    // Create initial save
-                    SaveData initialSave = SaveData.CreateFromState(state);
-                    SaveManager.Save(initialSave, "initial", false);
                 }
                 else if (!state.LoadGame(loadSlot))
                 {
@@ -368,39 +374,31 @@ namespace RPG
 
                 void UpdateLayout()
                 {
-                    int mapHeight = Console.WindowHeight - 6;
-                    int mapWidth = 40;
+                    int logHeight = Console.WindowHeight - 6;
+                    int mapWidth = 30;
 
                     manager.UpdateRegion("GameLog", r =>
                     {
                         r.X = 1;
                         r.Y = 1;
-                        r.Width = Console.WindowWidth - mapWidth - 42;
-                        r.Height = mapHeight;
+                        r.Width = Console.WindowWidth - mapWidth - 3;
+                        r.Height = logHeight;
                     });
 
                     manager.UpdateRegion("Map", r =>
                     {
-                        r.X = Console.WindowWidth - mapWidth - 41;
+                        r.X = Console.WindowWidth - mapWidth - 1;
                         r.Y = 1;
                         r.Width = mapWidth;
-                        r.Height = mapHeight / 2;
-                    });
-
-                    manager.UpdateRegion("RegionMap", r =>
-                    {
-                        r.X = Console.WindowWidth - mapWidth - 41;
-                        r.Y = (mapHeight / 2) + 2;
-                        r.Width = mapWidth;
-                        r.Height = (mapHeight / 2) - 1;
+                        r.Height = logHeight / 2;
                     });
 
                     manager.UpdateRegion("Stats", r =>
                     {
-                        r.X = Console.WindowWidth - 40;
-                        r.Y = 1;
-                        r.Width = 39;
-                        r.Height = mapHeight;
+                        r.X = Console.WindowWidth - mapWidth - 1;
+                        r.Y = (logHeight / 2) + 2;
+                        r.Width = mapWidth;
+                        r.Height = (logHeight / 2) - 1;
                     });
 
                     manager.UpdateRegion("Input", r =>
@@ -418,14 +416,6 @@ namespace RPG
                     BorderColor = ConsoleColor.Blue,
                     TitleColor = ConsoleColor.Cyan,
                     RenderContent = (region) => manager.RenderMap(region, state.World?.GetWorldData() ?? new(), state.CurrentRegion ?? throw new InvalidOperationException("Current region is null"))
-                };
-
-                Region regionMap = new()
-                {
-                    Name = "Region Map",
-                    BorderColor = ConsoleColor.Green,
-                    TitleColor = ConsoleColor.Green,
-                    RenderContent = (region) => manager.RenderRegionMap(region, state.CurrentRegion ?? throw new InvalidOperationException("Current region is null"))
                 };
 
                 Region gameLog = new()
@@ -471,7 +461,6 @@ namespace RPG
                 manager.AddRegion("Stats", statsPanel);
                 manager.AddRegion("Input", inputRegion);
                 manager.AddRegion("Map", worldMap);
-                manager.AddRegion("RegionMap", regionMap);
                 UpdateLayout();
 
                 StringBuilder inputBuffer = new();
@@ -529,6 +518,137 @@ namespace RPG
             {
                 Logger.Instance.Error(ex, "Error in StartGameAsync");
                 throw;
+            }
+        }
+
+        private static async Task<(string? Name, int? Seed)> ShowNewWorldDialogAsync(ConsoleWindowManager manager, GameState state)
+        {
+            StringBuilder worldName = new();
+            StringBuilder seedText = new();
+            bool focusOnName = true;
+            bool isValid = false;
+
+            Region dialog = new()
+            {
+                Name = state.Localization.GetString("NewWorld_Title"),
+                BorderColor = ConsoleColor.Blue,
+                TitleColor = ConsoleColor.Cyan,
+                RenderContent = (region) =>
+                {
+                    List<ColoredText> lines =
+                    [
+                        "",
+                        state.Localization.GetString("NewWorld_EnterDetails"),
+                        "",
+                        focusOnName ?
+                            $"> {state.Localization.GetString("NewWorld_Name")}: [{worldName}]" :
+                            $"  {state.Localization.GetString("NewWorld_Name")}: {worldName}",
+                        "",
+                        !focusOnName ?
+                            $"> {state.Localization.GetString("NewWorld_Seed")}: [{seedText}]" :
+                            $"  {state.Localization.GetString("NewWorld_Seed")}: {seedText}",
+                        "",
+                        state.Localization.GetString("NewWorld_SeedOptional"),
+                        "",
+                        state.Localization.GetString("NewWorld_Controls"),
+                        state.Localization.GetString("NewWorld_TabSwitch"),
+                        "",
+                        !isValid ? state.Localization.GetString("NewWorld_InvalidName") : ""
+                    ];
+                    manager.RenderWrappedText(region, lines);
+                }
+            };
+
+            void UpdateLayout()
+            {
+                manager.UpdateRegion("NewWorld", r =>
+                {
+                    r.X = Console.WindowWidth / 4;
+                    r.Y = Console.WindowHeight / 3;
+                    r.Width = Console.WindowWidth / 2;
+                    r.Height = Console.WindowHeight / 3;
+                });
+            }
+
+            manager.AddRegion("NewWorld", dialog);
+            UpdateLayout();
+            manager.QueueRender();
+
+            while (true)
+            {
+                if (Console.KeyAvailable)
+                {
+                    ConsoleKeyInfo key = Console.ReadKey(true);
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.Tab:
+                            focusOnName = !focusOnName;
+                            manager.QueueRender();
+                            break;
+
+                        case ConsoleKey.Enter:
+                            if (worldName.Length == 0)
+                            {
+                                isValid = false;
+                                manager.QueueRender();
+                                break;
+                            }
+                            // Try parse seed if provided
+                            int? parsedSeed = null;
+                            if (seedText.Length > 0)
+                            {
+                                if (int.TryParse(seedText.ToString(), out int seed))
+                                    parsedSeed = seed;
+                                else
+                                {
+                                    // Use string hash as seed if not a valid number
+                                    parsedSeed = seedText.ToString().GetHashCode();
+                                }
+                            }
+                            return (worldName.ToString().Trim(), parsedSeed);
+
+                        case ConsoleKey.Escape:
+                            return (null, null);
+
+                        case ConsoleKey.Backspace:
+                            if (focusOnName && worldName.Length > 0)
+                            {
+                                worldName.Length--;
+                                isValid = true;
+                                manager.QueueRender();
+                            }
+                            else if (!focusOnName && seedText.Length > 0)
+                            {
+                                seedText.Length--;
+                                manager.QueueRender();
+                            }
+                            break;
+
+                        default:
+                            if (!char.IsControl(key.KeyChar))
+                            {
+                                if (focusOnName && worldName.Length < 30)
+                                {
+                                    worldName.Append(key.KeyChar);
+                                    isValid = true;
+                                    manager.QueueRender();
+                                }
+                                else if (!focusOnName && seedText.Length < 20)
+                                {
+                                    seedText.Append(key.KeyChar);
+                                    manager.QueueRender();
+                                }
+                            }
+                            break;
+                    }
+                }
+
+                if (manager.CheckResize())
+                {
+                    UpdateLayout();
+                }
+
+                await Task.Delay(16);
             }
         }
 
@@ -935,7 +1055,7 @@ namespace RPG
 
                         case ConsoleKey.Delete:
                             (string slotToDelete, SaveData _) = saves[selectedIndex];
-                            if (await ConfirmDeleteAsync(slotToDelete))
+                            if (await ConfirmDeleteAsync(slotToDelete, manager))
                             {
                                 SaveManager.DeleteSave(slotToDelete);
                                 saves = SaveManager.GetSaveFiles();
@@ -1033,14 +1153,13 @@ namespace RPG
 #pragma warning restore IDE0046 // Convert to conditional expression
         }
 
-        private static async Task<bool> ConfirmDeleteAsync(string slot)
+        private static async Task<bool> ConfirmDeleteAsync(string slot, ConsoleWindowManager manager)
         {
-            using ConsoleWindowManager manager = new();
             bool selected = false;
 
             Region dialog = new()
             {
-                Name = "Confirm",
+                Name = "Confirm Delete",
                 BorderColor = ConsoleColor.Red,
                 TitleColor = ConsoleColor.Red,
                 RenderContent = (region) =>
@@ -1059,9 +1178,9 @@ namespace RPG
                 }
             };
 
-            void UpdateLayout()
+            void UpdateConfirmLayout()
             {
-                manager.UpdateRegion("Confirm", r =>
+                manager.UpdateRegion("ConfirmDialog", r =>
                 {
                     r.X = Console.WindowWidth / 4;
                     r.Y = Console.WindowHeight / 3;
@@ -1070,8 +1189,9 @@ namespace RPG
                 });
             }
 
-            manager.AddRegion("Confirm", dialog);
-            UpdateLayout();
+            manager.AddRegion("ConfirmDialog", dialog);
+            UpdateConfirmLayout();
+            manager.QueueRender();
 
             while (true)
             {
@@ -1087,16 +1207,20 @@ namespace RPG
                             break;
 
                         case ConsoleKey.Enter:
+                            manager.RemoveRegion("ConfirmDialog");
+                            manager.QueueRender();
                             return selected;
 
                         case ConsoleKey.Escape:
+                            manager.RemoveRegion("ConfirmDialog");
+                            manager.QueueRender();
                             return false;
                     }
                 }
 
                 if (manager.CheckResize())
                 {
-                    UpdateLayout();
+                    UpdateConfirmLayout();
                 }
 
                 await Task.Delay(16);
@@ -1142,12 +1266,18 @@ namespace RPG
             }
         }
 
+        private static string SanitizeWorldName(string worldName)
+        {
+            // Replace invalid characters with underscores
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            return string.Join("_", worldName.Split(invalid.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
+        }
+
         [System.Runtime.InteropServices.DllImport("kernel32.dll")]
         private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
 
         [System.Runtime.InteropServices.DllImport("kernel32.dll")]
         private static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
-
         [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
         private static extern IntPtr GetStdHandle(int nStdHandle);
     }

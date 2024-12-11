@@ -10,6 +10,7 @@ namespace RPG.World.Data
         public string Description { get; set; } = "";
         public string Version { get; set; } = "1.0";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string Seed { get; set; } = "";
         public int RegionCount { get; set; }
         public int NPCCount { get; set; }
         public int ItemCount { get; set; }

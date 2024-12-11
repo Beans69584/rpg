@@ -1,3 +1,5 @@
+local core_utils = require("core_utils")
+
 return CreateCommand({
     name = "enter",
     description = "Enter a location or building",
@@ -12,7 +14,7 @@ return CreateCommand({
         end
 
         local currentLocation = game:GetCurrentLocation()
-        local targetName = args:match("^%s*(.-)%s*$")
+        local targetName = core_utils.parseArgs(args)
 
         -- If we're in a location, try to enter buildings
         if currentLocation then

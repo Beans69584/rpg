@@ -1,5 +1,6 @@
 local messages = require("combat_helpers.messages")
 local calc = require("combat_helpers.calculations")
+local core_utils = require("core_utils")
 
 return CreateCommand({
     name = "attack",
@@ -7,8 +8,10 @@ return CreateCommand({
     usage = "attack <target>",
     category = "Combat",
     execute = function(args, state)
-        local target = args:match("^%s*(.-)%s*$")
-        if target == "" then
+        local parsedArgs = core_utils.parseArgs(args)
+        local target = core_utils.getArg(parsedArgs, 1)
+        
+        if not target then
             game:Log(messages.status.no_target)
             return
         end

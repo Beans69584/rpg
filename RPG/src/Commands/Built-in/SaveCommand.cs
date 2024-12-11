@@ -11,7 +11,7 @@ using RPG.Save;
 namespace RPG.Commands.Builtin
 {
     /// <summary>
-    /// Built-in command that saves the game to a save slot.
+    /// Built-in command that saves the game.
     /// </summary>
     public class SaveCommand : BaseCommand
     {
@@ -22,7 +22,7 @@ namespace RPG.Commands.Builtin
         /// <summary>
         /// Gets the description of the command.
         /// </summary>
-        public override string Description => "Save game to a slot (1-5)";
+        public override string Description => "Save the current game state";
         /// <summary>
         /// Gets a list of aliases for the command.
         /// </summary>
@@ -31,32 +31,33 @@ namespace RPG.Commands.Builtin
         /// <summary>
         /// Executes the command with the specified arguments and game state.
         /// </summary>
-        /// <param name="args">The arguments for the command.</param>
+        /// <param name="args">The display name for the save (optional).</param>
         /// <param name="state">The current game state.</param>
         public override void Execute(string args, GameState state)
         {
-            if (string.IsNullOrWhiteSpace(args) || !int.TryParse(args, out int slot) || slot < 1 || slot > 5)
-            {
-                state.GameLog.Add("Usage: save <1-5>");
-                return;
-            }
+            string displayName = string.IsNullOrWhiteSpace(args) ?
+                $"{state.PlayerName}'s Save" : args.Trim();
 
-            string slotStr = slot.ToString();
+            string uuid = Guid.NewGuid().ToString("N");
 
-            if (SaveManager.SaveExists(slotStr))
+            // Store display name in metadata
+            state.CurrentSaveMetadata.CustomData["DisplayName"] = displayName;
+
+            if (SaveManager.SaveExists(uuid))
             {
-                ConfirmOverwrite(slotStr, state);
+                ConfirmOverwrite(uuid, displayName, state);
             }
             else
             {
-                state.SaveGame(slotStr);
+                state.SaveGame(uuid);
+                state.GameLog.Add($"Game saved as '{displayName}'");
             }
         }
 
-        private void ConfirmOverwrite(string slot, GameState state)
+        private void ConfirmOverwrite(string uuid, string displayName, GameState state)
         {
             bool selected = false;
-            ConsoleWindowManager manager = state.WindowManager; // Use existing window manager
+            ConsoleWindowManager manager = state.WindowManager;
 
             // Store original regions to restore later
             Dictionary<string, Region> originalRegions = [];
@@ -76,7 +77,7 @@ namespace RPG.Commands.Builtin
                     List<ColoredText> lines =
                     [
                         "",
-                        $"Save slot {slot} already exists.",
+                        $"Save '{displayName}' already exists.",
                         "Do you want to overwrite it?",
                         "",
                         selected ? "> [Yes]    No  <" : "  Yes   > [No] <",
@@ -116,7 +117,8 @@ namespace RPG.Commands.Builtin
                         case ConsoleKey.Enter:
                             if (selected)
                             {
-                                state.SaveGame(slot);
+                                state.SaveGame(uuid);
+                                state.GameLog.Add($"Game saved as '{displayName}'");
                             }
                             RestoreRegions();
                             return;

@@ -136,6 +136,11 @@ namespace RPG.Core
         private DateTime SessionStartTime { get; set; }
 
         /// <summary>
+        /// Gets the current save metadata.
+        /// </summary>
+        public SaveMetadata CurrentSaveMetadata { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="GameState"/> class.
         /// </summary>
         /// <param name="manager">The console window manager to use.</param>
@@ -146,6 +151,17 @@ namespace RPG.Core
             Localization.SetLanguage(GameSettings.CurrentLanguage);
             CommandHandler = new CommandHandler();
             SessionStartTime = DateTime.Now;
+
+            // Initialize save metadata
+            CurrentSaveMetadata = new SaveMetadata
+            {
+                Version = 1,
+                SaveTime = DateTime.UtcNow,
+                LastPlayedCharacter = PlayerName,
+                SaveType = SaveType.Manual,
+                CustomData = []
+            };
+
             GameLog.Add(new ColoredText(Localization.GetString("Welcome_Message")));
             GameLog.Add(new ColoredText(Localization.GetString("Help_Hint")));
         }
@@ -157,6 +173,14 @@ namespace RPG.Core
         {
             UpdatePlayTime();
             SaveData saveData = SaveData.CreateFromState(this);
+
+            // Update metadata before saving
+            CurrentSaveMetadata.SaveTime = DateTime.UtcNow;
+            CurrentSaveMetadata.LastPlayedCharacter = PlayerName;
+            CurrentSaveMetadata.TotalPlayTime = TotalPlayTime;
+            CurrentSaveMetadata.CharacterLevel = Level;
+            CurrentSaveMetadata.WorldPath = WorldPath ?? "";
+
             SaveManager.Save(saveData, slot);
             GameLog.Add(new ColoredText($"Game saved to slot {slot}"));
         }
