@@ -12,7 +12,6 @@ namespace RPG.World.Generation
         private readonly NoiseGenerator terrainNoise;
         private readonly NoiseGenerator moistureNoise;
         private readonly NoiseGenerator riverNoise;
-        private readonly NoiseGenerator encounterNoise;
         private readonly int width;
         private readonly int height;
         private Dictionary<Vector2, TerrainType> worldMap = [];
@@ -22,8 +21,6 @@ namespace RPG.World.Generation
 
         private const int MIN_REGION_SIZE = 16;
         private const int MIN_LOCATION_SPACING = 8;
-        private const float LOCATION_PLACEMENT_THRESHOLD = 0.6f;
-        private const int MIN_SETTLEMENT_DISTANCE = 12;
 
         public ProceduralWorldGenerator(int seed = 0, int width = 256, int height = 256)
         {
@@ -31,7 +28,6 @@ namespace RPG.World.Generation
             terrainNoise = new NoiseGenerator(random.Next());
             moistureNoise = new NoiseGenerator(random.Next());
             riverNoise = new NoiseGenerator(random.Next());
-            encounterNoise = new NoiseGenerator(random.Next());
             this.width = width;
             this.height = height;
         }
@@ -143,13 +139,9 @@ namespace RPG.World.Generation
         {
             if (elevation > 0.8f) return TerrainType.Mountain;
             if (elevation > 0.6f) return TerrainType.Hills;
-            if (elevation < 0.3f)
-            {
-                if (elevation < 0.2f) return TerrainType.Coast;
-                return moisture > 0.6f ? TerrainType.Swamp : TerrainType.Plains;
-            }
-            if (elevation < 0.4f && moisture > 0.6f) return TerrainType.Swamp;
-            return moisture > 0.6f ? TerrainType.Forest : TerrainType.Plains;
+            if (elevation < 0.2f) return TerrainType.Coast;
+            if (elevation < 0.3f) return moisture > 0.6f ? TerrainType.Swamp : TerrainType.Plains;
+            return moisture > 0.6f ? TerrainType.Swamp : TerrainType.Plains;
         }
 
         private void SmoothTerrain(Dictionary<Vector2, TerrainType> map)
@@ -199,7 +191,7 @@ namespace RPG.World.Generation
             List<Vector2> centers = [];
             int attempts = 100;
 
-            while (attempts > 0 && centers.Count < (width * height) / (MIN_REGION_SIZE * MIN_REGION_SIZE))
+            while (attempts > 0 && centers.Count < width * height / (MIN_REGION_SIZE * MIN_REGION_SIZE))
             {
                 Vector2 candidate = new()
                 {
@@ -229,9 +221,7 @@ namespace RPG.World.Generation
 
             // Check terrain suitability
             TerrainType terrain = worldMap[candidate];
-            if (terrain == TerrainType.River) return false;
-
-            return true;
+            return terrain != TerrainType.River;
         }
 
         private WorldRegion GenerateRegion(Vector2 center, TerrainType dominantTerrain)
@@ -320,13 +310,13 @@ namespace RPG.World.Generation
                     {
                         Route route = GenerateRoute(region.Locations[i], region.Locations[j], region.TerrainMap);
                         int destinationIndex = j; // or whatever index system you're using
-                        region.Routes.Add(destinationIndex, route.Segments.Select(s =>
+                        region.Routes.Add(destinationIndex, [.. route.Segments.Select(s =>
                             new RoutePoint
                             {
                                 DescriptionId = s.DescriptionId,
                                 DirectionsId = s.DirectionsId,
                                 Landmarks = s.Landmarks
-                            }).ToList());
+                            })]);
                     }
                 }
             }
@@ -530,7 +520,7 @@ namespace RPG.World.Generation
 
         private List<Encounter> GenerateSegmentSpecificEncounters(RouteSegment segment, List<Encounter> baseEncounters)
         {
-            List<Encounter> encounters = new(baseEncounters); // Start with copies of base encounters
+            List<Encounter> encounters = [.. baseEncounters]; // Start with copies of base encounters
 
             // Add encounters based on landmarks
             foreach (Landmark landmark in segment.Landmarks)
@@ -707,12 +697,9 @@ namespace RPG.World.Generation
             string[] items = ["Sword", "Shield", "Bow", "Staff", "Armor", "Ring", "Amulet", "Potion"];
             string[] suffixes = ["of Power", "of Light", "of Protection", "of Speed", "of Wisdom", "of the Bear", "of the Wolf", "of the Eagle"];
 
-            if (random.Next(100) < 30) // 30% chance for magical item
-            {
-                return $"{prefixes[random.Next(prefixes.Length)]} {items[random.Next(items.Length)]} {suffixes[random.Next(suffixes.Length)]}";
-            }
-
-            return $"{prefixes[random.Next(prefixes.Length)]} {items[random.Next(items.Length)]}";
+            return random.Next(100) < 30
+                ? $"{prefixes[random.Next(prefixes.Length)]} {items[random.Next(items.Length)]} {suffixes[random.Next(suffixes.Length)]}"
+                : $"{prefixes[random.Next(prefixes.Length)]} {items[random.Next(items.Length)]}";
         }
 
         private string GenerateLandmarkName(TerrainType terrain)
@@ -941,8 +928,8 @@ namespace RPG.World.Generation
 
                 Vector2 position = new()
                 {
-                    X = center.X + distance * MathF.Cos(angle),
-                    Y = center.Y + distance * MathF.Sin(angle)
+                    X = center.X + (distance * MathF.Cos(angle)),
+                    Y = center.Y + (distance * MathF.Sin(angle))
                 };
 
                 if (IsValidLocationPosition(position, existingPositions, terrainMap))
@@ -993,7 +980,7 @@ namespace RPG.World.Generation
         {
             float distance = (float)Math.Sqrt(Math.Pow(end.X - start.X, 2) + Math.Pow(end.Y - start.Y, 2));
             float terrainDifficulty = GetAverageTerrainDifficulty(start, end, terrainMap);
-            return (distance * terrainDifficulty) / 100.0f; // Normalize to 0-1 range
+            return distance * terrainDifficulty / 100.0f; // Normalize to 0-1 range
         }
 
         private float CalculateSegmentEncounterRate(Vector2 start, Vector2 end, Dictionary<Vector2, TerrainType> terrainMap)
@@ -1039,8 +1026,8 @@ namespace RPG.World.Generation
             {
                 Vector2 point = new()
                 {
-                    X = start.X + (end.X - start.X) * t,
-                    Y = start.Y + (end.Y - start.Y) * t
+                    X = start.X + ((end.X - start.X) * t),
+                    Y = start.Y + ((end.Y - start.Y) * t)
                 };
 
                 if (terrainMap.TryGetValue(point, out TerrainType terrain))
@@ -1255,8 +1242,9 @@ namespace RPG.World.Generation
             };
 
             List<int> npcs = [];
+
             // Track generated NPCs globally
-            var worldData = _worldData ?? throw new InvalidOperationException("World data not initialized");
+            WorldData worldData = _worldData ?? throw new InvalidOperationException("World data not initialized");
 
             for (int i = 0; i < count; i++)
             {

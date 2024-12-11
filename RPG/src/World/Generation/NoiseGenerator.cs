@@ -6,11 +6,10 @@ namespace RPG.World.Generation
     public class NoiseGenerator
     {
         private readonly int[] permutation;
-        private readonly Random random;
 
         public NoiseGenerator(int seed)
         {
-            random = new Random(seed);
+            Random random = new(seed);
             // Create base permutation array
             permutation = new int[512];
             int[] p = [.. Enumerable.Range(0, 256)];
@@ -61,19 +60,29 @@ namespace RPG.World.Generation
 
         private static float Fade(float t)
         {
-            return t * t * t * (t * (t * 6 - 15) + 10);
+            return t * t * t * ((t * ((t * 6) - 15)) + 10);
         }
 
         private static float Lerp(float t, float a, float b)
         {
-            return a + t * (b - a);
+            return a + (t * (b - a));
         }
 
         private static float Grad(int hash, float x, float y)
         {
             int h = hash & 15;
             float u = h < 8 ? x : y;
-            float v = h < 4 ? y : h == 12 || h == 14 ? x : 0;
+            float v = 0;
+
+            if (h < 4)
+            {
+                v = y;
+            }
+            else if (h is 12 or 14)
+            {
+                v = x;
+            }
+
             return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
         }
     }

@@ -1,3 +1,5 @@
+local core = require("core")
+
 return CreateCommand({
     name = "damage",
     description = "Damage yourself",

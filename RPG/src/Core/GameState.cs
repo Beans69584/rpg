@@ -166,9 +166,9 @@ namespace RPG.Core
         /// </summary>
         private void UpdatePlayTime()
         {
-            TimeSpan sessionTime = DateTime.Now - SessionStartTime;
+            TimeSpan sessionTime = DateTime.UtcNow - SessionStartTime;
             TotalPlayTime += sessionTime;
-            SessionStartTime = DateTime.Now;
+            SessionStartTime = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -196,12 +196,12 @@ namespace RPG.Core
                 MaxHP = saveData.MaxHP;
                 Gold = saveData.Gold;
                 Stats.Clear();
-                foreach (var stat in saveData.Stats)
+                foreach (KeyValuePair<string, int> stat in saveData.Stats)
                     Stats[stat.Key] = stat.Value;
                 Inventory.Clear();
                 Inventory.AddRange(saveData.Inventory);
                 GameFlags.Clear();
-                foreach (var flag in saveData.GameFlags)
+                foreach (KeyValuePair<string, bool> flag in saveData.GameFlags)
                     GameFlags[flag.Key] = flag.Value;
                 TotalPlayTime = saveData.TotalPlayTime;
                 SessionStartTime = DateTime.Now;
@@ -213,7 +213,7 @@ namespace RPG.Core
                     DiscoveredLocations.Clear();
                     DiscoveredLocations.UnionWith(saveData.DiscoveredLocations);
                     RegionExploration.Clear();
-                    foreach (var kvp in saveData.RegionExploration)
+                    foreach (KeyValuePair<int, float> kvp in saveData.RegionExploration)
                         RegionExploration[kvp.Key] = kvp.Value;
                 }
                 else

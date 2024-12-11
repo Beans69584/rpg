@@ -82,54 +82,83 @@ return CreateCommand({
         -- Get the route information
         local route = game:GetRoute(currentRegion, targetRegion)
         
+        -- Define consistent border width
+        local borderWidth = 40
+        local function makeBorder(symbol, color)
+            game:LogColor("+" .. string.rep(symbol, borderWidth - 2) .. "+", color)
+        end
+
+        local function makeTextLine(text, color)
+            local padding = borderWidth - #text - 4
+            game:LogColor("| " .. text .. string.rep(" ", padding) .. " |", color)
+        end
+
         -- Start the journey
-        game:Log("Beginning journey to " .. targetRegion.Name)
+        makeBorder("-", "Cyan")
+        makeTextLine("Beginning journey to " .. targetRegion.Name, "Cyan")
+        makeBorder("-", "Cyan")
         game:Log("")
 
-        -- Show route details
+        -- Show route details with improved formatting
         for _, point in pairs(route) do
-            game:Log(point.description)
-            game:Log(" -> " .. point.directions)
+            game:LogColor("-> " .. point.description, "Yellow")
+            game:LogColor("   " .. point.directions, "Gray")
             
-            -- Check for landmarks
+            -- Check for landmarks with improved visibility
             local landmarks = game:GetLandmarksAtPoint(point)
             if #landmarks > 0 then
-                game:Log("Landmarks along the way:")
+                game:LogColor("   Landmarks:", "Magenta")
                 for _, landmark in pairs(landmarks) do
-                    game:Log(" * " .. landmark.name .. ": " .. landmark.description)
+                    local color = "White"
+                    if landmark.type == "Settlement" then
+                        color = "Green"
+                    elseif landmark.type == "Danger" then
+                        color = "Red"
+                    elseif landmark.type == "Interest" then
+                        color = "Yellow"
+                    end
+                    game:LogColor("   * " .. landmark.name .. ": " .. landmark.description, color)
                 end
             end
             
             game:Log("")
-            game:Sleep(1000) -- Pause between points
+            game:Sleep(1500) -- Slightly longer pause for readability
         end
 
-        -- Simulate travel time
+        -- Simulate travel time with the improved progress bar
         local travelTime = game:CalculateTravelTime(currentRegion, targetRegion)
         game:SimulateTravelTimeWithProgress(travelTime)
 
-        -- Arrive at destination
-        game:SetCurrentRegion(targetRegion)
-        game:Log("You arrive at " .. targetRegion.Name)
-        game:Log(targetRegion.Description)
+        -- Arrival message (matched with look.lua style)
         game:Log("")
-
-        -- Show available locations with more detail
-        game:Log("You see these locations:")
+        game:LogColor("=== " .. targetRegion.Name .. " ===", "Yellow")
+        game:Log(targetRegion.Description)
+        
+        -- Show available locations
+        game:Log("")
+        game:LogColor("Locations:", "Cyan")
         local locations = game:GetLocationsInRegion()
         for _, location in pairs(locations) do
-            game:Log(" - " .. location.Name .. " (" .. location.Type .. ")")
+            local icon = "*"
+            if location.Type == "Settlement" then icon = "H"
+            elseif location.Type == "Dungeon" then icon = "D"
+            elseif location.Type == "Shop" then icon = "S"
+            end
+            game:Log(string.format("  - %s (%s)", location.Name, location.Type))
         end
+        
+        -- Show connected regions
         game:Log("")
-
-        -- List connected regions with distances
-        game:Log("From here you can travel to:")
+        game:LogColor("Connected Regions:", "Cyan")
         local newConnections = game:GetConnectedRegions()
         for _, connection in pairs(newConnections) do
-            local distance = game:GetDistanceBetweenRegions(targetRegion, connection)
             local time = game:CalculateTravelTime(targetRegion, connection)
-            game:Log(string.format(" - %s (about %s away)", 
+            game:Log(string.format("  - %s (%s away)", 
                 connection.Name, formatTravelTime(time)))
         end
+
+        -- Update the current region after successful navigation
+        game:SetCurrentRegion(targetRegion)
+
     end
 })

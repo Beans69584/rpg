@@ -17,203 +17,161 @@ namespace RPG.Commands.Lua
     {
         private readonly GameState _state;
         private readonly NLua.Lua _lua;
-        private readonly string _systemScriptsPath;
-        private readonly string _userScriptsPath;
+        private readonly string _baseScriptsPath;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LuaCommandLoader"/> class.
-        /// </summary>
-        /// <param name="state">The current game state.</param>
+        private static string EscapePath(string path)
+        {
+            // Normalize path separators for Lua
+            return path.Replace("\\", "/").Replace("'", "\\'");
+        }
+
         public LuaCommandLoader(GameState state)
         {
-            try
-            {
-                _state = state;
-                _lua = new NLua.Lua();
+            _state = state;
+            _lua = new NLua.Lua();
+            _baseScriptsPath = Path.Combine(PathUtilities.GetAssemblyDirectory(), "scripts");
 
-                _systemScriptsPath = Path.Combine(
-                    PathUtilities.GetAssemblyDirectory(),
-                    "scripts"
-                );
-
-                _userScriptsPath = Path.Combine(
-                    PathUtilities.GetSettingsDirectory(),
-                    "Scripts"
-                );
-
-                LuaGameApi gameApi = new(_state, _lua);
-
-                _lua.LoadCLRPackage();
-                _lua["game"] = gameApi;
-                _lua["KeepClrObject"] = true;
-
-                Logger.Info("Initializing LuaCommandLoader");
-
-                // Load core library first
-                string? coreScriptPath = Path.Combine(_systemScriptsPath, "core.lua");
-                if (!File.Exists(coreScriptPath))
-                {
-                    Logger.Warning($"Core script not found at: {coreScriptPath}");
-                }
-                else
-                {
-                    _lua["core"] = _lua.DoFile(coreScriptPath)[0];
-                    Logger.Debug("Core script loaded successfully");
-                }
-
-                // Add helper functions and command creation API
-                _lua.DoString(@"
-                    -- Command creation helper
-                    function CreateCommand(config)
-                        assert(type(config) == 'table', 'CreateCommand requires a config table')
-                        assert(config.name, 'Command requires a name')
-                        assert(config.description, 'Command requires a description')
-                        assert(config.execute, 'Command requires an execute function')
-
-                        return {
-                            name = config.name,
-                            description = config.description,
-                            execute = config.execute,
-                            aliases = config.aliases or {},
-                            usage = config.usage or '',
-                            category = config.category or 'General'
-                        }
-                    end
-
-                    -- String split helper
-                    function split(str, sep)
-                        sep = sep or '%s'
-                        local t = {}
-                        for field in string.gmatch(str, '[^'..sep..']+') do
-                            table.insert(t, field)
-                        end
-                        return t
-                    end
-
-                    -- Arguments parser helper
-                    function parseArgs(argStr)
-                        local args = split(argStr or '')
-                        return {
-                            raw = argStr or '',
-                            list = args,
-                            count = #args,
-                            get = function(self, index)
-                                return self.list[index]
-                            end
-                        }
-                    end
-                ");
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Failed to initialize LuaCommandLoader");
-                throw;
-            }
+            InitializeLuaEnvironment();
         }
 
-        private IEnumerable<ICommand> LoadUserCommands()
+        private void InitializeLuaEnvironment()
         {
-            if (!Directory.Exists(_userScriptsPath))
-            {
-                Logger.Info($"Creating user scripts directory: {_userScriptsPath}");
-                Directory.CreateDirectory(_userScriptsPath);
-                yield break;
-            }
+            _lua.LoadCLRPackage();
+            _lua["KeepClrObject"] = true;
+            _lua["game"] = new LuaGameApi(_state, _lua);
 
-            foreach (string file in Directory.GetFiles(_userScriptsPath, "*.lua"))
-            {
-                Logger.Debug($"Loading user command from: {file}");
-                LuaCommand? command = null;
-                try
-                {
-                    if (_lua.DoFile(file)[0] is not LuaTable chunk) continue;
+            // Setup module paths with proper escaping
+            string commandsPath = EscapePath(Path.Combine(_baseScriptsPath, "commands"));
+            string libsPath = EscapePath(Path.Combine(_baseScriptsPath, "libs"));
+            string basePath = EscapePath(_baseScriptsPath);
 
-                    if (chunk["execute"] is not LuaFunction executeFunction) continue;
+            // Update package.path to support both direct files and dot notation
+            _lua.DoString($@"
+                package = package or {{}}
+                package.path = '{commandsPath}/?.lua;' ..
+                             '{commandsPath}/?/init.lua;' ..
+                             '{libsPath}/?.lua;' ..
+                             '{libsPath}/?/init.lua;' ..
+                             '{basePath}/?.lua;' ..
+                             '{libsPath}/?/?.lua;' ..              -- For dot notation (combat_helpers.messages)
+                             '{libsPath}/?.lua;' ..                -- For direct requires
+                             '{basePath}/?.lua'
 
-                    command = new LuaCommand(
-                        chunk["name"] as string ?? "",
-                        chunk["description"] as string ?? "",
-                        executeFunction,
-                        (chunk["aliases"] as LuaTable)?.Values.Cast<string>().ToArray() ?? [],
-                        chunk["usage"] as string ?? "",
-                        chunk["category"] as string ?? "User Commands"
-                    );
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex, $"Error loading user command {Path.GetFileName(file)}");
-                    _state.GameLog.Add($"Error loading user command {Path.GetFileName(file)}: {ex.Message}");
-                }
+                -- Custom require function to handle dot notation
+                local original_require = require
+                require = function(modname)
+                    -- Convert dots to directory separators
+                    local path = modname:gsub('%.', '/')
+                    return original_require(path)
+                end
 
-                if (command != null)
-                {
-                    Logger.Debug($"Successfully loaded command: {command.Name}");
-                    yield return command;
-                }
-            }
+                function CreateCommand(config)
+                    if not config then error('CreateCommand requires a config table') end
+                    if not config.name then error('Command requires a name') end
+                    if not config.description then error('Command requires a description') end
+                    if not config.execute then error('Command requires an execute function') end
+
+                    return {{
+                        name = config.name,
+                        description = config.description,
+                        execute = config.execute,
+                        aliases = config.aliases or {{}},
+                        usage = config.usage or '',
+                        category = config.category or 'General'
+                    }}
+                end
+            ");
         }
 
-        /// <summary>
-        /// Loads all available commands from embedded and user scripts.
-        /// </summary>
-        /// <returns>An enumerable collection of commands.</returns>
         public IEnumerable<ICommand> LoadCommands()
         {
-            Logger.Info("Loading commands");
-
             List<ICommand> commands = [];
+            string commandsDir = Path.Combine(_baseScriptsPath, "commands");
 
-            try
+            // First load utility modules from libs directory
+            string libsDir = Path.Combine(_baseScriptsPath, "libs");
+            if (Directory.Exists(libsDir))
             {
-                // Load system commands
-                foreach (string file in Directory.GetFiles(_systemScriptsPath, "*.lua"))
+                // Load nested modules first
+                foreach (string dir in Directory.GetDirectories(libsDir, "*", SearchOption.AllDirectories))
                 {
-                    Logger.Debug($"Loading system command from: {file}");
-                    LuaCommand? command = null;
+                    foreach (string file in Directory.GetFiles(dir, "*.lua"))
+                    {
+                        try
+                        {
+                            Logger.Debug($"Pre-loading library: {file}");
+                            _lua.DoFile(file);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error(ex, $"Error loading library {file}");
+                        }
+                    }
+                }
+
+                // Then load root level modules
+                foreach (string file in Directory.GetFiles(libsDir, "*.lua"))
+                {
                     try
                     {
-                        if (_lua.DoFile(file)[0] is not LuaTable chunk) continue;
-
-                        if (chunk["execute"] is not LuaFunction executeFunction) continue;
-
-                        command = new LuaCommand(
-                            chunk["name"] as string ?? "",
-                            chunk["description"] as string ?? "",
-                            executeFunction,
-                            (chunk["aliases"] as LuaTable)?.Values.Cast<string>().ToArray() ?? [],
-                            chunk["usage"] as string ?? "",
-                            chunk["category"] as string ?? "General"
-                        );
+                        Logger.Debug($"Pre-loading library: {file}");
+                        _lua.DoFile(file);
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error(ex, $"Error loading system command {Path.GetFileName(file)}");
-                        _state.GameLog.Add($"Error loading system command {Path.GetFileName(file)}: {ex.Message}");
-                    }
-
-                    if (command != null)
-                    {
-                        Logger.Debug($"Successfully loaded command: {command.Name}");
-                        commands.Add(command);
+                        Logger.Error(ex, $"Error loading library {file}");
                     }
                 }
+            }
 
-                // Load user commands
-                foreach (ICommand command in LoadUserCommands())
+            // Then load commands
+            foreach (string file in Directory.GetFiles(commandsDir, "*.lua", SearchOption.AllDirectories))
+            {
+                try
                 {
+                    Logger.Debug($"Loading command from: {file}");
+
+                    string relativePath = Path.GetRelativePath(commandsDir, file);
+                    string moduleDir = Path.GetDirectoryName(relativePath) ?? "";
+
+                    if (!string.IsNullOrEmpty(moduleDir))
+                    {
+                        string escapedPath = EscapePath(Path.Combine(commandsDir, moduleDir));
+                        _lua.DoString($"package.path = '{escapedPath}/?.lua;' .. package.path");
+                    }
+
+                    object[] result = _lua.DoFile(file);
+
+                    if (!string.IsNullOrEmpty(moduleDir))
+                    {
+                        _lua.DoString("package.path = string.match(package.path, ';(.+)$') or ''");
+                    }
+
+                    if (result == null || result.Length == 0 || result[0] is not LuaTable commandTable)
+                    {
+                        continue;
+                    }
+
+                    LuaCommand command = new(
+                        commandTable["name"] as string ?? "",
+                        commandTable["description"] as string ?? "",
+                        commandTable["execute"] as LuaFunction ?? throw new InvalidOperationException("Command missing execute function"),
+                        (commandTable["aliases"] as LuaTable)?.Values.Cast<string>().ToArray() ?? [],
+                        commandTable["usage"] as string ?? "",
+                        commandTable["category"] as string ?? "General"
+                    );
+
                     commands.Add(command);
+                    Logger.Debug($"Successfully loaded command: {command.Name}");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, $"Error loading command from {file}");
+                    _state.GameLog.Add($"Error loading command {Path.GetFileName(file)}: {ex.Message}");
                 }
             }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Unexpected error while loading commands");
-                throw;
-            }
 
-            foreach (ICommand command in commands)
-            {
-                yield return command;
-            }
+            return commands;
         }
     }
 }

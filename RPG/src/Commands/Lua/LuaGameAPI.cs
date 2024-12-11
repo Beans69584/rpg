@@ -438,7 +438,7 @@ namespace RPG.Commands.Lua
         /// <summary>
         /// Simulates travel time in minutes.
         /// </summary>
-        /// <param name="minutes"></param>
+        /// <param name="minutes">The travel time in minutes.</param>
         public void SimulateTravelTime(int minutes)
         {
             // This is where you would add any time-based game mechanics
@@ -452,25 +452,55 @@ namespace RPG.Commands.Lua
         /// <param name="timeScale">The time scale to use (default is 0.1).</param>
         public void SimulateTravelTimeWithProgress(int totalMinutes, float timeScale = DEFAULT_TIME_SCALE)
         {
-            const int updateInterval = 100; // Update progress every 100ms
+            const int updateInterval = 100;
+            const int borderWidth = 44;  // Increased for better spacing
+            const int contentWidth = borderWidth - 4;  // Actual space for content
             float durationMs = Math.Min(totalMinutes * 1000 * timeScale, MAX_TRAVEL_DURATION_MS);
             float elapsedMs = 0;
+
+            string MakeHeader(string text)
+            {
+                int padding = (contentWidth - text.Length) / 2;
+                return $"| {new string(' ', padding)}{text}{new string(' ', contentWidth - text.Length - padding)} |";
+            }
+
+            string MakeContent(string text)
+            {
+                return $"| {text}{new string(' ', contentWidth - text.Length)} |";
+            }
 
             while (elapsedMs < durationMs)
             {
                 ClearLog();
-                Log($"=== Traveling ===");
+
+                // Top border
+                LogColor($"+{new string('-', borderWidth - 2)}+", "Cyan");
+                LogColor(MakeHeader("Journey Status"), "Cyan");
+                LogColor($"+{new string('-', borderWidth - 2)}+", "Cyan");
 
                 float progress = elapsedMs / durationMs;
                 int remainingMinutes = (int)(totalMinutes * (1 - progress));
 
-                Log($"Time remaining: {FormatTravelTime(remainingMinutes)}");
+                // Time remaining
+                string timeStr = $"Time: {FormatTravelTime(remainingMinutes)}";
+                LogColor(MakeContent(timeStr), "Yellow");
 
-                // Create progress bar
-                int barLength = 20;
+                // Progress bar
+                int barLength = contentWidth - 6;  // Space for "[ ]" and padding
                 int progressBars = (int)(progress * barLength);
-                string progressBar = "[" + new string('=', progressBars) + new string(' ', barLength - progressBars) + "]";
-                Log(progressBar);
+
+                string bar = "[" + new string('#', progressBars);
+                if (progressBars < barLength)
+                    bar += ">";
+                bar += new string('-', barLength - progressBars - 1) + "]";
+                LogColor(MakeContent(bar), progressBars > barLength / 2 ? "Green" : "Yellow");
+
+                // Direction
+                string direction = GetCompassDirection(Environment.TickCount / 500 % 8);
+                LogColor(MakeContent($"Direction: {direction}"), "Cyan");
+
+                // Bottom border
+                LogColor($"+{new string('-', borderWidth - 2)}+", "Cyan");
 
                 Thread.Sleep(updateInterval);
                 elapsedMs += updateInterval;
@@ -486,6 +516,22 @@ namespace RPG.Commands.Lua
             int hours = minutes / 60;
             int mins = minutes % 60;
             return mins > 0 ? $"{hours}h {mins}m" : $"{hours}h";
+        }
+
+        private string GetCompassDirection(int index)
+        {
+            return index switch
+            {
+                0 => "North ↑",
+                1 => "Northeast ↗",
+                2 => "East →",
+                3 => "Southeast ↘",
+                4 => "South ↓",
+                5 => "Southwest ↙",
+                6 => "West ←",
+                7 => "Northwest ↖",
+                _ => "North ↑"
+            };
         }
 
         /// <summary>
@@ -650,7 +696,7 @@ namespace RPG.Commands.Lua
 
             LuaTable table = CreateEmptyTable();
             int index = 1;
-            var worldData = _state.World.GetWorldData();
+            WorldData worldData = _state.World.GetWorldData();
 
             foreach (int npcId in currentBuilding.NPCs)
             {
@@ -691,7 +737,7 @@ namespace RPG.Commands.Lua
 
             LuaTable table = CreateEmptyTable();
             int index = 1;
-            var worldData = _state.World.GetWorldData();
+            WorldData worldData = _state.World.GetWorldData();
 
             foreach (int itemId in currentBuilding.Items)
             {
@@ -718,7 +764,7 @@ namespace RPG.Commands.Lua
             if (_state?.World == null || _state.CurrentLocation?.CurrentBuilding == null)
                 return null;
 
-            var building = _state.CurrentLocation.CurrentBuilding;
+            Building building = _state.CurrentLocation.CurrentBuilding;
             return new Dictionary<string, object>
             {
                 ["name"] = _state.World.GetString(building.NameId),
@@ -741,7 +787,7 @@ namespace RPG.Commands.Lua
                 return;
             }
 
-            var targetBuilding = _state.CurrentLocation.Buildings.FirstOrDefault(b =>
+            Building? targetBuilding = _state.CurrentLocation.Buildings.FirstOrDefault(b =>
                 _state.World?.GetString(b.NameId) == building["name"]?.ToString());
             _state.CurrentLocation.CurrentBuilding = targetBuilding;
         }
@@ -753,6 +799,17 @@ namespace RPG.Commands.Lua
         public void TakeGold(int amount)
         {
             _state.Gold = Math.Max(0, _state.Gold - amount);
+        }
+
+        /// <summary>
+        /// Executes a command on behalf of another script.
+        /// </summary>
+        /// <param name="commandName">The name of the command to execute.</param>
+        /// <param name="args">The arguments to pass to the command.</param>
+        /// <returns>True if the command was executed successfully, otherwise false.</returns>
+        public bool ExecuteCommand(string commandName, string args)
+        {
+            return _state.CommandHandler.ExecuteCommand(commandName + " " + args, _state);
         }
     }
 }

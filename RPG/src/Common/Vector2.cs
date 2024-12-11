@@ -40,17 +40,10 @@ namespace RPG.Common
 
         public static Vector2? Parse(string? s)
         {
-            if (string.IsNullOrEmpty(s)) return null;
+            if (string.IsNullOrEmpty(s) || s.Split(',').Length != 2) return null;
 
             string[] parts = s.Split(',');
-            if (parts.Length != 2) return null;
-
-            if (float.TryParse(parts[0], out float x) && float.TryParse(parts[1], out float y))
-            {
-                return new Vector2(x, y);
-            }
-
-            return null;
+            return float.TryParse(parts[0], out float x) && float.TryParse(parts[1], out float y) ? new Vector2(x, y) : null;
         }
     }
 
@@ -78,8 +71,7 @@ namespace RPG.Common
         {
             string? value = reader.GetString();
             Vector2? result = Vector2.Parse(value);
-            if (result != null) return result;
-            throw new JsonException("Invalid Vector2 format for dictionary key");
+            return result ?? throw new JsonException("Invalid Vector2 format for dictionary key");
         }
 
         public override void WriteAsPropertyName(Utf8JsonWriter writer, Vector2 value, JsonSerializerOptions options)

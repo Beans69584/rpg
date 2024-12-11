@@ -4,7 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
@@ -15,7 +15,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RootNamespace>RPG</RootNamespace>
     <AssemblyName>RPG</AssemblyName>
-    <NoWarn>$(NoWarn);CA1515;IDE0005;IDE0058;SYSLIB0057;CA2007;IDE0130;IDE0010;IDE0011</NoWarn>
+    <NoWarn>$(NoWarn);CA1515;IDE0005;IDE0058;SYSLIB0057;CA2007;IDE0130;IDE0010;IDE0011;IDE0072</NoWarn>
 
     <!-- Version Information -->
     <Version>0.1.0</Version>
@@ -90,7 +90,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="LuaScripts\*.lua">
+    <None Include="LuaScripts\**\*.lua">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <TargetPath>scripts\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
