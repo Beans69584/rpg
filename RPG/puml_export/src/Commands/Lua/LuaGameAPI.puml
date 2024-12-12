@@ -1,0 +1,76 @@
+@startuml
+class LuaGameApi {
+    - <<const>> DEFAULT_TIME_SCALE : float = 0.1f
+    - <<const>> MAX_TRAVEL_DURATION_MS : int = 3000
+    + LuaGameApi(state:GameState, lua:NLua.Lua)
+    + Log(message:string) : void
+    + LogColor(message:string, color:string) : void
+    + ClearLog() : void
+    + GetPlayerName() : string
+    + SetPlayerName(name:string) : void
+    + GetPlayerHP() : int
+    + SetPlayerHP(hp:int) : void
+    + GetPlayerMaxHP() : int
+    + SetPlayerMaxHP(maxHp:int) : void
+    + GetPlayerLevel() : int
+    + SetPlayerLevel(level:int) : void
+    + GetPlayerGold() : int
+    + ModifyPlayerGold(amount:int) : void
+    + HasEnoughGold(amount:int) : bool
+    + Sleep(milliseconds:int) : void
+    + AskQuestion(question:string) : string
+    + RollDice(sides:int) : bool
+    + GetRandomNumber(min:int, max:int) : int
+    + GetRegionName(region:WorldRegion) : string
+    + GetRegionDescription(region:WorldRegion) : string
+    + GetCurrentRegion() : RegionWrapper?
+    + SetCurrentRegion(region:RegionWrapper) : void
+    + GetConnectedRegions() : LuaTable
+    + GetConnectedRegions(region:WorldRegion) : LuaTable?
+    - CreateEmptyTable() : LuaTable
+    + RegionNameMatches(region:RegionWrapper, name:string) : bool
+    + GetCurrentLocation() : LocationWrapper?
+    + SetCurrentLocation(location:LocationWrapper) : void
+    + GetLocationsInRegion() : LuaTable
+    + GetDistanceBetweenRegions(from:RegionWrapper, to:RegionWrapper) : double
+    + GetRegionPosition(region:RegionWrapper) : Vector2
+    + CalculateTravelTime(from:RegionWrapper, to:RegionWrapper) : int
+    + SimulateTravelTime(minutes:int) : void
+    + SimulateTravelTimeWithProgress(totalMinutes:int, timeScale:float) : void
+    - FormatTravelTime(minutes:int) : string
+    - GetCompassDirection(index:int) : string
+    + GetRandomNPCDialogue(npc:Dictionary<string, object>) : string
+    + GetRoute(from:RegionWrapper, to:RegionWrapper) : LuaTable
+    - GetLandmarksForPoint(point:RoutePoint) : LuaTable
+    + GetBuildings() : LuaTable
+    + GetLandmarksAtPoint(routePoint:Dictionary<string, object>) : LuaTable
+    + GetNPCsInBuilding(building:Dictionary<string, object>) : LuaTable
+    + GetItemsInBuilding(building:Dictionary<string, object>) : LuaTable
+    + GetCurrentBuilding() : Dictionary<string, object>?
+    + SetCurrentBuilding(building:Dictionary<string, object>?) : void
+    + TakeGold(amount:int) : void
+    + ExecuteCommand(commandName:string, args:string) : bool
+    + GetPlayerProfession() : string
+    + GetPlayerAge() : int
+    + SetPlayerAge(age:int) : void
+    + TransformPlayer(professionName:string) : void
+    + IsPlayerProfession(professionName:string) : bool
+    + IncreaseEvilLevel(amount:int) : void
+    + GetLocationDescription(location:LocationWrapper) : string
+    + GetNPCDialogue(npc:Entity) : string
+    + GetLocationName(location:Location) : string
+    + LocationNameMatches(location:Location, name:string) : bool
+    + NavigateToLocation(location:Location) : void
+    + GetNPCsInLocation(location:LocationWrapper) : LuaTable
+    + GetItemsInLocation(location:LocationWrapper) : LuaTable
+    + GetBuildingsInLocation(location:LocationWrapper) : LuaTable
+    + GetNPCsInRegion(region:RegionWrapper) : LuaTable
+    + GetItemsInRegion(region:RegionWrapper) : LuaTable
+    + <<async>> ShowDialogue(npc:Entity, dialogueTreeId:int) : Task
+    + GetActiveQuests() : LuaTable
+    + AcceptQuest(questId:int) : bool
+    + UpdateQuestProgress(type:string, target:string, amount:int) : void
+}
+LuaGameApi --> "_state" GameState
+LuaGameApi --> "_dialogueWindow" DialogueWindow
+@enduml

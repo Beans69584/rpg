@@ -5,19 +5,16 @@ class WorldRegion {
 }
 class WorldData {
 }
-class "List`1"<T> {
-}
-class "Dictionary`2"<T1,T2> {
-}
-WorldRegion o-> "Connections<int>" "List`1"
-WorldRegion o-> "NPCs<int>" "List`1"
-WorldRegion o-> "Items<int>" "List`1"
+
+
+
+
 WorldRegion o-> "Position" Vector2
-WorldRegion o-> "Locations<Location>" "List`1"
-WorldRegion o-> "Routes<int,List<RoutePoint>>" "Dictionary`2"
+
+
 WorldData o-> "Header" Header
 WorldData o-> "Resources" ResourceTable
-WorldData o-> "Regions<WorldRegion>" "List`1"
-WorldData o-> "NPCs<Entity>" "List`1"
-WorldData o-> "Items<Item>" "List`1"
+
+
+
 @enduml

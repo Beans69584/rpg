@@ -1,0 +1,11 @@
+@startuml
+abstract class Person {
+    + <<required>> Name : string <<get>> <<set>>
+    + Age : int <<get>> <<set>>
+    + HitPoints : int <<get>> <<set>>
+    + Gold : int <<get>> <<set>>
+    # <<virtual>> FormatSpeech(message:string) : string
+}
+Person --> "Position" Vector2
+Person --> "Profession" ProfessionType
+@enduml

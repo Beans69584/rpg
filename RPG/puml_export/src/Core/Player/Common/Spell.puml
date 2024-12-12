@@ -1,0 +1,7 @@
+@startuml
+class Spell {
+    + <<required>> Name : string <<get>> <<set>>
+    + PowerCost : int <<get>> <<set>>
+    + <<virtual>> Cast(caster:Magician, target:Person) : void
+}
+@enduml

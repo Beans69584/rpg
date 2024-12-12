@@ -1,0 +1,8 @@
+@startuml
+abstract class BaseCommand {
+    + {abstract} Name : string <<get>>
+    + {abstract} Description : string <<get>>
+    + {abstract} Execute(args:string, state:GameState) : void
+}
+ICommand <|-- BaseCommand
+@enduml

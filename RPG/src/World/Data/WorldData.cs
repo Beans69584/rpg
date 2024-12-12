@@ -1,35 +1,35 @@
 using System.Collections.Generic;
+using System.Linq;
 using RPG.Common;
-using RPG.World.Generation;
 
 namespace RPG.World.Data
 {
     public enum TerrainType
     {
-        Plains,
-        Forest,
-        Mountain,
-        Desert,
-        Swamp,
-        Coast,
-        Hills,
-        Canyon,
-        River
+        Plains, // 0
+        Forest, // 1
+        Mountain, // 2
+        Desert, // 3
+        Swamp, // 4
+        Coast, // 5
+        Hills, // 6
+        Canyon, // 7
+        River // 8
     }
 
     public enum LocationType
     {
-        Town,
-        Village,
-        Dungeon,
-        Cave,
-        Ruin,
-        Landmark,
-        Camp,
-        Outpost,
-        Temple,
-        Lake,
-        Peak
+        Town, // 0
+        Village, // 1
+        Dungeon, // 2
+        Cave, // 3
+        Ruin, // 4
+        Landmark, // 5
+        Camp, // 6
+        Outpost, // 7
+        Temple, // 8
+        Lake, // 9
+        Peak // 10
     }
 
     public static class LocationTypeExtensions
@@ -56,10 +56,10 @@ namespace RPG.World.Data
 
     public enum EncounterType
     {
-        Combat,
-        NPC,
-        Event,
-        Discovery
+        Combat, // 0
+        NPC, // 1
+        Event, // 2
+        Discovery // 3
     }
 
     public class WorldRegion
@@ -140,16 +140,6 @@ namespace RPG.World.Data
         public int DescriptionId { get; set; }
     }
 
-    public class Quest
-    {
-        public int NameId { get; set; }
-        public int DescriptionId { get; set; }
-        public List<string> Objectives { get; set; } = [];
-        public List<Reward> Rewards { get; set; } = [];
-        public bool IsComplete { get; set; }
-        public Dictionary<string, bool> Flags { get; set; } = [];
-    }
-
     public class Landmark
     {
         public int NameId { get; set; }
@@ -165,6 +155,20 @@ namespace RPG.World.Data
         public List<WorldRegion> Regions { get; set; } = [];
         public List<Entity> NPCs { get; set; } = [];
         public List<Item> Items { get; set; } = [];
+
+        public string GetString(int id)
+        {
+            return Resources.StringPool.FirstOrDefault(x => x.Value == id).Key ?? $"<unknown string {id}>";
+        }
+    }
+
+    public class ResourceTable
+    {
         public Dictionary<string, int> StringPool { get; set; } = [];
+        public Dictionary<string, int> TextureRefs { get; set; } = [];
+        public Dictionary<string, int> SoundRefs { get; set; } = [];
+        public Dictionary<int, DialogueTree> DialogueTrees { get; set; } = [];
+        public Dictionary<int, Quest> Quests { get; set; } = [];
+        public Dictionary<string, string> Scripts { get; set; } = [];
     }
 }

@@ -1,0 +1,8 @@
+@startuml
+class Conjurer {
+    + SummonAnimal(type:AnimalType) : void
+}
+
+Magician <|-- Conjurer
+
+@enduml

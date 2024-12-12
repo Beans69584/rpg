@@ -1,0 +1,10 @@
+@startuml
+class ExperienceSystem {
+    {static} - ExperienceSystem()
+    + AddExperience(amount:int) : void
+    - LevelUp() : void
+    + GetRequiredExperience(level:int) : int
+    + GetLevelProgress() : float
+}
+ExperienceSystem o-> "_state" GameState
+@enduml

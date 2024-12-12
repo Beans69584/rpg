@@ -1,0 +1,7 @@
+@startuml
+class Weapon {
+    + <<required>> Name : string <<get>> <<set>>
+    + Damage : int <<get>> <<set>>
+    + Value : int <<get>> <<set>>
+}
+@enduml

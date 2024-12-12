@@ -44,6 +44,10 @@ namespace RPG.Save
         /// </summary>
         public int Gold { get; set; } = 100;
         /// <summary>
+        /// Gets or sets the current experience points
+        /// </summary>
+        public int CurrentExperience { get; set; }
+        /// <summary>
         /// Gets or sets the player's statistics
         /// </summary>
         public Dictionary<string, int> Stats { get; set; } = [];
@@ -75,6 +79,10 @@ namespace RPG.Save
         /// Gets or sets the world creation timestamp
         /// </summary>
         public DateTime WorldCreatedAt { get; set; }
+        /// <summary>
+        /// The type name of the player's class
+        /// </summary>
+        public string PlayerClass { get; set; } = "None";
         /// <summary>
         /// Gets the formatted display name for the save file
         /// </summary>
@@ -120,6 +128,16 @@ namespace RPG.Save
         /// </summary>
         public Dictionary<int, float> RegionExploration { get; set; } = [];
 
+        /// <summary>
+        /// Gets or sets the world modifications
+        /// </summary>
+        public WorldModifications WorldChanges { get; set; } = new();
+
+        /// <summary>
+        /// Gets or sets the name of the base world template
+        /// </summary>
+        public string BaseWorldName { get; set; } = "ravenkeep";
+
         private static string FormatPlayTime(TimeSpan time)
         {
             if (time.TotalDays >= 1)
@@ -145,6 +163,9 @@ namespace RPG.Save
         /// </summary>
         public static SaveData CreateFromState(GameState state)
         {
+            WorldData? worldData = state.World?.GetWorldData();
+            string worldName = worldData?.GetString(worldData.Header.NameId) ?? "Unknown World";
+
             return new SaveData
             {
                 PlayerName = state.PlayerName,
@@ -152,18 +173,38 @@ namespace RPG.Save
                 HP = state.HP,
                 MaxHP = state.MaxHP,
                 Gold = state.Gold,
-                World = state.World?.GetWorldData(),
+                CurrentExperience = state.CurrentExperience,
+                BaseWorldName = "ravenkeep", // Always use the base world template
+                WorldChanges = new WorldModifications
+                {
+                    RegionExploration = state.RegionExploration,
+                    DiscoveredLocations = state.DiscoveredLocations,
+                    // Add other world state changes here
+                },
                 CurrentRegionIndex = state.World?.GetWorldData().Regions.IndexOf(state.CurrentRegion ??
                     throw new InvalidOperationException("Current region is null")) ?? 0,
-                DiscoveredLocations = state.DiscoveredLocations,
-                RegionExploration = state.RegionExploration,
                 SaveTime = DateTime.Now,
                 TotalPlayTime = state.TotalPlayTime,
                 LastPlayTime = DateTime.Now,
                 WorldPath = state.WorldPath ?? "",
-                WorldName = state.World?.GetWorldData().Header.Name ?? "Unknown World",
-                WorldCreatedAt = state.World?.GetWorldData().Header.CreatedAt ?? DateTime.Now
+                WorldName = worldName,
+                WorldCreatedAt = state.World?.GetWorldData().Header.CreatedAt ?? DateTime.Now,
+                PlayerClass = state.CurrentPlayer?.GetType().Name ?? "None"
             };
         }
+    }
+
+    /// <summary>
+    /// Contains modifications made to the base world template
+    /// </summary>
+    public class WorldModifications
+    {
+        public Dictionary<int, float> RegionExploration { get; set; } = [];
+        public HashSet<string> DiscoveredLocations { get; set; } = [];
+        public Dictionary<int, bool> LocationStates { get; set; } = [];
+        public Dictionary<int, int> NPCStates { get; set; } = [];
+        public Dictionary<int, bool> ItemStates { get; set; } = [];
+        public Dictionary<string, bool> QuestStates { get; set; } = [];
+        public Dictionary<string, bool> WorldFlags { get; set; } = [];
     }
 }

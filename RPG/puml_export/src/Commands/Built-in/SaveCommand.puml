@@ -1,0 +1,9 @@
+@startuml
+class SaveCommand {
+    + <<override>> Name : string <<get>>
+    + <<override>> Description : string <<get>>
+    + <<override>> Execute(args:string, state:GameState) : void
+    - ConfirmOverwrite(uuid:string, displayName:string, state:GameState) : void
+}
+BaseCommand <|-- SaveCommand
+@enduml

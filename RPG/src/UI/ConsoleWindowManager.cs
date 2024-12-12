@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 using RPG.Core;
 using RPG.Common;
 using RPG.World.Data;
-using RPG.World.Generation;
 
 namespace RPG.UI
 {
+
     /// <summary>
     /// Represents a rectangular region within a console window that can display content with borders and titles.
     /// </summary>
@@ -658,7 +658,7 @@ namespace RPG.UI
             int x = inputRegion.X + 1;
             int y = inputRegion.Y + 1;
             string prompt = "> ";
-            int maxInputLength = inputRegion.Width - 2 - prompt.Length;
+            int MaxInputLength = inputRegion.Width - 2 - prompt.Length;
 
             // Clear the input line
             for (int i = 0; i < inputRegion.Width - 2; i++)
@@ -670,8 +670,8 @@ namespace RPG.UI
             buffer.WriteString(x, y, prompt, currentInputColor);
 
             // Calculate visible portion of input text
-            string displayText = currentInputText.Length > maxInputLength
-                ? currentInputText[^maxInputLength..]
+            string displayText = currentInputText.Length > MaxInputLength
+                ? currentInputText[^MaxInputLength..]
                 : currentInputText;
 
             // Write input text
@@ -731,287 +731,6 @@ namespace RPG.UI
                 }
                 isDirty = true;
             }
-        }
-
-        /// <summary>
-        /// Renders a map of the world to the specified region.
-        /// </summary>
-        /// <param name="region">The region to render the map to.</param>
-        /// <param name="world">The world data to render.</param>
-        /// <param name="currentRegion">The current region to highlight on the map.</param>
-        public void RenderMap(Region region, WorldData world, WorldRegion currentRegion)
-        {
-            if (!region.IsVisible) return;
-
-            // Calculate map bounds with margins
-            const float MARGIN = 2.0f; // Add margin to ensure regions aren't at edges
-            List<Vector2> positions = [.. world.Regions.Select(r => r.Position)];
-            float minX = positions.Min(p => p.X) - MARGIN;
-            float maxX = positions.Max(p => p.X) + MARGIN;
-            float minY = positions.Min(p => p.Y) - MARGIN;
-            float maxY = positions.Max(p => p.Y) + MARGIN;
-
-            // Ensure current region is in view by expanding bounds if needed
-            minX = Math.Min(minX, currentRegion.Position.X - MARGIN);
-            maxX = Math.Max(maxX, currentRegion.Position.X + MARGIN);
-            minY = Math.Min(minY, currentRegion.Position.Y - MARGIN);
-            maxY = Math.Max(maxY, currentRegion.Position.Y + MARGIN);
-
-            // Calculate map dimensions
-            int mapWidth = region.Width - 2;
-            int mapHeight = region.Height - 2;
-
-            // Calculate scale to fit the map while preserving aspect ratio
-            float worldWidth = maxX - minX;
-            float worldHeight = maxY - minY;
-            float worldAspect = worldWidth / worldHeight;
-            float mapAspect = mapWidth / (float)mapHeight;
-
-            float scale;
-            float offsetX = 0, offsetY = 0;
-
-            if (worldAspect > mapAspect)
-            {
-                // World is wider than map
-                scale = mapWidth / worldWidth;
-                offsetY = (mapHeight - (worldHeight * scale)) / 2;
-            }
-            else
-            {
-                // World is taller than map
-                scale = mapHeight / worldHeight;
-                offsetX = (mapWidth - (worldWidth * scale)) / 2;
-            }
-
-            // Create and clear map buffer
-            char[,] map = new char[mapWidth, mapHeight];
-            ConsoleColor[,] colors = new ConsoleColor[mapWidth, mapHeight];
-            for (int y = 0; y < mapHeight; y++)
-                for (int x = 0; x < mapWidth; x++)
-                {
-                    map[x, y] = ' ';
-                    colors[x, y] = ConsoleColor.Gray;
-                }
-
-            // Draw connections first
-            foreach (WorldRegion r in world.Regions)
-            {
-                foreach (int connIdx in r.Connections)
-                {
-                    WorldRegion conn = world.Regions[connIdx];
-                    DrawLine(r.Position, conn.Position, '·', ConsoleColor.DarkGray);
-                }
-            }
-
-            // Draw regions
-            foreach (WorldRegion r in world.Regions)
-            {
-                int x = TransformX(r.Position.X);
-                int y = TransformY(r.Position.Y);
-
-                if (x >= 0 && x < mapWidth && y >= 0 && y < mapHeight)
-                {
-                    char symbol = r == currentRegion ? '☆' : '○';
-                    ConsoleColor color = r == currentRegion ? ConsoleColor.Yellow : ConsoleColor.White;
-                    map[x, y] = symbol;
-                    colors[x, y] = color;
-                }
-            }
-
-            // Render to buffer
-            for (int y = 0; y < mapHeight; y++)
-            {
-                for (int x = 0; x < mapWidth; x++)
-                {
-                    buffer.SetChar(region.X + 1 + x, region.Y + 1 + y, map[x, y], colors[x, y]);
-                }
-            }
-
-            // Local coordinate transformation functions
-            int TransformX(float x)
-            {
-                return (int)(((x - minX) * scale) + offsetX);
-            }
-
-            int TransformY(float y)
-            {
-                return (int)(((y - minY) * scale) + offsetY);
-            }
-
-            void DrawLine(Vector2 start, Vector2 end, char symbol, ConsoleColor color)
-            {
-                int x1 = TransformX(start.X), y1 = TransformY(start.Y);
-                int x2 = TransformX(end.X), y2 = TransformY(end.Y);
-
-                int dx = Math.Abs(x2 - x1), dy = Math.Abs(y2 - y1);
-                int sx = x1 < x2 ? 1 : -1, sy = y1 < y2 ? 1 : -1;
-                int err = dx - dy;
-
-                while (true)
-                {
-                    if (x1 >= 0 && x1 < mapWidth && y1 >= 0 && y1 < mapHeight && map[x1, y1] == ' ')
-                    {
-                        map[x1, y1] = symbol;
-                        colors[x1, y1] = color;
-                    }
-
-                    if (x1 == x2 && y1 == y2) break;
-                    int e2 = 2 * err;
-                    if (e2 > -dy) { err -= dy; x1 += sx; }
-                    if (e2 < dx) { err += dx; y1 += sy; }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Renders a map of the specified region to the console buffer.
-        /// </summary>
-        /// <param name="region">The region to render the map to.</param>
-        /// <param name="currentRegion">The current region to highlight on the map.</param>
-        public void RenderRegionMap(Region region, WorldRegion currentRegion)
-        {
-            if (!region.IsVisible) return;
-
-            int mapWidth = region.Width - 2;
-            int mapHeight = region.Height - 2;
-
-            // Clear the map area
-            for (int y = 0; y < mapHeight; y++)
-                for (int x = 0; x < mapWidth; x++)
-                {
-                    buffer.SetChar(region.X + 1 + x, region.Y + 1 + y, ' ', ConsoleColor.Gray);
-                }
-
-            List<Location> locations = currentRegion.Locations;
-            if (locations.Count == 0)
-            {
-                buffer.WriteString(region.X + 2, region.Y + 2, "No locations available", ConsoleColor.Gray);
-                return;
-            }
-
-            // Calculate layout
-            int maxLocationsPerRow = 3;  // Limit locations per row for better spacing
-            int rows = (int)Math.Ceiling(locations.Count / (float)maxLocationsPerRow);
-            int effectiveWidth = mapWidth - 4;  // Leave margins
-            int effectiveHeight = mapHeight - 4;
-            int cellWidth = effectiveWidth / Math.Min(locations.Count, maxLocationsPerRow);
-            int cellHeight = effectiveHeight / rows;
-
-            // Draw locations
-            for (int i = 0; i < locations.Count; i++)
-            {
-                int row = i / maxLocationsPerRow;
-                int col = i % maxLocationsPerRow;
-
-                // Calculate center position for this location
-                int centerX = region.X + 3 + (col * cellWidth) + (cellWidth / 2);
-                int centerY = region.Y + 3 + (row * cellHeight) + (cellHeight / 2);
-
-                Location location = locations[i];
-                char symbol = GetLocationSymbol(location);
-                ConsoleColor color = GetLocationColor(location);
-
-                // Draw location
-                buffer.SetChar(centerX, centerY, symbol, color);
-
-                // Draw name below the symbol
-                if (centerY + 1 < region.Y + region.Height - 1)
-                {
-                    string name = location.NameId.ToString();
-                    int nameX = Math.Max(centerX - (name.Length / 2), region.X + 2);
-                    buffer.WriteString(nameX, centerY + 1, name, color);
-                }
-
-                // Draw paths to other locations
-                DrawLocationConnections(i, location, locations, maxLocationsPerRow, centerX, centerY);
-            }
-
-            // Local helper to draw connections between locations
-            void DrawLocationConnections(int currentIndex, Location current, List<Location> allLocations,
-                int locPerRow, int startX, int startY)
-            {
-                for (int j = 0; j < currentIndex; j++)
-                {
-                    Location other = allLocations[j];
-
-                    // Check if locations are connected (share NPCs or Items)
-                    bool connected = current.NPCs.Intersect(other.NPCs).Any() ||
-                                   current.Items.Intersect(other.Items).Any();
-
-                    if (connected)
-                    {
-                        int otherRow = j / locPerRow;
-                        int otherCol = j % locPerRow;
-                        int otherX = region.X + 3 + (otherCol * cellWidth) + (cellWidth / 2);
-                        int otherY = region.Y + 3 + (otherRow * cellHeight) + (cellHeight / 2);
-
-                        DrawLine(startX, startY, otherX, otherY, '·', ConsoleColor.DarkGray);
-                    }
-                }
-            }
-
-            // Line drawing helper using Bresenham's algorithm
-            void DrawLine(int x1, int y1, int x2, int y2, char symbol, ConsoleColor color)
-            {
-                int dx = Math.Abs(x2 - x1);
-                int dy = Math.Abs(y2 - y1);
-                int sx = x1 < x2 ? 1 : -1;
-                int sy = y1 < y2 ? 1 : -1;
-                int err = dx - dy;
-
-                while (true)
-                {
-                    // Only draw if within bounds and not overlapping with location symbols
-                    if (x1 >= region.X + 1 && x1 < region.X + region.Width - 1 &&
-                        y1 >= region.Y + 1 && y1 < region.Y + region.Height - 1)
-                    {
-                        char currentChar = buffer.GetChar(x1, y1);
-                        if (currentChar == ' ')  // Only draw line if space is empty
-                        {
-                            buffer.SetChar(x1, y1, symbol, color);
-                        }
-                    }
-
-                    if (x1 == x2 && y1 == y2) break;
-                    int e2 = 2 * err;
-                    if (e2 > -dy) { err -= dy; x1 += sx; }
-                    if (e2 < dx) { err += dx; y1 += sy; }
-                }
-            }
-        }
-
-        private static char GetLocationSymbol(Location location)
-        {
-            return location.Type switch
-            {
-                LocationType.Town => '◆',       // Important location
-                LocationType.Village => '■',     // Building
-                LocationType.Peak => '▲',       // Mountain/Hill
-                LocationType.Landmark => '☘',    // Nature location
-                LocationType.Camp => '♠',        // Forest location
-                LocationType.Lake => '≈',        // Water location
-                LocationType.Temple => '†',      // Temple/Shrine
-                LocationType.Cave => '⌂',        // House/Inn
-                LocationType.Outpost => '♦',     // Shop/Market
-                _ => '○'                        // Default unknown location
-            };
-        }
-
-        private static ConsoleColor GetLocationColor(Location location)
-        {
-            return location.Type switch
-            {
-                LocationType.Town => ConsoleColor.Yellow,      // Important location
-                LocationType.Village => ConsoleColor.White,    // Building
-                LocationType.Peak => ConsoleColor.DarkGray,    // Mountain/Hill
-                LocationType.Landmark => ConsoleColor.Green,   // Nature location
-                LocationType.Camp => ConsoleColor.DarkGreen,   // Forest location
-                LocationType.Lake => ConsoleColor.Blue,        // Water location
-                LocationType.Temple => ConsoleColor.Cyan,      // Temple/Shrine
-                LocationType.Cave => ConsoleColor.DarkYellow,  // House/Inn
-                LocationType.Outpost => ConsoleColor.Magenta,  // Shop/Market
-                _ => ConsoleColor.Gray                         // Default unknown location
-            };
         }
 
         /// <summary>
@@ -1169,7 +888,7 @@ namespace RPG.UI
         }
 
         /// <summary>
-        /// Writes a string
+        /// Writes a string with automatic wrapping and bounds checking.
         /// </summary>
         /// <param name="x">The X-coordinate of the start of the string.</param>
         /// <param name="y">The Y-coordinate of the start of the string.</param>
@@ -1177,18 +896,46 @@ namespace RPG.UI
         /// <param name="color">The color to set.</param>
         public void WriteString(int x, int y, string text, ConsoleColor color)
         {
-            int currentX = x;
+            if (y < 0 || y >= Height) return;
+            if (x >= Width) return;
+
+            int startX = Math.Max(0, x);
+            int currentX = startX;
+            int currentY = y;
+
             foreach (char c in text)
             {
-                if (currentX >= Width) break;
-
-                SetChar(currentX, y, c, color);
-                currentX += IsDoubleWidth(c) ? 2 : 1;
-
-                // Add a placeholder space for double-width characters
-                if (IsDoubleWidth(c) && currentX < Width)
+                // Handle line breaks
+                if (c == '\n')
                 {
-                    SetChar(currentX - 1, y, '\0', color); // Use null character as placeholder
+                    currentY++;
+                    currentX = startX;
+                    if (currentY >= Height) break;
+                    continue;
+                }
+
+                int charWidth = IsDoubleWidth(c) ? 2 : 1;
+
+                // Check if we need to wrap to next line
+                if (currentX + charWidth > Width)
+                {
+                    currentY++;
+                    currentX = startX;
+                    if (currentY >= Height) break;
+                }
+
+                // Set the character if we're within bounds
+                if (currentY < Height)
+                {
+                    SetChar(currentX, currentY, c, color);
+
+                    // For double-width characters, add a placeholder
+                    if (IsDoubleWidth(c) && currentX + 1 < Width)
+                    {
+                        SetChar(currentX + 1, currentY, '\0', color);
+                    }
+
+                    currentX += charWidth;
                 }
             }
         }

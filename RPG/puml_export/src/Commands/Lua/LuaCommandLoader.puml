@@ -1,0 +1,10 @@
+@startuml
+class LuaCommandLoader {
+    - <<readonly>> _baseScriptsPath : string
+    - {static} EscapePath(path:string) : string
+    + LuaCommandLoader(state:GameState)
+    - InitializeLuaEnvironment() : void
+    + LoadCommands() : IEnumerable<ICommand>
+}
+LuaCommandLoader --> "_state" GameState
+@enduml

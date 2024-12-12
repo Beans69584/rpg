@@ -7,7 +7,11 @@ using RPG.Save;
 using RPG.Commands;
 using RPG.World;
 using RPG.World.Data;
-using RPG.World.Generation;
+using RPG.Core.Player;
+using RPG.Common;
+using RPG.Core.Managers;
+using RPG.Core.Systems;
+using RPG.Core.Player.Common;
 
 namespace RPG.Core
 {
@@ -31,6 +35,8 @@ namespace RPG.Core
     /// </summary>
     public class GameState
     {
+        private readonly CharacterFactory characterFactory;
+
         /// <summary>
         /// Stores current GameLog to be displayed in the console.
         /// </summary>
@@ -48,7 +54,7 @@ namespace RPG.Core
         /// <summary>
         /// Manages the console window and input/output.
         /// </summary>
-        public ConsoleWindowManager WindowManager { get; }
+        public ConsoleWindowManager WindowManager { get; set; }
         /// <summary>
         /// The name of the player character.
         /// </summary>
@@ -141,12 +147,68 @@ namespace RPG.Core
         public SaveMetadata CurrentSaveMetadata { get; private set; }
 
         /// <summary>
+        /// The player's current position in the world
+        /// </summary>
+        public Vector2 PlayerPosition { get; set; } = new();
+
+        /// <summary>
+        /// The current player character instance
+        /// </summary>
+        public Person? CurrentPlayer { get; private set; }
+
+        /// <summary>
+        /// Event fired when the player class changes
+        /// </summary>
+        public event Action<Person>? OnPlayerClassChanged;
+
+        /// <summary>
+        /// Manager for quest tracking
+        /// </summary>
+        public QuestManager QuestManager { get; }
+        public int CurrentExperience { get; set; }
+        public ExperienceSystem ExperienceSystem { get; }
+        public Dictionary<string, int> Reputation { get; } = [];
+        public bool InputSuspended { get; set; }
+        public void ModifyReputation(string faction, int amount)
+        {
+            if (!Reputation.ContainsKey(faction))
+            {
+                Reputation[faction] = 0;
+            }
+            Reputation[faction] = Math.Clamp(Reputation[faction] + amount, -100, 100);
+
+            string message = amount > 0 ?
+                $"Reputation increased with {faction}" :
+                $"Reputation decreased with {faction}";
+            GameLog.Add(new ColoredText(message, amount > 0 ? ConsoleColor.Green : ConsoleColor.Red));
+        }
+
+        public int GetReputation(string faction)
+        {
+            return Reputation.GetValueOrDefault(faction, 0);
+        }
+
+        /// <summary>
+        /// Changes the player's class and updates relevant state
+        /// </summary>
+        public void TransformPlayerClass(Person newPlayerClass)
+        {
+            CurrentPlayer = newPlayerClass;
+            OnPlayerClassChanged?.Invoke(newPlayerClass);
+
+            CurrentSaveMetadata.CustomData["PlayerClass"] = newPlayerClass.GetType().Name;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="GameState"/> class.
         /// </summary>
         /// <param name="manager">The console window manager to use.</param>
         public GameState(ConsoleWindowManager manager)
         {
             WindowManager = manager;
+            characterFactory = new CharacterFactory(this);
+            QuestManager = new QuestManager(this);
+            ExperienceSystem = new ExperienceSystem(this);
             Localization = new LocalizationManager() { CurrentCulture = System.Globalization.CultureInfo.CurrentCulture };
             Localization.SetLanguage(GameSettings.CurrentLanguage);
             CommandHandler = new CommandHandler();
@@ -162,9 +224,14 @@ namespace RPG.Core
                 CustomData = []
             };
 
+            // Add player class data to metadata
+            CurrentSaveMetadata.CustomData["PlayerClass"] = "None";
+
             GameLog.Add(new ColoredText(Localization.GetString("Welcome_Message")));
             GameLog.Add(new ColoredText(Localization.GetString("Help_Hint")));
         }
+
+        public Input Input { get; } = new Input();
 
         /// <summary>
         /// Updates total play time and saves the game
@@ -246,6 +313,12 @@ namespace RPG.Core
                     CurrentRegion = FindDefaultLocation();
                 }
 
+                if (metadata?.CustomData?.TryGetValue("PlayerClass", out string? className) == true)
+                {
+                    // Recreate player class instance based on saved type
+                    CreatePlayerFromClassName(className);
+                }
+
                 GameLog.Add(new ColoredText($"Game loaded from slot {slot}"));
                 return true;
             }
@@ -253,6 +326,34 @@ namespace RPG.Core
             {
                 GameLog.Add(new ColoredText($"Error loading save: {ex.Message}", ConsoleColor.Red));
                 return false;
+            }
+        }
+
+        private void CreatePlayerFromClassName(string className)
+        {
+            try
+            {
+                Dictionary<string, int> attributes = new()
+                {
+                    ["Strength"] = Stats.GetValueOrDefault("Strength", 10),
+                    ["Dexterity"] = Stats.GetValueOrDefault("Dexterity", 10),
+                    ["Constitution"] = Stats.GetValueOrDefault("Constitution", 10),
+                    ["Intelligence"] = Stats.GetValueOrDefault("Intelligence", 10),
+                    ["Wisdom"] = Stats.GetValueOrDefault("Wisdom", 10),
+                    ["Charisma"] = Stats.GetValueOrDefault("Charisma", 10)
+                };
+                Person newPlayer = characterFactory.CreateCharacter(className, PlayerName, attributes);
+                TransformPlayerClass(newPlayer);
+
+                if (newPlayer is Sorcerer sorcerer)
+                {
+                    sorcerer.OnTransformToSith += () =>
+                        GameLog.Add(new ColoredText("You have been corrupted by dark magic!", ConsoleColor.Red));
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                GameLog.Add(new ColoredText($"Error creating character: {ex.Message}", ConsoleColor.Red));
             }
         }
 
@@ -278,8 +379,6 @@ namespace RPG.Core
             WorldPath = worldPath;
             World = new WorldLoader(worldPath);
             CurrentWorldPath = worldPath;
-
-            GameLog.Add(new ColoredText($"Loaded world: {World.GetWorldData().Header.Name}"));
 
             if (isNewGame)
             {
@@ -370,6 +469,18 @@ namespace RPG.Core
                     GameLog.Add(new ColoredText($"  - {World.GetString(item.NameId)}"));
                 }
             }
+        }
+
+        private readonly Dictionary<string, bool> _flags = [];
+
+        public void SetFlag(string flag, bool value)
+        {
+            _flags[flag] = value;
+        }
+
+        public bool GetFlag(string flag)
+        {
+            return _flags.TryGetValue(flag, out bool value) && value;
         }
     }
 }

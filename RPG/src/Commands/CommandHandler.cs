@@ -124,6 +124,7 @@ namespace RPG.Commands
             }
 
             Logger.Debug($"Command not found: {commandName}");
+            _currentState.GameLog.Add(new ColoredText($"[Error] Command not found: {commandName}", ConsoleColor.Red));
             return false;
         }
 

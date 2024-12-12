@@ -1,0 +1,150 @@
+@startuml
+class Header {
+    + Magic : string <<get>> <<set>> = "RPGW"
+    + NameId : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+    + Version : string <<get>> <<set>> = "1.0"
+    + Seed : string <<get>> <<set>> = ""
+    + RegionCount : int <<get>> <<set>>
+    + NPCCount : int <<get>> <<set>>
+    + ItemCount : int <<get>> <<set>>
+}
+enum NPCRole {
+    Villager,
+    Shopkeeper,
+    Innkeeper,
+    Guard,
+    QuestGiver,
+    Craftsman,
+    Priest,
+    Merchant,
+    Trainer,
+    Scholar,
+}
+class Entity {
+    + NameId : int <<get>> <<set>>
+    + Level : int <<get>> <<set>>
+    + HP : int <<get>> <<set>>
+}
+enum ProfessionType {
+    Warrior,
+    Magician,
+    Paladin,
+    Barbarian,
+    Conjurer,
+    Sorcerer,
+    SithSorcerer,
+    Merchant_NPC,
+    Innkeeper_NPC,
+    Blacksmith_NPC,
+}
+class DialogueTree {
+    + RootNodeId : int <<get>> <<set>>
+}
+class DialogueNode {
+    + TextId : int <<get>> <<set>>
+    + OnSelectScript : string? <<get>> <<set>>
+}
+class DialogueResponse {
+    + TextId : int <<get>> <<set>>
+    + NextNodeId : int <<get>> <<set>>
+    + Condition : string? <<get>> <<set>>
+}
+class DialogueAction {
+    + Type : string <<get>> <<set>> = ""
+    + Target : string <<get>> <<set>> = ""
+    + Value : string <<get>> <<set>> = ""
+}
+class Quest {
+    + NameId : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+    + GiverId : int <<get>> <<set>>
+    + MinLevel : int <<get>> <<set>>
+}
+class QuestObjective {
+    + DescriptionId : int <<get>> <<set>>
+    + Type : string <<get>> <<set>> = ""
+    + Target : string <<get>> <<set>> = ""
+    + Required : int <<get>> <<set>>
+    + Current : int <<get>> <<set>>
+    + IsComplete : bool <<get>> <<set>>
+}
+class QuestStage {
+    + DescriptionId : int <<get>> <<set>>
+}
+enum QuestType {
+    Main,
+    Side,
+    Daily,
+    World,
+    Guild,
+    Reputation,
+}
+enum QuestStatus {
+    Available,
+    Active,
+    Complete,
+    Failed,
+}
+class Item {
+    + NameId : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+}
+class RoutePoint {
+    + DescriptionId : int <<get>> <<set>>
+    + DirectionsId : int <<get>> <<set>>
+}
+class EntityStats {
+    + Strength : int <<get>> <<set>>
+    + Dexterity : int <<get>> <<set>>
+    + Intelligence : int <<get>> <<set>>
+    + Defense : int <<get>> <<set>>
+}
+class ItemStats {
+    + Value : int <<get>> <<set>>
+    + Weight : int <<get>> <<set>>
+    + Durability : int <<get>> <<set>>
+}
+enum ItemType {
+    Weapon,
+    Armor,
+    Consumable,
+    Quest,
+    Misc,
+}
+
+
+
+Entity --> "Role" NPCRole
+Entity --> "Profession" ProfessionType
+Entity o-> "Stats" EntityStats
+
+
+
+
+
+
+
+
+
+
+
+
+
+Quest --> "Type" QuestType
+Quest --> "Status" QuestStatus
+
+
+
+
+
+
+
+
+
+
+
+Item o-> "Stats" ItemStats
+
+ItemStats --> "Type" ItemType
+@enduml

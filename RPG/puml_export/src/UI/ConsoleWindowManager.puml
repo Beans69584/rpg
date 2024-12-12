@@ -1,0 +1,93 @@
+@startuml
+class Region {
+    + X : int <<get>> <<set>>
+    + Y : int <<get>> <<set>>
+    + Width : int <<get>> <<set>>
+    + Height : int <<get>> <<set>>
+    + Padding : int <<get>> <<set>> = 1
+    + ZIndex : int <<get>> <<set>> = 0
+    + Name : string? <<get>> <<set>>
+    + IsVisible : bool <<get>> <<set>> = true
+}
+struct Rectangle {
+    + X : int <<get>>
+    + Y : int <<get>>
+    + Width : int <<get>>
+    + Height : int <<get>>
+    + Intersects(other:Rectangle) : bool
+}
+class ConsoleWindowManager {
+    - isDisposed : bool
+    - currentInputText : string = ""
+    - isDirty : bool = true
+    - cursorVisible : bool = true
+    - lastConsoleWidth : int
+    - lastConsoleHeight : int
+    - <<const>> RESIZE_DEBOUNCE_MS : int = 100
+    - isResizing : bool = false
+    + ConsoleWindowManager()
+    + AddRegion(name:string, region:Region) : void
+    + UpdateRegion(name:string, updateAction:Action<Region>) : void
+    - RenderLoop() : void
+    + CheckResize() : bool
+    - ValidateAndAdjustRegion(region:Region) : void
+    - Render() : void
+    - RenderRegion(region:Region) : void
+    - DrawBox(region:Region) : void
+    + {static} IsDoubleWidth(c:char) : bool
+    + RenderWrappedText(region:Region, lines:IEnumerable<ColoredText>) : void
+    - {static} WrapText(text:string, width:int) : IEnumerable<string>
+    + <<async>> DisposeAsync() : ValueTask
+    - <<async>> DisposeAsyncCoreAsync() : ValueTask
+    - StopRendering() : void
+    + ClearDisplay() : void
+    + Dispose() : void
+    # <<virtual>> Dispose(disposing:bool) : void
+    + QueueRender() : void
+    - RenderInput(inputRegion:Region) : void
+    + UpdateInputText(text:string, color:ConsoleColor) : void
+    + UpdateDisplaySettings(newConfig:ConsoleDisplayConfig) : void
+    + RenderMap(region:Region, world:WorldData, currentRegion:WorldRegion) : void
+    + RenderRegionMap(region:Region, currentRegion:WorldRegion) : void
+    - {static} GetLocationSymbol(location:Location) : char
+    - {static} GetLocationColor(location:Location) : ConsoleColor
+    + GetRegions() : Dictionary<string, Region>
+    + RemoveRegion(name:string) : void
+}
+class ConsoleBuffer {
+    - contentWidth : int
+    - contentHeight : int
+    + Width : int <<get>>
+    + Height : int <<get>>
+    + ConsoleBuffer(width:int, height:int)
+    - ResizeBuffers(newWidth:int, newHeight:int) : void
+    + Resize(newWidth:int, newHeight:int) : void
+    + Clear() : void
+    + SetChar(x:int, y:int, c:char, color:ConsoleColor) : void
+    + WriteString(x:int, y:int, text:string, color:ConsoleColor) : void
+    - {static} IsDoubleWidth(c:char) : bool
+    + Flush() : void
+    + GetChar(x:int, y:int) : char
+}
+
+Region o-> "BorderColor" ConsoleColor
+Region o-> "TitleColor" ConsoleColor
+Region --> "RenderContent<Region>" "Action`1"
+Region --> "Bounds" Rectangle
+Region --> "ContentBounds" Rectangle
+IDisposable <|-- ConsoleWindowManager
+
+ConsoleWindowManager o-> "renderLock" Lock
+ConsoleWindowManager --> "buffer" ConsoleBuffer
+ConsoleWindowManager o-> "cancellationSource" CancellationTokenSource
+ConsoleWindowManager --> "renderTask" Task
+ConsoleWindowManager o-> "currentInputColor" ConsoleColor
+
+
+
+
+
+
+ConsoleWindowManager --> "displayConfig" ConsoleDisplayConfig
+ConsoleWindowManager o-> "disposeLock" Lock
+@enduml

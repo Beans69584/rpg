@@ -1,5 +1,24 @@
 @startuml
 class Program <<static>> {
+    - <<const>> MIN_WIDTH : int = 80
+    - <<const>> MIN_HEIGHT : int = 24
     + {static} <<async>> Main() : Task
+    - {static} CheckMinimumSize() : bool
+    - {static} <<async>> ShowSizeErrorAsync() : Task
+    - {static} <<async>> ShowMainMenuAsync() : Task<int>
+    - {static} <<async>> StartGameAsync(loadSlot:string?) : Task
+    - {static} GenerateWorld() : WorldData
+    - {static} <<async>> ShowNewWorldDialogAsync(manager:ConsoleWindowManager, state:GameState) : Task<string?>
+    - {static} <<async>> ShowClassSelectionAsync(manager:ConsoleWindowManager, state:GameState) : Task<ProfessionType?>
+    - {static} ProcessCommand(input:string, state:GameState) : void
+    - {static} SetupCommands(state:GameState) : void
+    - {static} <<async>> ShowOptionsMenuAsync() : Task
+    - {static} <<async>> ShowLoadGameMenuAsync() : Task
+    - {static} FormatPlayTime(time:TimeSpan, state:GameState) : string
+    - {static} <<async>> ConfirmDeleteAsync(slot:string, manager:ConsoleWindowManager) : Task<bool>
+    - {static} CycleBorderStyle(config:ConsoleDisplayConfig, forward:bool) : void
+    - {static} <<extern>> SetConsoleMode(hConsoleHandle:IntPtr, dwMode:uint) : bool
+    - {static} <<extern>> GetConsoleMode(hConsoleHandle:IntPtr, lpMode:uint) : bool
+    - {static} <<extern>> GetStdHandle(nStdHandle:int) : IntPtr
 }
 @enduml

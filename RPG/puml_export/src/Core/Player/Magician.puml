@@ -1,0 +1,10 @@
+@startuml
+class Magician {
+    + MagicPower : int <<get>> <<set>>
+    + <<virtual>> CastSpell(spell:Spell, target:Person) : void
+    # <<override>> FormatSpeech(message:string) : string
+}
+
+Person <|-- Magician
+
+@enduml

@@ -1,0 +1,8 @@
+@startuml
+class Paladin {
+    + HolyPower : int <<get>> <<set>>
+    + Heal(target:Person) : void
+    + Pray() : void
+}
+Warrior <|-- Paladin
+@enduml

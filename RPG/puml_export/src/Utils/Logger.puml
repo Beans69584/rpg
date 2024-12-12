@@ -1,0 +1,17 @@
+@startuml
+class Logger <<static>> {
+    - {static} _instance : ILogger?
+    - <<const>> DefaultFileSizeLimitBytes : int
+    - <<const>> DefaultRetainedFileCount : int = 3
+    - {static} CreateLogger() : ILogger
+    + {static} Shutdown() : void
+    + {static} Debug(message:string, propertyValues:object[]) : void
+    + {static} Info(message:string, propertyValues:object[]) : void
+    + {static} Warning(message:string, propertyValues:object[]) : void
+    + {static} Error(message:string, propertyValues:object[]) : void
+    + {static} Error(ex:Exception, message:string, propertyValues:object[]) : void
+    + {static} Fatal(ex:Exception, message:string, propertyValues:object[]) : void
+    + {static} ForceFlush() : void
+}
+Logger --> "Instance" ILogger
+@enduml

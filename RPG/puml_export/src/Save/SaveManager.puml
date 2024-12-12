@@ -1,0 +1,51 @@
+@startuml
+class SaveManager <<static>> {
+    - <<const>> CURRENT_SAVE_VERSION : int = 1
+    - <<const>> MAX_AUTOSAVES : int = 3
+    - <<const>> MAX_BACKUPS : int = 5
+    - {static} <<readonly>> BaseDirectory : string
+    - {static} <<readonly>> WorldsDirectory : string
+    {static} - SaveManager()
+    - {static} GetWorldDirectory(worldName:string) : string
+    - {static} SanitizeWorldName(worldName:string) : string
+    + {static} Save(saveData:SaveData, slot:string, isAutosave:bool) : void
+    + {static} Load(slot:string, isAutosave:bool) : (SaveMetadata? Metadata, SaveData? Data)
+    - {static} LoadFromPath(path:string) : (SaveMetadata? Metadata, SaveData? Data)
+    + {static} GetSaveFiles(includeAutosaves:bool) : List<SaveInfo>
+    + {static} CreateAutosave(saveData:SaveData) : void
+    + {static} DeleteSave(slot:string, isAutosave:bool) : void
+    + {static} RestoreBackup(slot:string, backupIndex:int) : bool
+    + {static} SaveExists(slot:string, isAutosave:bool) : bool
+    - {static} GetSaveInfo(path:string, isAutosave:bool) : SaveInfo?
+    - {static} CreateBackup(worldDir:string, slot:string) : void
+    - {static} CleanupOldAutosaves() : void
+    - {static} CleanupOldBackups(worldDir:string, slot:string) : void
+    - {static} LoadLegacySave(path:string) : (SaveMetadata?, SaveData?)
+    - {static} GetSavePath(worldDir:string, slot:string, isAutosave:bool) : string
+    - {static} GetBackupPath(worldDir:string, slot:string, backupIndex:int) : string
+    - {static} GetWorldNameFromPath(worldPath:string) : string
+}
+class SaveInfo {
+    + Slot : string <<get>> <<set>> = ""
+    + IsAutosave : bool <<get>> <<set>>
+    + FilePath : string <<get>> <<set>> = ""
+    + Deconstruct(slot:string, data:SaveData) : void
+}
+class SaveMetadata {
+    + Version : int <<get>> <<set>>
+    + LastPlayedCharacter : string <<get>> <<set>> = ""
+    + WorldPath : string <<get>> <<set>> = ""
+    + CharacterLevel : int <<get>> <<set>>
+}
+enum SaveType {
+    Manual,
+    Autosave,
+    Quicksave,
+}
+
+SaveInfo o-> "Metadata" SaveMetadata
+
+SaveMetadata --> "TotalPlayTime" TimeSpan
+SaveMetadata --> "SaveType" SaveType
+
+@enduml

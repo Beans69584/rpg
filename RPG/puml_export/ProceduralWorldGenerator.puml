@@ -76,35 +76,32 @@ enum ItemType {
     Quest,
     Misc,
 }
-class "List`1"<T> {
-}
-class "Dictionary`2"<T1,T2> {
-}
-WorldConfig o-> "Regions<RegionConfig>" "List`1"
-WorldConfig o-> "NPCs<string>" "List`1"
-WorldConfig o-> "Items<string>" "List`1"
-RegionConfig o-> "Connections<string>" "List`1"
-RegionConfig o-> "NPCs<string>" "List`1"
-RegionConfig o-> "Items<string>" "List`1"
-RegionConfig o-> "Locations<LocationConfig>" "List`1"
-RegionConfig o-> "Routes<string,List<RoutePoint>>" "Dictionary`2"
-LocationConfig o-> "NPCs<string>" "List`1"
-LocationConfig o-> "Items<string>" "List`1"
-RoutePoint o-> "Landmarks<LocationConfig>" "List`1"
-Header o-> "CreatedAt" DateTime
-ResourceTable o-> "StringPool<string,int>" "Dictionary`2"
-ResourceTable o-> "TextureRefs<string,int>" "Dictionary`2"
-ResourceTable o-> "SoundRefs<string,int>" "Dictionary`2"
-ResourceTable o-> "SharedDialogue<string>" "List`1"
-GenWorldRegion o-> "Connections<int>" "List`1"
-GenWorldRegion o-> "NPCs<int>" "List`1"
-GenWorldRegion o-> "Items<int>" "List`1"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 GenWorldRegion o-> "Position" Vector2
-GenWorldRegion o-> "Locations<Location>" "List`1"
-GenWorldRegion o-> "Routes<int,List<RoutePoint>>" "Dictionary`2"
-Location o-> "NPCs<int>" "List`1"
-Location o-> "Items<int>" "List`1"
-Entity o-> "DialogueRefs<int>" "List`1"
+
+
+
+
+
 Entity o-> "Stats" EntityStats
 Item o-> "Stats" ItemStats
 ItemStats --> "Type" ItemType

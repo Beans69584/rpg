@@ -14,11 +14,14 @@ using RPG.Core;
 using RPG.Utils;
 using RPG.World;
 using RPG.World.Data;
-using RPG.World.Generation;
 using RPG.Commands;
-using RPG.Commands.Lua;
 using RPG.Commands.Builtin;
 using RPG.Common;
+using RPG.Core.Player;
+using RPG.Core.Player.Common;
+using RPG.Core.Managers;
+using RPG.UI.Windows;
+using System.Reflection;
 
 namespace RPG
 {
@@ -47,11 +50,7 @@ namespace RPG
                 {
                     try
                     {
-                        // Try to set UTF-8 codepage
                         Console.OutputEncoding = Encoding.UTF8;
-                        nint handle = GetStdHandle(-11); // STD_OUTPUT_HANDLE
-                        GetConsoleMode(handle, out uint mode);
-                        SetConsoleMode(handle, mode | 0x4); // ENABLE_VIRTUAL_TERMINAL_PROCESSING
                         Logger.Instance.Debug("Windows console mode configured for UTF-8");
                     }
                     catch (Exception ex)
@@ -185,7 +184,7 @@ namespace RPG
             using ConsoleWindowManager manager = new();
             GameState state = new(manager);
             int choice = 1;
-            const string version = "v0.1.0";
+            string version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "0.1.0";
 
             Region mainMenu = new()
             {
@@ -196,12 +195,12 @@ namespace RPG
                 {
                     List<string> logo =
                     [
-                        @"██████╗ ███████╗███╗   ███╗ ██████╗ ",
-                        @"██╔══██╗██╔════╝████╗ ████║██╔═══██╗",
-                        @"██║  ██╗█████╗  ██╔████╔██║██║   ██║",
-                        @"██║  ██║██╔══╝  ██║╚██╔╝██║██║   ██║",
-                        @"██████╔╝███████╗██║ ╚═╝ ██║╚██████╔╝",
-                        @"╚═════╝ ╚══════╝╚═╝     ╚═╝ ╚═════╝ "
+                        @"██████╗ ███████╗ ██████╗ ██████╗ ██╗     ███████╗     ██████╗██╗      █████╗ ███████╗███████╗███████╗███████╗",
+                        @"██╔══██╗██╔════╝██╔═══██╗██╔══██╗██║     ██╔════╝    ██╔════╝██║     ██╔══██╗██╔════╝██╔════╝██╔════╝██╔════╝",
+                        @"██████╔╝█████╗  ██║   ██║██████╔╝██║     █████╗      ██║     ██║     ███████║███████╗███████╗█████╗  ███████╗",
+                        @"██╔═══╝ ██╔══╝  ██║   ██║██╔═══╝ ██║     ██╔══╝      ██║     ██║     ██╔══██║╚════██║╚════██║██╔══╝  ╚════██║",
+                        @"██║     ███████╗╚██████╔╝██║     ███████╗███████╗    ╚██████╗███████╗██║  ██║███████║███████║███████╗███████║",
+                        @"╚═╝     ╚══════╝ ╚═════╝ ╚═╝     ╚══════╝╚══════╝     ╚═════╝╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝╚══════╝"
                     ];
 
                     List<ColoredText> menuItems =
@@ -222,10 +221,6 @@ namespace RPG
                                          $"  {state.Localization.GetString("MainMenu_Options")}  ",
                             choice == 4 ? $"> [{state.Localization.GetString("MainMenu_Exit")}] <" :
                                          $"  {state.Localization.GetString("MainMenu_Exit")}  ",
-                            "",
-                            "",
-                            state.Localization.GetString("MainMenu_Copyright", DateTime.Now.Year),
-                            state.Localization.GetString("MainMenu_CreatedFor")
                         },
                     ];
 
@@ -260,53 +255,61 @@ namespace RPG
 
             while (true)
             {
-                if (Console.KeyAvailable)
+                while (true)
                 {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
-                    switch (key.Key)
+                    if (Console.KeyAvailable)
                     {
-                        case ConsoleKey.UpArrow:
-                            choice = choice == 1 ? 4 : choice - 1;
-                            manager.QueueRender();
-                            break;
-                        case ConsoleKey.DownArrow:
-                            choice = choice == 4 ? 1 : choice + 1;
-                            manager.QueueRender();
-                            break;
-                        case ConsoleKey.Enter:
-                            return choice;
+                        ConsoleKeyInfo key = Console.ReadKey(true);
+                        switch (key.Key)
+                        {
+                            case ConsoleKey.UpArrow:
+                                choice = choice == 1 ? 4 : choice - 1;
+                                manager.QueueRender();
+                                break;
+                            case ConsoleKey.DownArrow:
+                                choice = choice == 4 ? 1 : choice + 1;
+                                manager.QueueRender();
+                                break;
+                            case ConsoleKey.Enter:
+                                return choice;
+                        }
                     }
-                }
 
-                if (manager.CheckResize())
-                {
-                    UpdateLayout();
-                }
+                    if (manager.CheckResize())
+                    {
+                        UpdateLayout();
+                    }
 
-                await Task.Delay(16);
+                    await Task.Delay(16);
+                }
             }
         }
 
         private static async Task StartGameAsync(string? loadSlot = null)
         {
-            try
+            GameState state;
+            using (ConsoleWindowManager selectionManager = new())
             {
-                using ConsoleWindowManager manager = new();
-                GameState state = new(manager);
+                state = new(selectionManager);
 
                 if (loadSlot == null)
                 {
-                    // Add new world dialog
-                    (string? worldName, int? seed) = await ShowNewWorldDialogAsync(manager, state);
-                    if (worldName == null) // User cancelled
-                        return;
+                    // Get player name first
+                    string? playerName = await ShowPlayerNameDialogAsync(selectionManager, state);
+                    if (playerName == null) return;
+                    state.PlayerName = playerName;
 
-                    // Generate new world
-                    int worldSeed = seed ?? Guid.NewGuid().GetHashCode();
-                    Logger.Instance.Debug("Generating new world '{Name}' with seed: {Seed}", worldName, worldSeed);
+                    // Get save slot name
+                    string? saveName = await ShowNewSaveDialogAsync(selectionManager, state);
+                    if (saveName == null) return;
 
-                    ProceduralWorldGenerator generator = new(worldSeed);
-                    WorldData worldData = generator.GenerateWorld();
+                    // Create character using CharacterCreationWindow
+                    CharacterCreationWindow creationWindow = new(state);
+                    Person? character = await creationWindow.ShowAsync();
+                    if (character == null) return;
+
+                    state.TransformPlayerClass(character);
+                    WorldData worldData = GenerateWorld();
 
                     if (worldData.Regions.Count == 0)
                     {
@@ -316,20 +319,14 @@ namespace RPG
                         return;
                     }
 
-                    // Set world metadata
-                    worldData.Header.Name = worldName;
-                    worldData.Header.CreatedAt = DateTime.Now;
-                    worldData.Header.Seed = worldSeed.ToString();
-
-                    // Create world directory
-                    string worldDir = Path.Combine(PathUtilities.GetSettingsDirectory(), "Worlds",
-                        SanitizeWorldName(worldName));
-                    Directory.CreateDirectory(worldDir);
-                    Directory.CreateDirectory(Path.Combine(worldDir, "backups"));
-                    Directory.CreateDirectory(Path.Combine(worldDir, "autosaves"));
+                    // Create saves directory structure
+                    string savesDir = PathUtilities.GetSavesDirectory();
+                    Directory.CreateDirectory(savesDir);
+                    Directory.CreateDirectory(PathUtilities.GetBackupsDirectory());
+                    Directory.CreateDirectory(PathUtilities.GetAutosavesDirectory());
 
                     // Save world data
-                    string worldPath = Path.Combine(worldDir, "world.dat");
+                    string worldPath = Path.Combine(savesDir, "world.dat");
                     using (FileStream fs = File.Create(worldPath))
                     using (GZipStream gzip = new(fs, CompressionMode.Compress))
                     {
@@ -361,176 +358,193 @@ namespace RPG
                     await Task.Delay(2000);
                     return;
                 }
-
-                if (state.World == null || state.CurrentRegion == null)
-                {
-                    Logger.Instance.Error("World or current region is null after load");
-                    state.GameLog.Add("Error: Failed to load world data");
-                    await Task.Delay(2000);
-                    return;
-                }
-
-                SetupCommands(state);
-
-                void UpdateLayout()
-                {
-                    int logHeight = Console.WindowHeight - 6;
-                    int mapWidth = 30;
-
-                    manager.UpdateRegion("GameLog", r =>
-                    {
-                        r.X = 1;
-                        r.Y = 1;
-                        r.Width = Console.WindowWidth - mapWidth - 3;
-                        r.Height = logHeight;
-                    });
-
-                    manager.UpdateRegion("Map", r =>
-                    {
-                        r.X = Console.WindowWidth - mapWidth - 1;
-                        r.Y = 1;
-                        r.Width = mapWidth;
-                        r.Height = logHeight / 2;
-                    });
-
-                    manager.UpdateRegion("Stats", r =>
-                    {
-                        r.X = Console.WindowWidth - mapWidth - 1;
-                        r.Y = (logHeight / 2) + 2;
-                        r.Width = mapWidth;
-                        r.Height = (logHeight / 2) - 1;
-                    });
-
-                    manager.UpdateRegion("Input", r =>
-                    {
-                        r.X = 1;
-                        r.Y = Console.WindowHeight - 4;
-                        r.Width = Console.WindowWidth - 2;
-                        r.Height = 3;
-                    });
-                }
-
-                Region worldMap = new()
-                {
-                    Name = "World Map",
-                    BorderColor = ConsoleColor.Blue,
-                    TitleColor = ConsoleColor.Cyan,
-                    RenderContent = (region) => manager.RenderMap(region, state.World?.GetWorldData() ?? new(), state.CurrentRegion ?? throw new InvalidOperationException("Current region is null"))
-                };
-
-                Region gameLog = new()
-                {
-                    Name = "Game Log",
-                    BorderColor = ConsoleColor.Blue,
-                    TitleColor = ConsoleColor.Cyan,
-                    RenderContent = (region) =>
-                    {
-                        manager.RenderWrappedText(region, state.GameLog.TakeLast(50));
-                    }
-                };
-
-                Region statsPanel = new()
-                {
-                    Name = "Character Stats",
-                    BorderColor = ConsoleColor.Green,
-                    TitleColor = ConsoleColor.Green,
-                    RenderContent = (region) =>
-                    {
-                        List<ColoredText> stats =
-                        [
-                            $"Player: {state.PlayerName}",
-                            $"Level: {state.Level}",
-                            $"HP: {state.HP}/{state.MaxHP}",
-                            "Equipment:",
-                            "- Rusty Sword",
-                            "- Leather Armor",
-                            $"Gold: {state.Gold}",
-                        ];
-                        manager.RenderWrappedText(region, stats);
-                    }
-                };
-
-                Region inputRegion = new()
-                {
-                    Name = "Input",
-                    BorderColor = ConsoleColor.Yellow,
-                    TitleColor = ConsoleColor.Yellow
-                };
-
-                manager.AddRegion("GameLog", gameLog);
-                manager.AddRegion("Stats", statsPanel);
-                manager.AddRegion("Input", inputRegion);
-                manager.AddRegion("Map", worldMap);
-                UpdateLayout();
-
-                StringBuilder inputBuffer = new();
-
-                while (state.Running)
-                {
-                    if (Console.KeyAvailable)
-                    {
-                        ConsoleKeyInfo key = Console.ReadKey(true);
-
-                        switch (key.Key)
-                        {
-                            case ConsoleKey.Enter:
-                                string command = inputBuffer.ToString().Trim();
-                                if (!string.IsNullOrEmpty(command))
-                                {
-                                    ProcessCommand(command, state);
-                                }
-                                inputBuffer.Clear();
-                                manager.UpdateInputText("", ConsoleColor.White);
-                                break;
-
-                            case ConsoleKey.Backspace:
-                                if (inputBuffer.Length > 0)
-                                {
-                                    inputBuffer.Length--;
-                                    manager.UpdateInputText(inputBuffer.ToString(), ConsoleColor.White);
-                                }
-                                break;
-
-                            case ConsoleKey.Escape:
-                                return;
-
-                            default:
-                                if (!char.IsControl(key.KeyChar) && inputBuffer.Length < 100)
-                                {
-                                    inputBuffer.Append(key.KeyChar);
-                                    manager.UpdateInputText(inputBuffer.ToString(), ConsoleColor.White);
-                                }
-                                break;
-                        }
-
-                        manager.QueueRender();
-                    }
-
-                    if (manager.CheckResize())
-                    {
-                        UpdateLayout();
-                    }
-
-                    await Task.Delay(16);
-                }
             }
-            catch (Exception ex)
+
+            // Create new window manager for the game
+            using ConsoleWindowManager gameManager = new();
+            state.WindowManager = gameManager;
+
+            if (state.World == null || state.CurrentRegion == null)
             {
-                Logger.Instance.Error(ex, "Error in StartGameAsync");
-                throw;
+                Logger.Instance.Error("World or current region is null after load");
+                state.GameLog.Add("Error: Failed to load world data");
+                await Task.Delay(2000);
+                return;
+            }
+
+            SetupCommands(state);
+
+            void UpdateLayout()
+            {
+                int logHeight = Console.WindowHeight - 6;
+                int statsWidth = 30;
+
+                // Game log on the left
+                gameManager.UpdateRegion("GameLog", r =>
+                {
+                    r.X = 1;
+                    r.Y = 1;
+                    r.Width = Console.WindowWidth - statsWidth - 3; // Leave space for stats panel
+                    r.Height = logHeight;
+                });
+
+                // Stats panel on the right 
+                gameManager.UpdateRegion("Stats", r =>
+                {
+                    r.X = Console.WindowWidth - statsWidth - 1;
+                    r.Y = 1;
+                    r.Width = statsWidth;
+                    r.Height = logHeight;
+                });
+
+                // Input at the bottom
+                gameManager.UpdateRegion("Input", r =>
+                {
+                    r.X = 1;
+                    r.Y = Console.WindowHeight - 4;
+                    r.Width = Console.WindowWidth - 2;
+                    r.Height = 3;
+                });
+            }
+
+            Region gameLog = new()
+            {
+                Name = "Game Log",
+                BorderColor = ConsoleColor.Blue,
+                TitleColor = ConsoleColor.Cyan,
+                RenderContent = (region) =>
+                {
+                    gameManager.RenderWrappedText(region, state.GameLog.TakeLast(50));
+                }
+            };
+
+            Region statsPanel = new()
+            {
+                Name = "Character Stats",
+                BorderColor = ConsoleColor.Green,
+                TitleColor = ConsoleColor.Green,
+                RenderContent = (region) =>
+                {
+                    List<ColoredText> stats =
+                    [
+                        $"Player: {state.PlayerName}",
+                        $"Level: {state.Level}",
+                        $"HP: {state.HP}/{state.MaxHP}",
+                        "Equipment:",
+                        "- Rusty Sword",
+                        "- Leather Armor",
+                        $"Gold: {state.Gold}",
+                    ];
+                    gameManager.RenderWrappedText(region, stats);
+                }
+            };
+
+            Region inputRegion = new()
+            {
+                Name = "Input",
+                BorderColor = ConsoleColor.Yellow,
+                TitleColor = ConsoleColor.Yellow
+            };
+
+            gameManager.AddRegion("GameLog", gameLog);
+            gameManager.AddRegion("Stats", statsPanel);
+            gameManager.AddRegion("Input", inputRegion);
+            UpdateLayout();
+
+            StringBuilder inputBuffer = new();
+
+            while (state.Running)
+            {
+                state.Input.Update();
+
+                if (!state.InputSuspended)
+                {
+                    // Handle backspace
+                    if (state.Input.IsKeyPressed(ConsoleKey.Backspace) && inputBuffer.Length > 0)
+                    {
+                        inputBuffer.Length--;
+                        gameManager.UpdateInputText(inputBuffer.ToString(), ConsoleColor.White);
+                    }
+                    // Handle enter
+                    else if (state.Input.IsKeyPressed(ConsoleKey.Enter))
+                    {
+                        string command = inputBuffer.ToString().Trim();
+                        if (!string.IsNullOrEmpty(command))
+                        {
+                            ProcessCommand(command, state);
+                        }
+                        inputBuffer.Clear();
+                        gameManager.UpdateInputText("", ConsoleColor.White);
+                    }
+                    // Handle escape
+                    else if (state.Input.IsKeyPressed(ConsoleKey.Escape))
+                    {
+                        return;
+                    }
+                    // Handle regular input
+                    else
+                    {
+                        // Check for printable characters
+                        foreach (char c in state.Input.GetPressedChars())
+                        {
+                            if (inputBuffer.Length < 100)
+                            {
+                                inputBuffer.Append(c);
+                                gameManager.UpdateInputText(inputBuffer.ToString(), ConsoleColor.White);
+                            }
+                        }
+                    }
+
+                    gameManager.QueueRender();
+                }
+
+                if (gameManager.CheckResize())
+                {
+                    UpdateLayout();
+                }
+
+                await Task.Delay(16);
             }
         }
 
-        private static async Task<(string? Name, int? Seed)> ShowNewWorldDialogAsync(ConsoleWindowManager manager, GameState state)
+        private static WorldData GenerateWorld()
         {
-            StringBuilder worldName = new();
-            StringBuilder seedText = new();
-            bool focusOnName = true;
+            // Load the prebuilt world from the worlds directory
+            string worldPath = PathUtilities.GetPrebuiltWorldPath("ravenkeep");
+
+            if (!File.Exists(worldPath))
+            {
+                throw new FileNotFoundException($"Prebuilt world not found at: {worldPath}");
+            }
+
+            using FileStream fs = File.OpenRead(worldPath);
+            using GZipStream gzip = new(fs, CompressionMode.Decompress);
+            using MemoryStream ms = new();
+            gzip.CopyTo(ms);
+            ms.Position = 0;
+
+            JsonSerializerOptions options = new()
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters = { new Vector2JsonConverter() }
+            };
+
+            WorldData? worldData = JsonSerializer.Deserialize<WorldData>(ms.ToArray(), options)
+                ?? throw new InvalidDataException("Failed to deserialize world data");
+
+            // Create a new instance to ensure we're not modifying the template
+            return JsonSerializer.Deserialize<WorldData>(
+                JsonSerializer.Serialize(worldData, options), options)!;
+        }
+
+        private static async Task<string?> ShowPlayerNameDialogAsync(ConsoleWindowManager manager, GameState state)
+        {
+            StringBuilder playerName = new();
             bool isValid = false;
 
             Region dialog = new()
             {
-                Name = state.Localization.GetString("NewWorld_Title"),
+                Name = state.Localization.GetString("NewPlayer_Title"),
                 BorderColor = ConsoleColor.Blue,
                 TitleColor = ConsoleColor.Cyan,
                 RenderContent = (region) =>
@@ -538,22 +552,13 @@ namespace RPG
                     List<ColoredText> lines =
                     [
                         "",
-                        state.Localization.GetString("NewWorld_EnterDetails"),
+                        state.Localization.GetString("NewPlayer_EnterName"),
                         "",
-                        focusOnName ?
-                            $"> {state.Localization.GetString("NewWorld_Name")}: [{worldName}]" :
-                            $"  {state.Localization.GetString("NewWorld_Name")}: {worldName}",
+                        $"> {state.Localization.GetString("NewPlayer_Name")}: [{playerName}]",
                         "",
-                        !focusOnName ?
-                            $"> {state.Localization.GetString("NewWorld_Seed")}: [{seedText}]" :
-                            $"  {state.Localization.GetString("NewWorld_Seed")}: {seedText}",
+                        state.Localization.GetString("NewPlayer_Controls"),
                         "",
-                        state.Localization.GetString("NewWorld_SeedOptional"),
-                        "",
-                        state.Localization.GetString("NewWorld_Controls"),
-                        state.Localization.GetString("NewWorld_TabSwitch"),
-                        "",
-                        !isValid ? state.Localization.GetString("NewWorld_InvalidName") : ""
+                        !isValid ? state.Localization.GetString("NewPlayer_InvalidName") : ""
                     ];
                     manager.RenderWrappedText(region, lines);
                 }
@@ -561,7 +566,7 @@ namespace RPG
 
             void UpdateLayout()
             {
-                manager.UpdateRegion("NewWorld", r =>
+                manager.UpdateRegion("NewPlayer", r =>
                 {
                     r.X = Console.WindowWidth / 4;
                     r.Y = Console.WindowHeight / 3;
@@ -570,76 +575,140 @@ namespace RPG
                 });
             }
 
-            manager.AddRegion("NewWorld", dialog);
+            manager.AddRegion("NewPlayer", dialog);
             UpdateLayout();
             manager.QueueRender();
 
             while (true)
             {
-                if (Console.KeyAvailable)
+                state.Input.Update();
+
+                if (state.Input.IsKeyPressed(ConsoleKey.Tab))
                 {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
-                    switch (key.Key)
+                    manager.QueueRender();
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.Enter))
+                {
+                    if (playerName.Length == 0)
                     {
-                        case ConsoleKey.Tab:
-                            focusOnName = !focusOnName;
+                        isValid = false;
+                        manager.QueueRender();
+                        continue;
+                    }
+                    return playerName.ToString().Trim();
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.Escape))
+                {
+                    return null;
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.Backspace) && playerName.Length > 0)
+                {
+                    playerName.Length--;
+                    isValid = true;
+                    manager.QueueRender();
+                }
+                else
+                {
+                    foreach (char c in state.Input.GetPressedChars())
+                    {
+                        if (playerName.Length < 30)
+                        {
+                            playerName.Append(c);
+                            isValid = true;
                             manager.QueueRender();
-                            break;
+                        }
+                    }
+                }
 
-                        case ConsoleKey.Enter:
-                            if (worldName.Length == 0)
-                            {
-                                isValid = false;
-                                manager.QueueRender();
-                                break;
-                            }
-                            // Try parse seed if provided
-                            int? parsedSeed = null;
-                            if (seedText.Length > 0)
-                            {
-                                if (int.TryParse(seedText.ToString(), out int seed))
-                                    parsedSeed = seed;
-                                else
-                                {
-                                    // Use string hash as seed if not a valid number
-                                    parsedSeed = seedText.ToString().GetHashCode();
-                                }
-                            }
-                            return (worldName.ToString().Trim(), parsedSeed);
+                if (manager.CheckResize())
+                {
+                    UpdateLayout();
+                }
 
-                        case ConsoleKey.Escape:
-                            return (null, null);
+                await Task.Delay(16);
+            }
+        }
 
-                        case ConsoleKey.Backspace:
-                            if (focusOnName && worldName.Length > 0)
-                            {
-                                worldName.Length--;
-                                isValid = true;
-                                manager.QueueRender();
-                            }
-                            else if (!focusOnName && seedText.Length > 0)
-                            {
-                                seedText.Length--;
-                                manager.QueueRender();
-                            }
-                            break;
+        private static async Task<string?> ShowNewSaveDialogAsync(ConsoleWindowManager manager, GameState state)
+        {
+            StringBuilder saveName = new();
+            bool isValid = false;
 
-                        default:
-                            if (!char.IsControl(key.KeyChar))
-                            {
-                                if (focusOnName && worldName.Length < 30)
-                                {
-                                    worldName.Append(key.KeyChar);
-                                    isValid = true;
-                                    manager.QueueRender();
-                                }
-                                else if (!focusOnName && seedText.Length < 20)
-                                {
-                                    seedText.Append(key.KeyChar);
-                                    manager.QueueRender();
-                                }
-                            }
-                            break;
+            Region dialog = new()
+            {
+                Name = state.Localization.GetString("NewSave_Title"),
+                BorderColor = ConsoleColor.Blue,
+                TitleColor = ConsoleColor.Cyan,
+                RenderContent = (region) =>
+                {
+                    List<ColoredText> lines =
+                    [
+                        "",
+                        state.Localization.GetString("NewSave_EnterName"),
+                        "",
+                        $"> {state.Localization.GetString("NewSave_Name")}: [{saveName}]",
+                        "",
+                        state.Localization.GetString("NewSave_Controls"),
+                        "",
+                        !isValid ? state.Localization.GetString("NewSave_InvalidName") : ""
+                    ];
+                    manager.RenderWrappedText(region, lines);
+                }
+            };
+
+            void UpdateLayout()
+            {
+                manager.UpdateRegion("NewSave", r =>
+                {
+                    r.X = Console.WindowWidth / 4;
+                    r.Y = Console.WindowHeight / 3;
+                    r.Width = Console.WindowWidth / 2;
+                    r.Height = Console.WindowHeight / 3;
+                });
+            }
+
+            manager.AddRegion("NewSave", dialog);
+            UpdateLayout();
+            manager.QueueRender();
+
+            while (true)
+            {
+                state.Input.Update();
+
+                if (state.Input.IsKeyPressed(ConsoleKey.Tab))
+                {
+                    manager.QueueRender();
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.Enter))
+                {
+                    if (saveName.Length == 0)
+                    {
+                        isValid = false;
+                        manager.QueueRender();
+                        continue;
+                    }
+                    return saveName.ToString().Trim();
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.Escape))
+                {
+                    return null;
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.Backspace) && saveName.Length > 0)
+                {
+                    saveName.Length--;
+                    isValid = true;
+                    manager.QueueRender();
+                }
+                else
+                {
+                    foreach (char c in state.Input.GetPressedChars())
+                    {
+                        if (saveName.Length < 100)
+                        {
+                            saveName.Append(c);
+                            isValid = true;
+                            manager.QueueRender();
+                        }
                     }
                 }
 
@@ -670,14 +739,58 @@ namespace RPG
         {
             CommandHandler commandHandler = state.CommandHandler;
 
-            commandHandler.RegisterCommand(new HelpCommand(commandHandler));
-            commandHandler.RegisterCommand(new SaveCommand());
-            commandHandler.RegisterCommand(new LoadCommand());
+            // Get all types in the executing assembly that implement ICommand
+            IEnumerable<Type> commandTypes = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => !t.IsAbstract &&
+                            typeof(ICommand).IsAssignableFrom(t) &&
+                            t.Namespace?.StartsWith("RPG.Commands") == true);
 
-            LuaCommandLoader luaLoader = new(state);
-            foreach (ICommand command in luaLoader.LoadCommands())
+            foreach (Type commandType in commandTypes)
             {
-                commandHandler.RegisterCommand(command);
+                try
+                {
+                    // Create instance based on constructor parameters
+                    ICommand? command = null;
+                    ConstructorInfo[] constructors = commandType.GetConstructors();
+                    if (constructors.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    ParameterInfo[] parameters = constructors[0].GetParameters();
+
+                    if (parameters.Length == 0)
+                    {
+                        command = (ICommand?)Activator.CreateInstance(commandType);
+                    }
+                    else
+                    {
+                        // Map parameter types to available instances
+                        object?[] args = new object[parameters.Length];
+                        for (int i = 0; i < parameters.Length; i++)
+                        {
+                            args[i] = parameters[i].ParameterType switch
+                            {
+                                Type t when t == typeof(GameState) => state,
+                                Type t when t == typeof(CommandHandler) => commandHandler,
+                                _ => null
+                            };
+                        }
+
+                        command = Activator.CreateInstance(commandType, args) as ICommand;
+                    }
+
+                    command?.Let(c =>
+                    {
+                        commandHandler.RegisterCommand(c);
+                        Logger.Debug($"Registered command: {c.Name}");
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, $"Failed to register command {commandType.Name}");
+                }
             }
         }
 
@@ -807,89 +920,86 @@ namespace RPG
 
             while (true)
             {
-                if (Console.KeyAvailable)
+                state.Input.Update();
+
+                if (state.Input.IsKeyPressed(ConsoleKey.UpArrow))
                 {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
-                    bool settingsChanged = false;
-
-                    switch (key.Key)
+                    currentOption = currentOption == 1 ? MAX_OPTIONS : currentOption - 1;
+                    manager.QueueRender();
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.DownArrow))
+                {
+                    currentOption = currentOption == MAX_OPTIONS ? 1 : currentOption + 1;
+                    manager.QueueRender();
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.Enter) || state.Input.IsKeyPressed(ConsoleKey.Spacebar))
+                {
+                    bool settingsChanged = true;
+                    switch (currentOption)
                     {
-                        case ConsoleKey.UpArrow:
-                            currentOption = currentOption == 1 ? MAX_OPTIONS : currentOption - 1;
-                            manager.QueueRender();
+                        case 2: // Colours toggle
+                            settings.Display.UseColors = !settings.Display.UseColors;
+                            manager.UpdateDisplaySettings(settings.Display);
                             break;
-
-                        case ConsoleKey.DownArrow:
-                            currentOption = currentOption == MAX_OPTIONS ? 1 : currentOption + 1;
-                            manager.QueueRender();
+                        case 4: // Cursor Blink toggle
+                            settings.Display.EnableCursorBlink = !settings.Display.EnableCursorBlink;
+                            manager.UpdateDisplaySettings(settings.Display);
                             break;
-
-                        case ConsoleKey.Spacebar:
-                        case ConsoleKey.Enter:
-                            settingsChanged = true;
-                            switch (currentOption)
-                            {
-                                case 2: // Colours toggle
-                                    settings.Display.UseColors = !settings.Display.UseColors;
-                                    manager.UpdateDisplaySettings(settings.Display);
-                                    break;
-                                case 4: // Cursor Blink toggle
-                                    settings.Display.EnableCursorBlink = !settings.Display.EnableCursorBlink;
-                                    manager.UpdateDisplaySettings(settings.Display);
-                                    break;
-                                case 7: // Back
-                                    settings.Save();
-                                    return;
-                            }
-                            break;
-
-                        case ConsoleKey.LeftArrow:
-                        case ConsoleKey.RightArrow:
-                            settingsChanged = true;
-                            switch (currentOption)
-                            {
-                                case 1: // Language cycling
-                                    currentLanguageIndex = key.Key == ConsoleKey.LeftArrow
-                                        ? (currentLanguageIndex - 1 + languages.Count) % languages.Count
-                                        : (currentLanguageIndex + 1) % languages.Count;
-
-                                    string newLanguage = languages[currentLanguageIndex].Name;
-                                    settings.UpdateLanguage(newLanguage);  // Update the language in settings
-                                    state.Localization.SetLanguage(newLanguage);  // Apply the language change
-                                    break;
-
-                                case 3: // Border Style cycling
-                                    CycleBorderStyle(settings.Display, key.Key == ConsoleKey.RightArrow);
-                                    manager.UpdateDisplaySettings(settings.Display);
-                                    break;
-
-                                case 5: // Blink Speed
-                                    settings.Display.CursorBlinkRateMs = key.Key == ConsoleKey.LeftArrow
-                                        ? Math.Max(200, settings.Display.CursorBlinkRateMs - 150)
-                                        : Math.Min(1000, settings.Display.CursorBlinkRateMs + 150);
-                                    manager.UpdateDisplaySettings(settings.Display);
-                                    break;
-
-                                case 6: // Frame Rate
-                                    currentFpsIndex = key.Key == ConsoleKey.LeftArrow
-                                        ? (currentFpsIndex - 1 + fpsOptions.Length) % fpsOptions.Length
-                                        : (currentFpsIndex + 1) % fpsOptions.Length;
-                                    settings.Display.RefreshRateMs = 1000 / fpsOptions[currentFpsIndex];
-                                    manager.UpdateDisplaySettings(settings.Display);
-                                    break;
-                            }
-                            break;
-
-                        case ConsoleKey.Escape:
+                        case 7: // Back
                             settings.Save();
                             return;
                     }
-
                     if (settingsChanged)
                     {
                         settings.Save();
                         manager.QueueRender();
                     }
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.LeftArrow) || state.Input.IsKeyPressed(ConsoleKey.RightArrow))
+                {
+                    bool settingsChanged = true;
+                    switch (currentOption)
+                    {
+                        case 1: // Language cycling
+                            currentLanguageIndex = state.Input.IsKeyPressed(ConsoleKey.LeftArrow)
+                                ? (currentLanguageIndex - 1 + languages.Count) % languages.Count
+                                : (currentLanguageIndex + 1) % languages.Count;
+
+                            string newLanguage = languages[currentLanguageIndex].Name;
+                            settings.UpdateLanguage(newLanguage);  // Update the language in settings
+                            state.Localization.SetLanguage(newLanguage);  // Apply the language change
+                            break;
+
+                        case 3: // Border Style cycling
+                            CycleBorderStyle(settings.Display, state.Input.IsKeyPressed(ConsoleKey.RightArrow));
+                            manager.UpdateDisplaySettings(settings.Display);
+                            break;
+
+                        case 5: // Blink Speed
+                            settings.Display.CursorBlinkRateMs = state.Input.IsKeyPressed(ConsoleKey.LeftArrow)
+                                ? Math.Max(200, settings.Display.CursorBlinkRateMs - 150)
+                                : Math.Min(1000, settings.Display.CursorBlinkRateMs + 150);
+                            manager.UpdateDisplaySettings(settings.Display);
+                            break;
+
+                        case 6: // Frame Rate
+                            currentFpsIndex = state.Input.IsKeyPressed(ConsoleKey.LeftArrow)
+                                ? (currentFpsIndex - 1 + fpsOptions.Length) % fpsOptions.Length
+                                : (currentFpsIndex + 1) % fpsOptions.Length;
+                            settings.Display.RefreshRateMs = 1000 / fpsOptions[currentFpsIndex];
+                            manager.UpdateDisplaySettings(settings.Display);
+                            break;
+                    }
+                    if (settingsChanged)
+                    {
+                        settings.Save();
+                        manager.QueueRender();
+                    }
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.Escape))
+                {
+                    settings.Save();
+                    return;
                 }
 
                 if (manager.CheckResize())
@@ -1018,111 +1128,109 @@ namespace RPG
 
             while (true)
             {
-                if (Console.KeyAvailable)
+                state.Input.Update();
+
+                if (state.Input.IsKeyPressed(ConsoleKey.UpArrow))
                 {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
-                    switch (key.Key)
+                    selectedIndex = (selectedIndex - 1 + saves.Count) % saves.Count;
+                    currentPage = selectedIndex / itemsPerPage;
+                    manager.QueueRender();
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.DownArrow))
+                {
+                    selectedIndex = (selectedIndex + 1) % saves.Count;
+                    currentPage = selectedIndex / itemsPerPage;
+                    manager.QueueRender();
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.LeftArrow))
+                {
+                    if (totalPages > 1)
                     {
-                        case ConsoleKey.UpArrow:
-                            selectedIndex = (selectedIndex - 1 + saves.Count) % saves.Count;
-                            currentPage = selectedIndex / itemsPerPage;
-                            manager.QueueRender();
-                            break;
-
-                        case ConsoleKey.DownArrow:
-                            selectedIndex = (selectedIndex + 1) % saves.Count;
-                            currentPage = selectedIndex / itemsPerPage;
-                            manager.QueueRender();
-                            break;
-
-                        case ConsoleKey.LeftArrow:
-                            if (totalPages > 1)
-                            {
-                                currentPage = (currentPage - 1 + totalPages) % totalPages;
-                                selectedIndex = currentPage * itemsPerPage;
-                                manager.QueueRender();
-                            }
-                            break;
-
-                        case ConsoleKey.RightArrow:
-                            if (totalPages > 1)
-                            {
-                                currentPage = (currentPage + 1) % totalPages;
-                                selectedIndex = currentPage * itemsPerPage;
-                                manager.QueueRender();
-                            }
-                            break;
-
-                        case ConsoleKey.Delete:
-                            (string slotToDelete, SaveData _) = saves[selectedIndex];
-                            if (await ConfirmDeleteAsync(slotToDelete, manager))
-                            {
-                                SaveManager.DeleteSave(slotToDelete);
-                                saves = SaveManager.GetSaveFiles();
-                                if (!saves.Any())
-                                {
-                                    manager.UpdateRegion("LoadMenu", r => r.IsVisible = false);
-                                    Region messageBox = new()
-                                    {
-                                        Name = state.Localization.GetString("Load_Title"),
-                                        BorderColor = ConsoleColor.Yellow,
-                                        TitleColor = ConsoleColor.Yellow,
-                                        RenderContent = (region) =>
-                                        {
-                                            List<ColoredText> lines =
-                                            [
-                                                "",
-                                                state.Localization.GetString("Load_NoSaves"),
-                                                "",
-                                                "Press any key to return..."
-                                            ];
-                                            manager.RenderWrappedText(region, lines);
-                                        }
-                                    };
-
-                                    void UpdateMessageLayout()
-                                    {
-                                        manager.UpdateRegion("Message", r =>
-                                        {
-                                            r.X = Console.WindowWidth / 4;
-                                            r.Y = Console.WindowHeight / 3;
-                                            r.Width = Console.WindowWidth / 2;
-                                            r.Height = 6;
-                                        });
-                                    }
-
-                                    manager.AddRegion("Message", messageBox);
-                                    UpdateMessageLayout();
-                                    manager.QueueRender();
-
-                                    while (!Console.KeyAvailable)
-                                    {
-                                        if (manager.CheckResize())
-                                        {
-                                            UpdateMessageLayout();
-                                        }
-                                        await Task.Delay(16);
-                                    }
-                                    Console.ReadKey(true);
-                                    return;
-                                }
-
-                                totalPages = (int)Math.Ceiling(saves.Count / (double)itemsPerPage);
-                                selectedIndex = Math.Min(selectedIndex, saves.Count - 1);
-                                currentPage = selectedIndex / itemsPerPage;
-                                manager.QueueRender();
-                            }
-                            break;
-
-                        case ConsoleKey.Enter:
-                            (string slot, SaveData _) = saves[selectedIndex];
-                            await manager.DisposeAsync();
-                            await StartGameAsync(slot);
-                            return;
-
-                        case ConsoleKey.Escape:
-                            return;
+                        currentPage = (currentPage - 1 + totalPages) % totalPages;
+                        selectedIndex = currentPage * itemsPerPage;
+                        manager.QueueRender();
                     }
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.RightArrow))
+                {
+                    if (totalPages > 1)
+                    {
+                        currentPage = (currentPage + 1) % totalPages;
+                        selectedIndex = currentPage * itemsPerPage;
+                        manager.QueueRender();
+                    }
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.Delete))
+                {
+                    string slotToDelete = saves[selectedIndex].Slot;
+                    if (await ConfirmDeleteAsync(slotToDelete, manager, state))
+                    {
+                        SaveManager.DeleteSave(slotToDelete);
+                        saves = SaveManager.GetSaveFiles();
+                        if (!saves.Any())
+                        {
+                            manager.UpdateRegion("LoadMenu", r => r.IsVisible = false);
+                            Region messageBox = new()
+                            {
+                                Name = state.Localization.GetString("Load_Title"),
+                                BorderColor = ConsoleColor.Yellow,
+                                TitleColor = ConsoleColor.Yellow,
+                                RenderContent = (region) =>
+                                {
+                                    List<ColoredText> lines =
+                                    [
+                                        "",
+                                        state.Localization.GetString("Load_NoSaves"),
+                                        "",
+                                        "Press any key to return..."
+                                    ];
+                                    manager.RenderWrappedText(region, lines);
+                                }
+                            };
+
+                            void UpdateMessageLayout()
+                            {
+                                manager.UpdateRegion("Message", r =>
+                                {
+                                    r.X = Console.WindowWidth / 4;
+                                    r.Y = Console.WindowHeight / 3;
+                                    r.Width = Console.WindowWidth / 2;
+                                    r.Height = 6;
+                                });
+                            }
+
+                            manager.AddRegion("Message", messageBox);
+                            UpdateMessageLayout();
+                            manager.QueueRender();
+
+                            while (!Console.KeyAvailable)
+                            {
+                                if (manager.CheckResize())
+                                {
+                                    UpdateMessageLayout();
+                                }
+                                await Task.Delay(16);
+                            }
+                            Console.ReadKey(true);
+                            return;
+                        }
+
+                        totalPages = (int)Math.Ceiling(saves.Count / (double)itemsPerPage);
+                        selectedIndex = Math.Min(selectedIndex, saves.Count - 1);
+                        currentPage = selectedIndex / itemsPerPage;
+                        manager.QueueRender();
+                    }
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.Enter))
+                {
+                    (string slot, SaveData _) = saves[selectedIndex];
+                    await manager.DisposeAsync();
+                    await StartGameAsync(slot);
+                    return;
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.Escape))
+                {
+                    return;
                 }
 
                 if (manager.CheckResize())
@@ -1153,13 +1261,14 @@ namespace RPG
 #pragma warning restore IDE0046 // Convert to conditional expression
         }
 
-        private static async Task<bool> ConfirmDeleteAsync(string slot, ConsoleWindowManager manager)
+        private static async Task<bool> ConfirmDeleteAsync(string slot, ConsoleWindowManager manager, GameState state)
         {
             bool selected = false;
 
             Region dialog = new()
             {
-                Name = "Confirm Delete",
+                // get from resource file
+                Name = state.Localization.GetString("DeleteSave_Title"),
                 BorderColor = ConsoleColor.Red,
                 TitleColor = ConsoleColor.Red,
                 RenderContent = (region) =>
@@ -1167,11 +1276,12 @@ namespace RPG
                     List<ColoredText> lines =
                     [
                         "",
-                        $"Are you sure you want to delete save {slot}?",
+                        state.Localization.GetString("DeleteSave_Confirm", slot),
                         "",
-                        "This action cannot be undone.",
+                        state.Localization.GetString("DeleteSave_Warning"),
                         "",
-                        selected ? "> [Yes]    No  <" : "  Yes   > [No] <",
+                        selected ? state.Localization.GetString("DeleteSave_Options_YesSelected") :
+                                   state.Localization.GetString("DeleteSave_Options_NoSelected"),
                         ""
                     ];
                     manager.RenderWrappedText(region, lines);
@@ -1195,27 +1305,24 @@ namespace RPG
 
             while (true)
             {
-                if (Console.KeyAvailable)
+                state.Input.Update();
+
+                if (state.Input.IsKeyPressed(ConsoleKey.LeftArrow) || state.Input.IsKeyPressed(ConsoleKey.RightArrow))
                 {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
-                    switch (key.Key)
-                    {
-                        case ConsoleKey.LeftArrow:
-                        case ConsoleKey.RightArrow:
-                            selected = !selected;
-                            manager.QueueRender();
-                            break;
-
-                        case ConsoleKey.Enter:
-                            manager.RemoveRegion("ConfirmDialog");
-                            manager.QueueRender();
-                            return selected;
-
-                        case ConsoleKey.Escape:
-                            manager.RemoveRegion("ConfirmDialog");
-                            manager.QueueRender();
-                            return false;
-                    }
+                    selected = !selected;
+                    manager.QueueRender();
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.Enter))
+                {
+                    manager.RemoveRegion("ConfirmDialog");
+                    manager.QueueRender();
+                    return selected;
+                }
+                else if (state.Input.IsKeyPressed(ConsoleKey.Escape))
+                {
+                    manager.RemoveRegion("ConfirmDialog");
+                    manager.QueueRender();
+                    return false;
                 }
 
                 if (manager.CheckResize())
@@ -1265,20 +1372,5 @@ namespace RPG
                 }
             }
         }
-
-        private static string SanitizeWorldName(string worldName)
-        {
-            // Replace invalid characters with underscores
-            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
-            return string.Join("_", worldName.Split(invalid.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
-        }
-
-        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
-        private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
-
-        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
-        private static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
-        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
-        private static extern IntPtr GetStdHandle(int nStdHandle);
     }
 }
