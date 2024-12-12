@@ -1,41 +1,118 @@
 [
-    {
-      "id": 1,
-      "name": "The Missing Investigator",
-      "description": "Investigate the disappearance of Sarah's brother and his connection to the bandits.",
-      "type": 0,
-      "minLevel": 1,
-      "objectives": [
-        {
-          "description": "Speak with Sarah at the Raven's Rest",
-          "type": "Talk",
-          "target": "sarah",
-          "required": 1
-        },
-        {
-          "description": "Find the bandit camp in the forest",
-          "type": "Explore",
-          "target": "bandit_camp",
-          "required": 1
-        },
-        {
-          "description": "Investigate the strange symbol",
-          "type": "Item",
-          "target": "strange_symbol",
-          "required": 1
-        }
-      ],
-      "rewards": [
-        {
-          "type": "Gold",
-          "value": 100,
-          "description": "Reward for investigating the bandits"
-        },
-        {
-          "type": "Item",
-          "value": 1,
-          "description": "Guard Captain's Sword"
-        }
-      ]
-    }
-  ]
+  {
+    "id": 1,
+    "name": "The Missing Investigator",
+    "description": "Investigate the disappearance of Sarah's brother and his connection to the bandits.",
+    "type": 0,
+    "minLevel": 1,
+    "objectives": [
+      {
+        "description": "Speak with Sarah at the Raven's Rest",
+        "type": "Talk",
+        "target": "sarah",
+        "required": 1
+      },
+      {
+        "description": "Find the bandit camp in the forest",
+        "type": "Explore",
+        "target": "bandit_camp",
+        "required": 1
+      },
+      {
+        "description": "Recover Sarah's brother's journal",
+        "type": "Item",
+        "target": "torn_journal",
+        "required": 1
+      }
+    ],
+    "rewards": [
+      {
+        "type": "Gold",
+        "value": 100
+      },
+      {
+        "type": "Item",
+        "target": "strange_symbol",
+        "value": 1
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Dark Revelations",
+    "description": "Investigate the cult's presence in the ancient ruins.",
+    "type": 0,
+    "minLevel": 3,
+    "requiredQuests": [1],
+    "objectives": [
+      {
+        "description": "Find the entrance to the ancient ruins",
+        "type": "Explore",
+        "target": "ruins_entrance",
+        "required": 1
+      },
+      {
+        "description": "Collect ritual components",
+        "type": "Item",
+        "target": "ritual_components",
+        "required": 3
+      },
+      {
+        "description": "Confront the Mysterious Cultist",
+        "type": "Combat",
+        "target": "mysterious_cultist",
+        "required": 1
+      }
+    ],
+    "rewards": [
+      {
+        "type": "Gold",
+        "value": 200
+      },
+      {
+        "type": "Item",
+        "target": "cultist_staff",
+        "value": 1
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "The Final Ritual",
+    "description": "Stop the cult from completing their awakening ritual",
+    "type": 0,
+    "minLevel": 5,
+    "requiredQuests": [2],
+    "objectives": [
+      {
+        "description": "Enter the ritual chamber",
+        "type": "Explore",
+        "target": "ritual_chamber",
+        "required": 1
+      },
+      {
+        "description": "Defeat cultist guardians",
+        "type": "Combat",
+        "target": "cultist_guardian",
+        "required": 3
+      },
+      {
+        "description": "Stop the High Cultist",
+        "type": "Combat",
+        "target": "high_cultist",
+        "required": 1
+      }
+    ],
+    "rewards": [
+      {
+        "type": "Gold",
+        "value": 500
+      },
+      {
+        "type": "Item",
+        "target": "ancient_amulet",
+        "value": 1
+      }
+    ]
+  }
+]

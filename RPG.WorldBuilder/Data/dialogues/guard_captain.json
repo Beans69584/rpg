@@ -5,31 +5,35 @@
     "nodes": [
       {
         "id": 1,
-        "text": "Welcome to Ravenkeep, traveler. We've been having trouble with bandits lately.",
+        "text": "Welcome to Ravenkeep. We've got serious troubles brewing.",
         "responses": [
           {
-            "text": "Tell me about the bandits.",
+            "text": "Tell me about these troubles.",
             "nextNodeId": 2
           },
           {
-            "text": "How can I help?",
+            "text": "I'm looking for work.",
             "nextNodeId": 3
           }
         ]
       },
       {
         "id": 2,
-        "text": "They've been raiding our supply caravans, but something's odd. They're only taking specific items and leaving valuable goods behind.",
+        "text": "Bandits have been raiding our caravans, but they're only taking specific items - old metalwork and artifacts. Something's not right.",
         "responses": [
           {
-            "text": "That is strange. I'd like to help investigate.",
+            "text": "I can help investigate.",
             "nextNodeId": 3
+          },
+          {
+            "text": "Any leads?",
+            "nextNodeId": 4
           }
         ]
       },
       {
         "id": 3,
-        "text": "If you're willing to help, speak with Sarah at the tavern. She lost her brother to these bandits, and he was investigating something before he disappeared.",
+        "text": "Sarah at the Raven's Rest lost her brother investigating these bandits. Start there. He was onto something before he disappeared.",
         "actions": [
           {
             "type": "SetFlag",
@@ -40,6 +44,16 @@
             "type": "GiveQuest",
             "target": "investigate_bandits",
             "value": ""
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "text": "Our patrols have spotted activity in the forest to the north. Be careful if you go looking - these aren't ordinary bandits.",
+        "responses": [
+          {
+            "text": "I'll start with Sarah.",
+            "nextNodeId": 3
           }
         ]
       }

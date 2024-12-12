@@ -1,0 +1,52 @@
+[
+    {
+      "id": 8,
+      "rootNodeId": 1,
+      "nodes": [
+        {
+          "id": 1,
+          "text": "Ah, the meddler arrives. Witness the culmination of centuries of preparation!",
+          "responses": [
+            {
+              "text": "It ends here, Malakai.",
+              "nextNodeId": 2
+            },
+            {
+              "text": "You're insane.",
+              "nextNodeId": 3
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "text": "You have no concept of true power. The Ancient One's awakening cannot be stopped!",
+          "responses": [
+            {
+              "text": "Watch me.",
+              "nextNodeId": 4
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "text": "Insanity? No. This is divine purpose! The sacrifices, the gathered power, all for this moment!",
+          "responses": [
+            {
+              "text": "Then I'll stop you by force.",
+              "nextNodeId": 4
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "text": "The ritual is nearly complete. Your death will be the final offering!",
+          "actions": [
+            {
+              "type": "StartCombat",
+              "target": "high_cultist_malakai"
+            }
+          ]
+        }
+      ]
+    }
+  ]

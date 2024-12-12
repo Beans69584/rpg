@@ -1,0 +1,57 @@
+[
+    {
+      "id": 7,
+      "rootNodeId": 1,
+      "nodes": [
+        {
+          "id": 1,
+          "text": "You're too late. The ritual components are gathered. Our god will soon awaken!",
+          "responses": [
+            {
+              "text": "What god? What are you trying to summon?",
+              "nextNodeId": 2
+            },
+            {
+              "text": "Where's Sarah's brother?",
+              "nextNodeId": 3
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "text": "The Ancient One sleeps beneath these ruins. His power will remake this world!",
+          "responses": [
+            {
+              "text": "I'll stop you.",
+              "nextNodeId": 4
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "text": "That fool? He learned too much. Now he serves a greater purpose in the ritual.",
+          "responses": [
+            {
+              "text": "You'll pay for that.",
+              "nextNodeId": 4
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "text": "You understand nothing! Malakai awaits in the ritual chamber. Kill them!",
+          "actions": [
+            {
+              "type": "StartCombat",
+              "target": "mysterious_cultist"
+            },
+            {
+              "type": "SetFlag",
+              "target": "confronted_mysterious_cultist",
+              "value": "true"
+            }
+          ]
+        }
+      ]
+    }
+  ]

@@ -1,30 +1,71 @@
 [
-    {
-      "id": 2,
-      "name": "Ancient History",
-      "description": "Help Elder Thomas research the ancient cult that once inhabited these lands.",
-      "type": 1,
-      "minLevel": 3,
-      "objectives": [
-        {
-          "description": "Find old texts in the ruins",
-          "type": "Item",
-          "target": "ancient_tome",
-          "required": 1
-        },
-        {
-          "description": "Bring the texts to Elder Thomas",
-          "type": "Talk",
-          "target": "elder_thomas",
-          "required": 1
-        }
-      ],
-      "rewards": [
-        {
-          "type": "Gold",
-          "value": 50,
-          "description": "Research payment"
-        }
-      ]
-    }
-  ]
+  {
+    "id": 101,
+    "name": "Dark Materials",
+    "description": "Help the blacksmith identify the strange metals the cult is collecting.",
+    "type": 1,
+    "minLevel": 2,
+    "objectives": [
+      {
+        "description": "Collect corrupted metal samples",
+        "type": "Item",
+        "target": "corrupted_metal",
+        "required": 3
+      },
+      {
+        "description": "Bring samples to Erik",
+        "type": "Talk",
+        "target": "erik_blacksmith",
+        "required": 1
+      }
+    ],
+    "rewards": [
+      {
+        "type": "Gold",
+        "value": 75
+      },
+      {
+        "type": "Item",
+        "target": "reinforced_armor",
+        "value": 1
+      }
+    ]
+  },
+  {
+    "id": 102,
+    "name": "Lost Patrol",
+    "description": "Find the missing guard patrol in the forest.",
+    "type": 1,
+    "minLevel": 3,
+    "objectives": [
+      {
+        "description": "Find patrol markers",
+        "type": "Item",
+        "target": "guard_insignia",
+        "required": 3
+      },
+      {
+        "description": "Defeat cultist ambushers",
+        "type": "Combat",
+        "target": "cultist_guardian",
+        "required": 2
+      },
+      {
+        "description": "Report to Guard Captain",
+        "type": "Talk",
+        "target": "guard_captain",
+        "required": 1
+      }
+    ],
+    "rewards": [
+      {
+        "type": "Gold",
+        "value": 100
+      },
+      {
+        "type": "Experience",
+        "value": 200
+      }
+    ]
+  }
+]

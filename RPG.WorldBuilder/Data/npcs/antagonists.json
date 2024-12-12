@@ -1,26 +1,56 @@
 [
   {
-    "name": "Raven",
-    "level": 15,
+    "name": "Cultist Guardian",
+    "level": 4,
     "role": 0,
-    "dialogueRefs": [5],
+    "dialogueRefs": [],
     "stats": {
-      "strength": 14,
-      "dexterity": 15,
-      "intelligence": 12,
-      "defense": 12
-    }
+      "strength": 12,
+      "dexterity": 10,
+      "intelligence": 8,
+      "defense": 10
+    },
+    "drops": [
+      {
+        "item": "ritual_components",
+        "chance": 0.7
+      }
+    ]
   },
   {
     "name": "Mysterious Cultist",
-    "level": 20,
+    "level": 6,
     "role": 0,
-    "dialogueRefs": [6],
+    "dialogueRefs": [7],
     "stats": {
       "strength": 10,
       "dexterity": 12,
+      "intelligence": 15,
+      "defense": 12
+    },
+    "drops": [
+      {
+        "item": "cultist_staff",
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "name": "High Cultist Malakai",
+    "level": 10,
+    "role": 0,
+    "dialogueRefs": [8],
+    "stats": {
+      "strength": 12,
+      "dexterity": 14,
       "intelligence": 18,
-      "defense": 14
-    }
+      "defense": 15
+    },
+    "drops": [
+      {
+        "item": "ancient_amulet",
+        "chance": 1.0
+      }
+    ]
   }
 ]

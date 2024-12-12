@@ -1,36 +1,59 @@
 {
   "name": "Darkwood Forest",
-  "description": "A dense forest where shadows seem to move of their own accord. Local hunters avoid certain parts of these woods.",
+  "description": "A dense forest where ancient evil stirs beneath the shadows.",
   "position": "1,0",
   "terrain": 1,
   "locations": [
     {
       "name": "Bandit Camp",
-      "description": "A hidden encampment carefully concealed among the trees.",
+      "description": "A hidden camp marked with cult symbols.",
       "type": 6,
       "position": "1,1",
       "isDiscovered": false,
+      "enemies": ["Cultist Guardian"],
       "buildings": [
         {
           "name": "Leader's Tent",
-          "description": "A large tent decorated with strange symbols.",
+          "description": "A large tent containing ritual materials and plans.",
           "type": "Camp",
-          "npcs": [4]
+          "loot": [
+            {
+              "item": "ritual_components",
+              "chance": 1.0
+            },
+            {
+              "item": "cult_orders",
+              "chance": 1.0
+            }
+          ]
         }
       ]
     },
     {
       "name": "Ancient Ruins",
-      "description": "Crumbling stone structures covered in mysterious runes.",
+      "description": "Crumbling structures emanating dark energy.",
       "type": 4,
       "position": "2,2",
       "isDiscovered": false,
+      "enemies": ["Cultist Guardian", "Mysterious Cultist"],
       "buildings": [
         {
-          "name": "Underground Chamber",
-          "description": "A hidden chamber beneath the ruins where dark rituals take place.",
+          "name": "Outer Sanctum",
+          "description": "A maze-like structure guarding the inner chamber.",
           "type": "Dungeon",
-          "npcs": [5]
+          "loot": [
+            {
+              "item": "ritual_components",
+              "chance": 0.8
+            }
+          ]
+        },
+        {
+          "name": "Ritual Chamber",
+          "description": "A vast underground chamber where the final ritual is prepared.",
+          "type": "Dungeon",
+          "enemies": ["High Cultist Malakai"],
+          "requiredFlags": ["confronted_mysterious_cultist"]
         }
       ]
     }

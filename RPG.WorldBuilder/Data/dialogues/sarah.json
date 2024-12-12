@@ -1,43 +1,70 @@
 [
-    {
-      "id": 2,
-      "rootNodeId": 1,
-      "nodes": [
-        {
-          "id": 1,
-          "text": "Welcome to the Raven's Rest. Can I get you anything?",
-          "responses": [
-            {
-              "text": "The Guard Captain sent me about your brother.",
-              "nextNodeId": 2,
-              "requiredFlags": ["spoke_to_captain"]
-            },
-            {
-              "text": "Just looking around, thanks.",
-              "nextNodeId": 3
-            }
-          ]
-        },
-        {
-          "id": 2,
-          "text": "My brother... he found something in the forest. He was acting strange before he disappeared. He left this symbol behind.",
-          "actions": [
-            {
-              "type": "GiveItem",
-              "target": "strange_symbol",
-              "value": "1"
-            },
-            {
-              "type": "SetFlag",
-              "target": "received_symbol",
-              "value": "true"
-            }
-          ]
-        },
-        {
-          "id": 3,
-          "text": "Let me know if you need anything."
-        }
-      ]
-    }
-  ]
+  {
+    "id": 2,
+    "rootNodeId": 1,
+    "nodes": [
+      {
+        "id": 1,
+        "text": "Welcome to the Raven's Rest. Can I help you?",
+        "responses": [
+          {
+            "text": "The Guard Captain sent me about your brother.",
+            "nextNodeId": 2,
+            "requiredFlags": ["spoke_to_captain"]
+          },
+          {
+            "text": "Just looking around.",
+            "nextNodeId": 5
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "text": "My brother... he found something in the forest. He left this journal and symbol before he disappeared.",
+        "responses": [
+          {
+            "text": "Can I see what he found?",
+            "nextNodeId": 3
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "text": "Here's his journal. The last entries mention strange lights in the forest and people in robes. And this symbol...",
+        "actions": [
+          {
+            "type": "GiveItem",
+            "target": "torn_journal",
+            "value": "1"
+          },
+          {
+            "type": "GiveItem",
+            "target": "strange_symbol",
+            "value": "1"
+          },
+          {
+            "type": "SetFlag",
+            "target": "received_journal",
+            "value": "true"
+          }
+        ],
+        "responses": [
+          {
+            "text": "I'll find out what happened to him.",
+            "nextNodeId": 4
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "text": "Please be careful. Whatever he found... it changed him in the days before he vanished.",
+        "responses": [
+          {
+            "text": "I should show this to Elder Thomas.",
+            "nextNodeId": 5
+          }
+        ]
+      }
+    ]
+  }
+]

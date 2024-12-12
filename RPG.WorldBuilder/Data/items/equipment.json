@@ -1,22 +1,34 @@
 [
   {
-    "name": "Guard Captain's Sword",
-    "description": "A well-maintained sword bearing the insignia of Ravenkeep's guard.",
+    "name": "Reinforced Armor",
+    "description": "Armor strengthened by Erik's knowledge of the cult's metals.",
     "stats": {
-      "value": 100,
-      "weight": 3,
-      "durability": 100,
-      "type": 0
+      "value": 200,
+      "weight": 8,
+      "defense": 15,
+      "type": 1
     }
   },
   {
-    "name": "Cultist Dagger",
-    "description": "A curved dagger with strange runes etched into the blade.",
+    "name": "Cultist Robes",
+    "description": "Dark robes worn by cult members, providing magical protection.",
     "stats": {
       "value": 150,
-      "weight": 1,
-      "durability": 100,
-      "type": 0
+      "weight": 3,
+      "defense": 8,
+      "magic_defense": 10,
+      "type": 1
+    }
+  },
+  {
+    "name": "Ancient Blade",
+    "description": "A sword found in the ruins, humming with old power.",
+    "stats": {
+      "value": 300,
+      "weight": 4,
+      "damage": 20,
+      "type": 0,
+      "effects": ["holy_damage"]
     }
   }
 ]

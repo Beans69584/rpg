@@ -69,7 +69,7 @@ public class WorldBuilder
                     Seed = worldDef.Seed,
                     RegionCount = regions.Count,
                     NPCCount = npcs.Count,
-                    ItemCount = items.Count
+                    ItemCount = items.Count,
                 },
                 Resources = resources,
                 NPCs = npcs,

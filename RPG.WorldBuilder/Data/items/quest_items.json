@@ -1,22 +1,41 @@
 [
   {
-    "name": "Strange Symbol",
-    "description": "A mysterious symbol carved into a piece of wood. It seems to pulse with dark energy.",
+    "name": "Torn Journal",
+    "description": "Sarah's brother's journal, detailing his investigation of the cult.",
     "stats": {
       "value": 0,
       "weight": 1,
-      "durability": 100,
       "type": 3
     }
   },
   {
-    "name": "Ancient Tome",
-    "description": "A book written in an unknown language, marked with similar symbols to those the bandits use.",
+    "name": "Ritual Components",
+    "description": "Dark-infused metals and artifacts needed for the cult's ceremony.",
     "stats": {
       "value": 0,
       "weight": 2,
-      "durability": 100,
       "type": 3
+    }
+  },
+  {
+    "name": "Protective Amulet",
+    "description": "An ancient amulet that shields against dark magic.",
+    "stats": {
+      "value": 100,
+      "weight": 1,
+      "type": 2,
+      "effects": ["magic_resistance"]
+    }
+  },
+  {
+    "name": "Cultist Staff",
+    "description": "A staff crackling with dark energy.",
+    "stats": {
+      "value": 200,
+      "weight": 3,
+      "type": 1,
+      "damage": 15,
+      "effects": ["dark_magic"]
     }
   }
 ]

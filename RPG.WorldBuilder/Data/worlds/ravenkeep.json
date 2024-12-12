@@ -1,10 +1,91 @@
 {
   "name": "The Shadow of Ravenkeep",
-  "description": "A quiet town faces an escalating threat as simple bandit raids reveal a darker conspiracy.",
+  "description": "A dark conspiracy unfolds in the quiet town of Ravenkeep as an ancient evil stirs beneath the forest ruins. What begins as an investigation into mysterious bandits reveals a sinister cult attempting to awaken an ancient power.",
   "seed": "story-1",
-  "npcFiles": ["townspeople.json", "antagonists.json"],
-  "itemFiles": ["quest_items.json", "equipment.json"],
-  "regionFiles": ["town.json", "forest.json"],
-  "dialogueFiles": ["guard_captain.json", "sarah.json", "blacksmith.json", "elder.json"],
-  "questFiles": ["main_quests.json", "side_quests.json"]
+  "version": "1.1",
+  "recommendedLevel": "1-10",
+  "estimatedPlaytime": "60 minutes",
+  "npcFiles": [
+    "townspeople.json",
+    "antagonists.json"
+  ],
+  "itemFiles": [
+    "quest_items.json",
+    "equipment.json"
+  ],
+  "regionFiles": [
+    "town.json",
+    "forest.json"
+  ],
+  "dialogueFiles": [
+    "guard_captain.json",
+    "sarah.json",
+    "blacksmith.json",
+    "elder.json",
+    "mysterious_cultist.json",
+    "high_cultist.json"
+  ],
+  "questFiles": [
+    "main_quests.json",
+    "side_quests.json"
+  ],
+  "startingLocation": {
+    "region": "town",
+    "position": "0,0"
+  },
+  "startingQuests": [
+    "investigate_bandits"
+  ],
+  "startingInventory": {
+    "gold": 50,
+    "items": [
+      {
+        "name": "Basic Sword",
+        "quantity": 1
+      },
+      {
+        "name": "Health Potion",
+        "quantity": 2
+      }
+    ]
+  },
+  "questChains": [
+    {
+      "name": "Main Story",
+      "quests": [
+        "investigate_bandits",
+        "dark_revelations",
+        "final_ritual"
+      ]
+    },
+    {
+      "name": "Side Activities",
+      "quests": [
+        "dark_materials",
+        "lost_patrol"
+      ]
+    }
+  ],
+  "levelScaling": {
+    "minLevel": 1,
+    "maxLevel": 10,
+    "regions": {
+      "town": {
+        "minLevel": 1,
+        "maxLevel": 3
+      },
+      "forest": {
+        "minLevel": 3,
+        "maxLevel": 10
+      }
+    }
+  },
+  "gameFlags": {
+    "required": [
+      "spoke_to_captain",
+      "received_journal",
+      "learned_cult_history",
+      "confronted_mysterious_cultist"
+    ]
+  }
 }
