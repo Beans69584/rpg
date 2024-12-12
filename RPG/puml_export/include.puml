@@ -26,15 +26,21 @@ skinparam relationship {
     BackgroundColor White
     FontSize 12
 }
-
+!include .\\.\Extensions.puml
 !include .\\.\GlobalSuppressions.puml
 !include .\\.\Program.puml
 !include .\\.\Properties\AssemblyInfo.puml
+!include .\\.\RPG.WorldBuilder\Definitions.puml
+!include .\\.\RPG.WorldBuilder\LoggerConfig.puml
+!include .\\.\RPG.WorldBuilder\Program.puml
+!include .\\.\RPG.WorldBuilder\WorldBuilder.puml
+!include .\\.\src\Combat\CombatEntity.puml
+!include .\\.\src\Combat\CombatSystem.puml
 !include .\\.\src\Commands\CommandHandler.puml
 !include .\\.\src\Common\Vector2.puml
 !include .\\.\src\Core\GameSettings.puml
 !include .\\.\src\Core\GameState.puml
-!include .\\.\src\Save\SaveData.puml
+!include .\\.\src\Core\Input.puml
 !include .\\.\src\Save\SaveManager.puml
 !include .\\.\src\UI\ConsoleWindowManager.puml
 !include .\\.\src\Utils\Logger.puml
@@ -43,12 +49,7 @@ skinparam relationship {
 !include .\\.\src\Commands\Base\BaseCommand.puml
 !include .\\.\src\Commands\Base\ICommand.puml
 !include .\\.\src\Commands\Built-in\HelpCommand.puml
-!include .\\.\src\Commands\Built-in\LoadCommand.puml
 !include .\\.\src\Commands\Built-in\SaveCommand.puml
-!include .\\.\src\Commands\Lua\LuaCommand.puml
-!include .\\.\src\Commands\Lua\LuaCommandLoader.puml
-!include .\\.\src\Commands\Lua\LuaGameAPI.puml
-!include .\\.\src\Commands\Lua\LuaWrapper.puml
 !include .\\.\src\Core\Managers\LocalizationManager.puml
 !include .\\.\src\Core\Managers\QuestManager.puml
 !include .\\.\src\Core\Player\Barbarian.puml
@@ -59,8 +60,26 @@ skinparam relationship {
 !include .\\.\src\Core\Player\SithSorcerer.puml
 !include .\\.\src\Core\Player\Sorcerer.puml
 !include .\\.\src\Core\Player\Warrior.puml
-!include .\\.\src\Core\Systems.cs\ExperienceSystem.puml
+!include .\\.\src\Core\Systems\ExperienceSystem.puml
+!include .\\.\src\UI\Windows\CharacterCreationWindow.puml
 !include .\\.\src\UI\Windows\DialogueWindow.puml
+!include .\\.\src\World\Data\CombatAction.puml
 !include .\\.\src\World\Data\WorldData.puml
 !include .\\.\src\World\Data\WorldTypes.puml
+!include .\\.\src\Commands\Built-in\Character\QuestCommand.puml
+!include .\\.\src\Commands\Built-in\Character\RenameCommand.puml
+!include .\\.\src\Commands\Built-in\Character\StatusCommand.puml
+!include .\\.\src\Commands\Built-in\Combat\FightCommand.puml
+!include .\\.\src\Commands\Built-in\Interaction\InteractCommand.puml
+!include .\\.\src\Commands\Built-in\Interaction\SayCommand.puml
+!include .\\.\src\Commands\Built-in\Management\Management.puml
+!include .\\.\src\Commands\Built-in\Navigation\EnterCommand.puml
+!include .\\.\src\Commands\Built-in\Navigation\LeaveCommand.puml
+!include .\\.\src\Commands\Built-in\Navigation\LookCommand.puml
+!include .\\.\src\Commands\Built-in\Navigation\NavigateCommand.puml
+!include .\\.\src\Core\Player\Common\Animal.puml
+!include .\\.\src\Core\Player\Common\CharacterFactory.puml
+!include .\\.\src\Core\Player\Common\PersonJsonConverter.puml
+!include .\\.\src\Core\Player\Common\Spell.puml
+!include .\\.\src\Core\Player\Common\Weapon.puml
 @enduml

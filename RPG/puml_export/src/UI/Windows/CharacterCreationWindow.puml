@@ -1,0 +1,16 @@
+@startuml
+class CharacterCreationWindow {
+    - <<readonly>> state : GameState
+    - <<readonly>> characterFactory : CharacterFactory
+    - <<readonly>> attributes : Dictionary<string, int>
+    - selectedClass : string = "warrior"
+    - attributePoints : int = 30
+    - selectedAttribute : int = 0
+    - <<readonly>> attributeNames : string[]
+    - <<readonly>> classOptions : string[]
+    - <<readonly>> classDescriptions : string[]
+    - <<readonly>> classColors : Dictionary<string, ConsoleColor>
+    + CharacterCreationWindow(state:GameState)
+    + <<async>> ShowAsync() : Task<Person?>
+}
+@enduml

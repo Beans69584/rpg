@@ -6,9 +6,9 @@ using System.Collections.Generic;
 namespace RPG.Core.Managers
 {
     /// <summary>
-    /// Manages localization of strings in the game.
+    /// Manages localisation of strings in game.
     /// </summary>
-    public class LocalizationManager
+    public class LocalisationManager
     {
         /// <summary>
         /// Event that is triggered when the language is changed.
@@ -21,37 +21,37 @@ namespace RPG.Core.Managers
         private readonly ResourceManager resourceManager;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LocalizationManager"/> class.
+        /// Initialises a new instance of the <see cref="LocalisationManager"/> class.
         /// </summary>
-        public LocalizationManager()
+        public LocalisationManager()
         {
             try
             {
                 resourceManager = new ResourceManager(
                     "RPG.Resources.Strings",
-                    typeof(LocalizationManager).Assembly);
+                    typeof(LocalisationManager).Assembly);
 
                 // Use settings instance
                 CurrentCulture = CultureInfo.GetCultureInfo(GameSettings.Instance.Language);
 
                 // Debug info
-                Console.WriteLine($"Assembly: {typeof(LocalizationManager).Assembly.FullName}");
+                Console.WriteLine($"Assembly: {typeof(LocalisationManager).Assembly.FullName}");
                 Console.WriteLine($"Resource: {resourceManager.BaseName}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to initialize ResourceManager: {ex}");
+                Console.WriteLine($"Failed to initialise ResourceManager: {ex}");
                 // Fallback to prevent crashes
-                resourceManager = new ResourceManager(typeof(LocalizationManager));
+                resourceManager = new ResourceManager(typeof(LocalisationManager));
             }
         }
 
         /// <summary>
-        /// Gets a localized string from the resource file.
+        /// Gets a localised string from the resource file.
         /// </summary>
         /// <param name="key">The key of the string to get.</param>
         /// <param name="args">Optional arguments to format the string.</param>
-        /// <returns>The localized string.</returns>
+        /// <returns>The localised string.</returns>
         public string GetString(string key, params object[] args)
         {
             try

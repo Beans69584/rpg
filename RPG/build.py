@@ -149,11 +149,6 @@ class BuildSystem:
                 '-c', config,
                 '-r', runtime,
                 '-o', output_path,
-                '--self-contained' if standalone else '--no-self-contained',
-                '/p:PublishSingleFile=true',
-                '/p:EnableCompressionInSingleFile=true',
-                '/p:DebugType=None',
-                '/p:DebugSymbols=false'
             ]
 
             process = subprocess.Popen(

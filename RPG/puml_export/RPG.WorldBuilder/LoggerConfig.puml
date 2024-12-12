@@ -1,0 +1,5 @@
+@startuml
+class LoggerConfig <<static>> {
+    + {static} CreateLogger() : ILogger
+}
+@enduml

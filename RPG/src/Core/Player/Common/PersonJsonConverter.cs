@@ -8,13 +8,28 @@ using RPG.Core.Player.Common;
 
 namespace RPG.Player.Common
 {
+    /// <summary>
+    /// Provides JSON serialisation and deserialisation for person objects.
+    /// </summary>
     public class PersonJsonConverter : JsonConverter<Person>
     {
+        /// <summary>
+        /// Determines whether the specified type can be converted.
+        /// </summary>
+        /// <param name="typeToConvert">The type to convert.</param>
+        /// <returns>True if the type can be converted; otherwise, false.</returns>
         public override bool CanConvert(Type typeToConvert)
         {
             return typeof(Person).IsAssignableFrom(typeToConvert);
         }
 
+        /// <summary>
+        /// Reads the JSON representation of the person object and converts it to the appropriate type.
+        /// </summary>
+        /// <param name="reader">The JSON reader to read from.</param>
+        /// <param name="typeToConvert">The type of the object to convert to.</param>
+        /// <param name="options">The serializer options to use.</param>
+        /// <returns>The person object created from the JSON representation.</returns>
         public override Person? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.StartObject)
@@ -46,7 +61,7 @@ namespace RPG.Player.Common
                 _ => throw new JsonException($"Unknown person type: {typeString}")
             };
 
-            // Deserialize the properties
+            // Deserialise the properties
             foreach (JsonProperty property in root.EnumerateObject())
             {
                 switch (property.Name)
@@ -124,6 +139,12 @@ namespace RPG.Player.Common
             return person;
         }
 
+        /// <summary>
+        /// Writes the specified person object to the JSON writer.
+        /// </summary>
+        /// <param name="writer">The JSON writer allowing the object to be written.</param>
+        /// <param name="value">The person object to write.</param>
+        /// <param name="options">The serializer options to use.</param>
         public override void Write(Utf8JsonWriter writer, Person value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();

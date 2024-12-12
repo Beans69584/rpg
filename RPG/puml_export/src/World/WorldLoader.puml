@@ -1,6 +1,9 @@
 @startuml
 class WorldLoader {
+    - <<readonly>> _worldData : WorldData
+    - <<readonly>> _stringCache : Dictionary<int, string>
     + WorldLoader(worldPath:string)
+    + WorldLoader(worldData:WorldData)
     + GetString(id:int) : string
     - ValidateWorldData() : void
     + GetWorldData() : WorldData
@@ -27,7 +30,4 @@ class WorldLoader {
     + GetRegionDescription(region:WorldRegion) : string
     + GetLocationName(location:Location) : string
 }
-
-WorldLoader --> "_worldData" WorldData
-
 @enduml

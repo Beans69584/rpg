@@ -16,12 +16,12 @@ class GameSettings {
     + WindowWidth : int <<get>> <<set>> = 80
     + WindowHeight : int <<get>> <<set>> = 24
     + FullScreen : bool <<get>> <<set>> = false
+    + Display : ConsoleDisplayConfig <<get>> <<set>>
+    + {static} Instance : GameSettings <<get>>
     + Save() : void
     - {static} Load() : GameSettings
     + {static} CurrentLanguage : string <<get>> <<set>>
     + UpdateLanguage(language:string) : void
     <<internal>> {static} HasChanges() : bool
 }
-GameSettings o-> "Display" ConsoleDisplayConfig
-GameSettings --> "Instance" GameSettings
 @enduml

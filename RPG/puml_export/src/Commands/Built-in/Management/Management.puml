@@ -1,0 +1,16 @@
+@startuml
+class ClearCommand {
+    + <<override>> Name : string <<get>>
+    + <<override>> Description : string <<get>>
+    + <<override>> Aliases : string[] <<get>>
+    + <<override>> Execute(args:string, state:GameState) : void
+}
+class QuitCommand {
+    + <<override>> Name : string <<get>>
+    + <<override>> Description : string <<get>>
+    + <<override>> Aliases : string[] <<get>>
+    + <<override>> Execute(args:string, state:GameState) : void
+}
+BaseCommand <|-- ClearCommand
+BaseCommand <|-- QuitCommand
+@enduml

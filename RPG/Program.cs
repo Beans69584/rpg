@@ -30,9 +30,13 @@ namespace RPG
     /// </summary>
     public static class Program
     {
+        #region Constants
         private const int MIN_WIDTH = 80;
         private const int MIN_HEIGHT = 24;
 
+        #endregion
+
+        #region Methods
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -45,22 +49,20 @@ namespace RPG
                 // Initialize logger
                 Logger.Instance.Information("Application starting...");
 
-                Console.OutputEncoding = Encoding.UTF8;
-                if (OperatingSystem.IsWindows())
+
+                try
                 {
-                    try
-                    {
-                        Console.OutputEncoding = Encoding.UTF8;
-                        Logger.Instance.Debug("Windows console mode configured for UTF-8");
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Instance.Warning(ex, "Failed to configure Windows console mode for UTF-8");
-                        // Fallback to ASCII if UTF-8 setup fails
-                        GameSettings.Instance.Display.UseUnicodeBorders = false;
-                        GameSettings.Instance.Save();
-                    }
+                    Console.OutputEncoding = Encoding.UTF8;
+                    Logger.Instance.Debug("Console mode configured for UTF-8");
                 }
+                catch (Exception ex)
+                {
+                    Logger.Instance.Warning(ex, "Failed to configure console mode for UTF-8");
+                    // Fallback to ASCII if UTF-8 setup fails
+                    GameSettings.Instance.Display.UseUnicodeBorders = false;
+                    GameSettings.Instance.Save();
+                }
+
 
                 while (true)
                 {
@@ -600,6 +602,12 @@ namespace RPG
             }
         }
 
+        /// <summary>
+        /// Shows the load game menu.
+        /// </summary>
+        /// <param name="manager">The console window manager to use.</param>
+        /// <param name="state">The current game state.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public static async Task<string?> ShowNewSaveDialogAsync(ConsoleWindowManager manager, GameState state)
         {
             StringBuilder saveName = new();
@@ -770,7 +778,7 @@ namespace RPG
             using ConsoleWindowManager manager = new();
             GameState state = new(manager);
             int currentOption = 1;
-            List<System.Globalization.CultureInfo> languages = [.. LocalizationManager.GetAvailableLanguages()];
+            List<System.Globalization.CultureInfo> languages = [.. LocalisationManager.GetAvailableLanguages()];
             int currentLanguageIndex = languages.FindIndex(c => c.Name == GameSettings.CurrentLanguage);
             GameSettings settings = GameSettings.Instance;
             const int MAX_OPTIONS = 7;
@@ -1200,8 +1208,7 @@ namespace RPG
 
                     if (loadedState == null)
                     {
-                        state.GameLog.Add(new ColoredText("Failed to load save file. Check logs for details.", ConsoleColor.Red));
-                        await Task.Delay(2000); // Give user time to read error
+                        Logger.Instance.Error("Failed to load save file {Slot}", slot);
                         continue;
                     }
 
@@ -1333,5 +1340,7 @@ namespace RPG
                 }
             }
         }
+
+        #endregion
     }
 }

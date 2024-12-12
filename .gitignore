@@ -4,6 +4,7 @@ obj/
 output/
 build_logs/
 publish/
+__pycache__/
 
 # IDE directories
 .vscode/
@@ -20,6 +21,10 @@ docs/
 *.txt
 *.pfx
 *.pub
+*.py
+*.sh
+*.ps1
+*.yml
 
 # Other files
 plantuml.jar

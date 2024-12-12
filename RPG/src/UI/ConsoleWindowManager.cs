@@ -188,7 +188,7 @@ namespace RPG.UI
         private ConsoleDisplayConfig displayConfig;
 
         /// <summary>
-        /// Initializes a new instance of the ConsoleWindowManager class.
+        /// Initialises a new instance of the ConsoleWindowManager class.
         /// </summary>
         public ConsoleWindowManager()
         {
@@ -207,7 +207,7 @@ namespace RPG.UI
             {
                 BoxChars = AsciiBoxChars;
             }
-#pragma warning restore IDE0045 // Convert to conditional expression
+#pragma warning restore IDE0045 
 
             renderTask = Task.Run(RenderLoop);
         }
@@ -289,10 +289,10 @@ namespace RPG.UI
                             lastConsoleWidth = Console.WindowWidth;
                             lastConsoleHeight = Console.WindowHeight;
 
-                            // Create entirely new buffer
+
                             buffer = new ConsoleBuffer(lastConsoleWidth, lastConsoleHeight);
 
-                            // Clear console completely
+
                             Console.Clear();
 
                             lastResize = now;
@@ -361,7 +361,7 @@ namespace RPG.UI
 
         private void RenderRegion(Region region)
         {
-            // First clear the entire region (inside the borders)
+
             for (int y = region.Y + 1; y < region.Y + region.Height - 1; y++)
             {
                 for (int x = region.X + 1; x < region.X + region.Width - 1; x++)
@@ -577,7 +577,7 @@ namespace RPG.UI
                 ClearDisplay();
             }
 
-            await Task.CompletedTask; // Ensure async completion
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -778,7 +778,7 @@ namespace RPG.UI
         public int Height { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the ConsoleBuffer class with specified dimensions.
+        /// Initialises a new instance of the ConsoleBuffer class with specified dimensions.
         /// </summary>
         /// <param name="width">The width of the buffer in characters.</param>
         /// <param name="height">The height of the buffer in characters.</param>

@@ -17,8 +17,11 @@ namespace RPG.Utils
         private const int DefaultRetainedFileCount = 3; // Keep 3 log files
 
         /// <summary>
-        /// Gets the logger instance.
+        /// Gets the singleton logger instance. Creates a new instance if one does not exist.
         /// </summary>
+        /// <value>
+        /// The configured Serilog logger instance.
+        /// </value>
         public static ILogger Instance
         {
             get
@@ -73,7 +76,7 @@ namespace RPG.Utils
         }
 
         /// <summary>
-        /// Shuts down the logger.
+        /// Shuts down the logger and releases all resources. Any subsequent logging calls will create a new logger instance.
         /// </summary>
         public static void Shutdown()
         {
@@ -91,32 +94,64 @@ namespace RPG.Utils
             _instance = null;
         }
 
-        // Enhanced convenience methods with context support
+        /// <summary>
+        /// Logs a debug message to the configured logging destinations.
+        /// </summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="propertyValues">Optional values to be included as structured properties with the log message.</param>
         public static void Debug(string message, params object[] propertyValues)
         {
             Instance.Debug(message, propertyValues);
         }
 
+        /// <summary>
+        /// Logs an informational message to the configured logging destinations.
+        /// </summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="propertyValues">Optional values to be included as structured properties with the log message.</param>
         public static void Info(string message, params object[] propertyValues)
         {
             Instance.Information(message, propertyValues);
         }
 
+        /// <summary>
+        /// Logs a warning message to the configured logging destinations.
+        /// </summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="propertyValues">Optional values to be included as structured properties with the log message.</param>
         public static void Warning(string message, params object[] propertyValues)
         {
             Instance.Warning(message, propertyValues);
         }
 
+        /// <summary>
+        /// Logs an error message to the configured logging destinations.
+        /// </summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="propertyValues">Optional values to be included as structured properties with the log message.</param>
         public static void Error(string message, params object[] propertyValues)
         {
             Instance.Error(message, propertyValues);
         }
 
+        /// <summary>
+        /// Logs an error message and associated exception to the configured logging destinations.
+        /// </summary>
+        /// <param name="ex">The exception to log.</param>
+        /// <param name="message">The message to log.</param>
+        /// <param name="propertyValues">Optional values to be included as structured properties with the log message.</param>
         public static void Error(Exception ex, string message, params object[] propertyValues)
         {
             Instance.Error(ex, message, propertyValues);
         }
 
+        /// <summary>
+        /// Logs a fatal error message and associated exception to the configured logging destinations.
+        /// This will also log an additional termination message and force a flush of the log buffer.
+        /// </summary>
+        /// <param name="ex">The exception to log.</param>
+        /// <param name="message">The message to log.</param>
+        /// <param name="propertyValues">Optional values to be included as structured properties with the log message.</param>
         public static void Fatal(Exception ex, string message, params object[] propertyValues)
         {
             Instance.Fatal(ex, message, propertyValues);
@@ -124,6 +159,10 @@ namespace RPG.Utils
             ForceFlush();
         }
 
+        /// <summary>
+        /// Forces an immediate flush of any buffered log entries and disposes of the current logger instance.
+        /// Subsequent logging calls will create a new logger instance.
+        /// </summary>
         public static void ForceFlush()
         {
             if (_instance is IDisposable disposable)

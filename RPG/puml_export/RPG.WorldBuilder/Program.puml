@@ -1,0 +1,6 @@
+@startuml
+class Program {
+    {static} <<async>> - Main(args:string[]) : Task<int>
+    {static} <<async>> - SaveWorldAsync(world:WorldData, path:string) : Task
+}
+@enduml

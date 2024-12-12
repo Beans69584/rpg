@@ -1,0 +1,5 @@
+@startuml
+class Extensions <<static>> {
+    + {static} Let(obj:T?, action:Action<T>) : void
+}
+@enduml

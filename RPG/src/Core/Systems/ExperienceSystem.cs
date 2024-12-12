@@ -3,6 +3,9 @@ using RPG.Core.Player;
 
 namespace RPG.Core.Systems
 {
+    /// <summary>
+    /// Represents the experience system of the game.
+    /// </summary>
     public class ExperienceSystem(GameState state)
     {
         private readonly GameState _state = state;
@@ -10,10 +13,9 @@ namespace RPG.Core.Systems
 
         static ExperienceSystem()
         {
-            // Initialize level 1 at 0 XP
+            // Initialise level 1 at 0 XP
             XpRequirements[0] = 0;
 
-            // Use a modified variant of the common RPG XP formula:
             // XP = baseXP * (level^2 - level + 600) / 200
             const int baseXP = 100;  // Base XP for early levels
             const double growthFactor = 1.1; // Slightly increasing curve
@@ -33,6 +35,10 @@ namespace RPG.Core.Systems
             }
         }
 
+        /// <summary>
+        /// Adds experience to the player and checks for level ups.
+        /// </summary>
+        /// <param name="amount">The amount of experience to add.</param>
         public void AddExperience(int amount)
         {
             _state.CurrentExperience += amount;
@@ -71,11 +77,19 @@ namespace RPG.Core.Systems
             _state.GameLog.Add(new ColoredText("Your health and abilities have increased!", ConsoleColor.Yellow));
         }
 
+        /// <summary>
+        /// Returns the required experience for the specified level.
+        /// </summary>
+        /// <param name="level">The level to get the required experience for.</param>
+        /// <returns>The required experience for the specified level.</returns>
         public int GetRequiredExperience(int level)
         {
             return XpRequirements[Math.Min(level, XpRequirements.Length - 1)];
         }
 
+        /// <summary>
+        /// Returns the current level progress as a value between 0 and 1.
+        /// </summary>
         public float GetLevelProgress()
         {
             int currentLevelXp = _state.Level == 1 ? 0 : GetRequiredExperience(_state.Level - 1);

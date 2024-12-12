@@ -8,12 +8,38 @@ using RPG.Utils;
 
 namespace RPG.Commands.Builtin
 {
+    /// <summary>
+    /// Command that handles saving the current game state to persistent storage.
+    /// </summary>
     public class SaveCommand : BaseCommand
     {
+        /// <summary>
+        /// Gets the primary name of the command used to invoke it.
+        /// </summary>
+        /// <value>Returns "save" as the command name.</value>
         public override string Name => "save";
+
+        /// <summary>
+        /// Gets a brief description of the command's functionality.
+        /// </summary>
+        /// <value>Returns a description explaining the command's purpose.</value>
         public override string Description => "Save the current game state";
+
+        /// <summary>
+        /// Gets an array of alternative names that can be used to invoke this command.
+        /// </summary>
+        /// <value>Returns an array containing "s" as a shorthand alias.</value>
         public override string[] Aliases => ["s"];
 
+        /// <summary>
+        /// Executes the save command, storing the current game state to a file.
+        /// </summary>
+        /// <param name="args">The save name provided as an argument. If empty, the user will be prompted for a name.</param>
+        /// <param name="state">The current game state to be saved.</param>
+        /// <remarks>
+        /// If a save with the same ID already exists, a backup will be created before saving.
+        /// The save operation includes metadata such as player name, level, and location.
+        /// </remarks>
         public override void Execute(string args, GameState state)
         {
             string? saveName = args;

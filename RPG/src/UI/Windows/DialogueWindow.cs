@@ -7,6 +7,9 @@ using System.Linq;
 
 namespace RPG.UI.Windows
 {
+    /// <summary>
+    /// Represents a window for displaying dialogue with NPCs.
+    /// </summary>
     public class DialogueWindow : IAsyncDisposable
     {
         private readonly GameState _state;
@@ -17,6 +20,10 @@ namespace RPG.UI.Windows
         private bool _isActive;
         private int _selectedOption;
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="DialogueWindow"/> class.
+        /// </summary>
+        /// <param name="state">The current game state.</param>
         public DialogueWindow(GameState state)
         {
             _state = state;
@@ -29,6 +36,12 @@ namespace RPG.UI.Windows
             };
         }
 
+        /// <summary>
+        /// Displays the specified dialogue with the given NPC.
+        /// </summary>
+        /// <param name="npc">The NPC entity to interact with.</param>
+        /// <param name="dialogue">The dialogue tree to display.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ShowDialogueAsync(Entity npc, DialogueTree dialogue)
         {
             _currentNPC = npc;
@@ -63,7 +76,6 @@ namespace RPG.UI.Windows
                 ""
             ];
 
-            // Handle end of dialogue nodes specially
             if (_currentNode.Responses.Count == 0)
             {
                 content.Add(new ColoredText("[Press Enter to end conversation]", ConsoleColor.Gray));
@@ -79,7 +91,6 @@ namespace RPG.UI.Windows
                     _selectedOption = 0;
                 }
 
-                // Add responses for nodes with choices
                 for (int i = 0; i < availableResponses.Count; i++)
                 {
                     string prefix = i == _selectedOption ? "> " : "  ";
@@ -110,7 +121,6 @@ namespace RPG.UI.Windows
             {
                 _state.Input.Update();
 
-                // Process key events directly
                 foreach (ConsoleKeyInfo keyInfo in _state.Input.GetKeyEvents())
                 {
                     ProcessKey(keyInfo.Key);
@@ -273,6 +283,10 @@ namespace RPG.UI.Windows
             }
         }
 
+        /// <summary>
+        /// Disposes of the dialogue window and cleans up resources.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous dispose operation.</returns>
         public ValueTask DisposeAsync()
         {
             _state.WindowManager.RemoveRegion("Dialogue");

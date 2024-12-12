@@ -2,6 +2,7 @@
 interface ICommand {
     Name : string <<get>>
     Description : string <<get>>
+    Aliases : string[] <<get>>
     Execute(args:string, state:GameState) : void
 }
 @enduml

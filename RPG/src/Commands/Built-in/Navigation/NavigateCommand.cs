@@ -6,12 +6,42 @@ using RPG.World.Data;
 
 namespace RPG.Commands.Navigation
 {
+    /// <summary>
+    /// Provides functionality for navigating between regions and locations in the game world.
+    /// Handles movement between connected regions and locations within regions.
+    /// </summary>
     public class NavigateCommand : BaseCommand
     {
+        /// <summary>
+        /// Gets the primary command name used to invoke this navigation command.
+        /// </summary>
+        /// <value>Returns "go" as the primary command name.</value>
         public override string Name => "go";
+        /// <summary>
+        /// Gets a brief description of the navigation command's functionality.
+        /// </summary>
+        /// <value>Returns a description explaining the command's purpose.</value>
         public override string Description => "Travel to a connected region or location";
+        /// <summary>
+        /// Gets an array of alternative command names that can be used to invoke this navigation command.
+        /// </summary>
+        /// <value>Returns an array containing "move" and "travel" as alternative command names.</value>
         public override string[] Aliases => ["move", "travel"];
 
+        /// <summary>
+        /// Executes the navigation command to move the player between regions or locations.
+        /// </summary>
+        /// <param name="args">The destination name specified by the player.</param>
+        /// <param name="state">The current game state containing world and player information.</param>
+        /// <remarks>
+        /// The method handles three types of navigation:
+        /// - Movement to locations within the current region
+        /// - Returning to the region from a location
+        /// - Travel between connected regions
+        /// 
+        /// When travelling between regions, a progress animation is displayed and travel time
+        /// is calculated based on the distance between regions.
+        /// </remarks>
         public override void Execute(string args, GameState state)
         {
             if (state.CurrentRegion == null)

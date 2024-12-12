@@ -1,5 +1,6 @@
 @startuml
 class Animal {
+    + Type : AnimalType <<get>>
     + Strength : int <<get>> <<set>>
 }
 enum AnimalType {
@@ -8,5 +9,4 @@ enum AnimalType {
     Eagle,
     Snake,
 }
-Animal o-> "Type" AnimalType
 @enduml

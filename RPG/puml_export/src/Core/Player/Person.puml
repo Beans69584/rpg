@@ -1,11 +1,21 @@
 @startuml
 abstract class Person {
-    + <<required>> Name : string <<get>> <<set>>
+    + Name : string <<get>> <<set>> = "Unknown"
     + Age : int <<get>> <<set>>
+    + Position : Vector2 <<get>> <<set>>
     + HitPoints : int <<get>> <<set>>
     + Gold : int <<get>> <<set>>
-    # <<virtual>> FormatSpeech(message:string) : string
+    + Strength : int <<get>> <<set>>
+    + Dexterity : int <<get>> <<set>>
+    + Constitution : int <<get>> <<set>>
+    + Intelligence : int <<get>> <<set>>
+    + Wisdom : int <<get>> <<set>>
+    + Charisma : int <<get>> <<set>>
+    + Speed : int <<get>> <<set>>
+    + Inventory : List<string> <<get>> <<set>>
+    + Equipment : Dictionary<string, string> <<get>> <<set>>
+    <<internal>> RestoreDynamicState(state:Dictionary<string, JsonElement>, options:JsonSerializerOptions) : void
+    + <<virtual>> SerializeState() : Dictionary<string, object?>
+    + <<virtual>> RestoreState(state:Dictionary<string, object?>) : void
 }
-Person --> "Position" Vector2
-Person --> "Profession" ProfessionType
 @enduml

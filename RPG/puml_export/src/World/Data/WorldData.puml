@@ -35,32 +35,62 @@ enum EncounterType {
 class WorldRegion {
     + NameId : int <<get>> <<set>>
     + DescriptionId : int <<get>> <<set>>
+    + Connections : List<int> <<get>> <<set>>
+    + Terrain : TerrainType <<get>> <<set>>
+    + Position : Vector2 <<get>> <<set>>
+    + TerrainMap : Dictionary<Vector2, TerrainType> <<get>> <<set>>
+    + Routes : Dictionary<int, List<RoutePoint>> <<get>> <<set>>
+    + Locations : List<Location> <<get>> <<set>>
+    + NPCs : List<int> <<get>> <<set>>
+    + Items : List<int> <<get>> <<set>>
     + ExplorationProgress : float <<get>> <<set>>
+    + Flags : List<string> <<get>> <<set>>
 }
 class Route {
     + NameId : int <<get>> <<set>>
+    + Segments : List<RouteSegment> <<get>> <<set>>
     + Length : float <<get>> <<set>>
+    + PossibleEncounters : List<Encounter> <<get>> <<set>>
     + DifficultyRating : float <<get>> <<set>>
+    + PathPoints : List<Vector2> <<get>> <<set>>
+    + TerrainType : TerrainType <<get>> <<set>>
 }
 class RouteSegment {
     + DescriptionId : int <<get>> <<set>>
     + DirectionsId : int <<get>> <<set>>
+    + Landmarks : List<Landmark> <<get>> <<set>>
     + EncounterRate : float <<get>> <<set>>
+    + SegmentSpecificEncounters : List<Encounter> <<get>> <<set>>
 }
 class Location {
     + NameId : int <<get>> <<set>>
     + DescriptionId : int <<get>> <<set>>
+    + Type : LocationType <<get>> <<set>>
     + IsDiscovered : bool <<get>> <<set>>
+    + NPCs : List<int> <<get>> <<set>>
+    + Items : List<int> <<get>> <<set>>
+    + Quests : List<Quest> <<get>> <<set>>
+    + ExplorationRewards : List<Reward> <<get>> <<set>>
+    + Flags : Dictionary<string, bool> <<get>> <<set>>
+    + Buildings : List<Building> <<get>> <<set>>
     + ImportanceRating : float <<get>> <<set>>
+    + LocalTerrain : TerrainType <<get>> <<set>>
+    + Position : Vector2 <<get>> <<set>>
+    + CurrentBuilding : Building? <<get>> <<set>>
 }
 class Building {
     + NameId : int <<get>> <<set>>
     + DescriptionId : int <<get>> <<set>>
     + Type : string <<get>> <<set>> = ""
+    + NPCs : List<int> <<get>> <<set>>
+    + Items : List<int> <<get>> <<set>>
 }
 class Encounter {
+    + Type : EncounterType <<get>> <<set>>
     + DescriptionId : int <<get>> <<set>>
     + Probability : float <<get>> <<set>>
+    + Conditions : List<string> <<get>> <<set>>
+    + Rewards : List<Reward> <<get>> <<set>>
 }
 class Reward {
     + Type : string <<get>> <<set>> = ""
@@ -71,52 +101,23 @@ class Landmark {
     + NameId : int <<get>> <<set>>
     + DescriptionId : int <<get>> <<set>>
     + Type : string <<get>> <<set>> = ""
+    + Position : Vector2 <<get>> <<set>>
 }
 class WorldData {
+    + Header : Header <<get>> <<set>>
+    + Resources : ResourceTable <<get>> <<set>>
+    + Regions : List<WorldRegion> <<get>> <<set>>
+    + NPCs : List<Entity> <<get>> <<set>>
+    + Items : List<Item> <<get>> <<set>>
     + GetString(id:int) : string
+    + AddString(value:string) : int
 }
 class ResourceTable {
+    + StringPool : Dictionary<string, int> <<get>> <<set>>
+    + TextureRefs : Dictionary<string, int> <<get>> <<set>>
+    + SoundRefs : Dictionary<string, int> <<get>> <<set>>
+    + DialogueTrees : Dictionary<int, DialogueTree> <<get>> <<set>>
+    + Quests : Dictionary<int, Quest> <<get>> <<set>>
+    + Scripts : Dictionary<string, string> <<get>> <<set>>
 }
-
-
-WorldRegion --> "Terrain" TerrainType
-WorldRegion o-> "Position" Vector2
-
-
-
-
-
-
-
-
-Route --> "TerrainType" TerrainType
-
-
-Location --> "Type" LocationType
-
-
-
-
-
-
-Location --> "LocalTerrain" TerrainType
-Location o-> "Position" Vector2
-Location --> "CurrentBuilding" Building
-
-
-Encounter --> "Type" EncounterType
-
-
-Landmark o-> "Position" Vector2
-WorldData o-> "Header" Header
-WorldData o-> "Resources" ResourceTable
-
-
-
-
-
-
-
-
-
 @enduml

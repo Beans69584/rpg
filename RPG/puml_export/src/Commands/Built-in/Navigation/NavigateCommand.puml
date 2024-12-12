@@ -1,0 +1,11 @@
+@startuml
+class NavigateCommand {
+    + <<override>> Name : string <<get>>
+    + <<override>> Description : string <<get>>
+    + <<override>> Aliases : string[] <<get>>
+    + <<override>> Execute(args:string, state:GameState) : void
+    - {static} SimulateTravelTime(state:GameState, totalMinutes:int) : void
+    - {static} FormatTravelTime(minutes:int) : string
+}
+BaseCommand <|-- NavigateCommand
+@enduml

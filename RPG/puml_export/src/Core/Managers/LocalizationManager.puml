@@ -1,11 +1,11 @@
 @startuml
-class LocalizationManager {
+class LocalisationManager {
     +  <<event>> LanguageChanged : Action<string>? 
-    + LocalizationManager()
+    + <<required>> CurrentCulture : CultureInfo <<get>> <<set>>
+    - <<readonly>> resourceManager : ResourceManager
+    + LocalisationManager()
     + GetString(key:string, args:object[]) : string
     + SetLanguage(cultureName:string) : void
     + {static} GetAvailableLanguages() : IEnumerable<CultureInfo>
 }
-LocalizationManager --> "CurrentCulture" CultureInfo
-LocalizationManager --> "resourceManager" ResourceManager
 @enduml

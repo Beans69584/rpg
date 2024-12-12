@@ -1,15 +1,24 @@
 @startuml
 class DialogueWindow {
+    - <<readonly>> _state : GameState
+    - <<readonly>> _dialogueRegion : Region
+    - _currentDialogue : DialogueTree?
+    - _currentNode : DialogueNode?
+    - _currentNPC : Entity?
+    - _isActive : bool
+    - _selectedOption : int
     + DialogueWindow(state:GameState)
     + <<async>> ShowDialogueAsync(npc:Entity, dialogue:DialogueTree) : Task
-    - <<async>> HandleDialogueInputAsync(dialogue:DialogueTree) : Task
+    - RenderDialogue(region:Region) : void
     - UpdateLayout() : void
-    - ExecuteDialogueAction(action:DialogueAction) : void
+    - <<async>> RunDialogueLoopAsync() : Task
+    - ProcessKey(key:ConsoleKey) : void
+    - CycleOption(direction:int) : void
+    - SelectCurrentOption() : void
+    - EvaluateCondition(condition:string) : bool
+    - IsResponseAvailable(response:DialogueResponse) : bool
+    - ProcessAction(action:DialogueAction) : void
+    + DisposeAsync() : ValueTask
 }
-
-DialogueWindow --> "_manager" ConsoleWindowManager
-
-DialogueWindow --> "_restoreRegions" Action
-DialogueWindow --> "_worldData" WorldData
-DialogueWindow --> "_state" GameState
+IAsyncDisposable <|-- DialogueWindow
 @enduml

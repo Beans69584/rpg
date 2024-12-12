@@ -4,9 +4,8 @@ class Sorcerer {
     +  <<event>> OnTransformToSith : Action? 
     - evilLevel : int
     + EvilLevel : int <<get>> <<set>>
-    + Initialize(state:GameState) : void
+    + Initialise(state:GameState) : void
     - TransformToSith() : void
-    # <<override>> FormatSpeech(message:string) : string
 }
 Magician <|-- Sorcerer
 @enduml

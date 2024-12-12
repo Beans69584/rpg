@@ -4,6 +4,7 @@ class Header {
     + NameId : int <<get>> <<set>>
     + DescriptionId : int <<get>> <<set>>
     + Version : string <<get>> <<set>> = "1.0"
+    + CreatedAt : DateTime <<get>> <<set>>
     + Seed : string <<get>> <<set>> = ""
     + RegionCount : int <<get>> <<set>>
     + NPCCount : int <<get>> <<set>>
@@ -25,6 +26,14 @@ class Entity {
     + NameId : int <<get>> <<set>>
     + Level : int <<get>> <<set>>
     + HP : int <<get>> <<set>>
+    + Role : NPCRole <<get>> <<set>>
+    + Profession : ProfessionType <<get>> <<set>>
+    + Stats : EntityStats <<get>> <<set>>
+    + ProfessionStats : Dictionary<string, int> <<get>> <<set>>
+    + DialogueTreeRefs : List<int> <<get>> <<set>>
+    + AvailableQuests : List<int> <<get>> <<set>>
+    + CompletedQuests : List<int> <<get>> <<set>>
+    + Flags : Dictionary<string, bool> <<get>> <<set>>
 }
 enum ProfessionType {
     Warrior,
@@ -40,14 +49,22 @@ enum ProfessionType {
 }
 class DialogueTree {
     + RootNodeId : int <<get>> <<set>>
+    + Nodes : Dictionary<int, DialogueNode> <<get>> <<set>>
+    + Flags : Dictionary<string, bool> <<get>> <<set>>
+    + RequiredFlags : List<string> <<get>> <<set>>
 }
 class DialogueNode {
     + TextId : int <<get>> <<set>>
+    + Responses : List<DialogueResponse> <<get>> <<set>>
+    + Actions : List<DialogueAction> <<get>> <<set>>
+    + RequiredFlags : List<string> <<get>> <<set>>
     + OnSelectScript : string? <<get>> <<set>>
 }
 class DialogueResponse {
     + TextId : int <<get>> <<set>>
     + NextNodeId : int <<get>> <<set>>
+    + RequiredFlags : List<string> <<get>> <<set>>
+    + Actions : List<DialogueAction> <<get>> <<set>>
     + Condition : string? <<get>> <<set>>
 }
 class DialogueAction {
@@ -59,7 +76,16 @@ class Quest {
     + NameId : int <<get>> <<set>>
     + DescriptionId : int <<get>> <<set>>
     + GiverId : int <<get>> <<set>>
+    + Type : QuestType <<get>> <<set>>
+    + Status : QuestStatus <<get>> <<set>>
+    + Objectives : List<QuestObjective> <<get>> <<set>>
+    + Stages : List<QuestStage> <<get>> <<set>>
+    + Rewards : List<Reward> <<get>> <<set>>
+    + Flags : Dictionary<string, bool> <<get>> <<set>>
+    + RequiredFlags : List<string> <<get>> <<set>>
     + MinLevel : int <<get>> <<set>>
+    + PrerequisiteQuests : List<int> <<get>> <<set>>
+    + FollowUpQuests : List<int> <<get>> <<set>>
 }
 class QuestObjective {
     + DescriptionId : int <<get>> <<set>>
@@ -68,9 +94,13 @@ class QuestObjective {
     + Required : int <<get>> <<set>>
     + Current : int <<get>> <<set>>
     + IsComplete : bool <<get>> <<set>>
+    + Rewards : List<Reward> <<get>> <<set>>
 }
 class QuestStage {
     + DescriptionId : int <<get>> <<set>>
+    + DialogueTreeRefs : List<int> <<get>> <<set>>
+    + RequiredFlags : List<string> <<get>> <<set>>
+    + CompletionActions : List<DialogueAction> <<get>> <<set>>
 }
 enum QuestType {
     Main,
@@ -89,21 +119,25 @@ enum QuestStatus {
 class Item {
     + NameId : int <<get>> <<set>>
     + DescriptionId : int <<get>> <<set>>
+    + Stats : ItemStats <<get>> <<set>>
 }
 class RoutePoint {
     + DescriptionId : int <<get>> <<set>>
     + DirectionsId : int <<get>> <<set>>
+    + Landmarks : List<Landmark> <<get>> <<set>>
 }
 class EntityStats {
     + Strength : int <<get>> <<set>>
     + Dexterity : int <<get>> <<set>>
     + Intelligence : int <<get>> <<set>>
     + Defense : int <<get>> <<set>>
+    + Speed : int <<get>> <<set>>
 }
 class ItemStats {
     + Value : int <<get>> <<set>>
     + Weight : int <<get>> <<set>>
     + Durability : int <<get>> <<set>>
+    + Type : ItemType <<get>> <<set>>
 }
 enum ItemType {
     Weapon,
@@ -112,39 +146,4 @@ enum ItemType {
     Quest,
     Misc,
 }
-
-
-
-Entity --> "Role" NPCRole
-Entity --> "Profession" ProfessionType
-Entity o-> "Stats" EntityStats
-
-
-
-
-
-
-
-
-
-
-
-
-
-Quest --> "Type" QuestType
-Quest --> "Status" QuestStatus
-
-
-
-
-
-
-
-
-
-
-
-Item o-> "Stats" ItemStats
-
-ItemStats --> "Type" ItemType
 @enduml

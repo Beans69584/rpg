@@ -1,0 +1,13 @@
+@startuml
+class LookCommand {
+    + <<override>> Name : string <<get>>
+    + <<override>> Description : string <<get>>
+    + <<override>> Aliases : string[] <<get>>
+    + <<override>> Execute(args:string, state:GameState) : void
+    - {static} ShowRegionInfo(state:GameState) : void
+    - {static} ShowLocationInfo(state:GameState) : void
+    - {static} ShowBuildingInfo(state:GameState) : void
+    - {static} ShowSpecificBuildingInfo(state:GameState, building:Building) : void
+}
+BaseCommand <|-- LookCommand
+@enduml
