@@ -1,0 +1,56 @@
+@startuml
+struct ColoredText <<record>> {
+    + Text : string <<get>> <<init>>
+}
+class GameState {
+    + AddLogMessage(message:ColoredText) : void
+    + PlayerName : string <<get>> <<set>> = "Hero"
+    + Level : int <<get>> <<set>> = 1
+    + HP : int <<get>> <<set>> = 100
+    + MaxHP : int <<get>> <<set>> = 100
+    + Gold : int <<get>> <<set>> = 100
+    + Running : bool <<get>> <<set>> = true
+    + CurrentWorldPath : string <<get>> = ""
+    + WorldPath : string? <<get>> <<set>>
+    +  <<event>> OnPlayerClassChanged : Action<Person>? 
+    + CurrentExperience : int <<get>> <<set>>
+    + ModifyReputation(faction:string, amount:int) : void
+    + GetReputation(faction:string) : int
+    + TransformPlayerClass(newPlayerClass:Person) : void
+    + GameState(manager:ConsoleWindowManager)
+    + SaveGame(slot:string) : void
+    - UpdatePlayTime() : void
+    + LoadGame(slot:string) : bool
+    - CreatePlayerFromClassName(className:string) : void
+    - FindDefaultLocation() : WorldRegion?
+    + LoadWorld(worldPath:string, isNewGame:bool) : void
+    - DescribeCurrentRegion() : void
+    + NavigateToLocation(location:Location) : void
+    - DescribeCurrentLocation() : void
+}
+
+class "HashSet`1"<T> {
+}
+ColoredText o-> "Color" ConsoleColor
+
+GameState --> "WindowManager" ConsoleWindowManager
+
+
+
+GameState --> "CommandHandler" CommandHandler
+GameState --> "Localization" LocalizationManager
+GameState --> "World" WorldLoader
+GameState --> "CurrentRegion" WorldRegion
+GameState --> "CurrentLocation" Location
+GameState o-> "DiscoveredLocations<string>" "HashSet`1"
+
+GameState o-> "TotalPlayTime" TimeSpan
+
+GameState --> "CurrentSaveMetadata" SaveMetadata
+GameState --> "PlayerProfession" ProfessionType
+GameState o-> "PlayerPosition" Vector2
+GameState --> "CurrentPlayer" Person
+GameState --> "QuestManager" QuestManager
+GameState --> "ExperienceSystem" ExperienceSystem
+
+@enduml

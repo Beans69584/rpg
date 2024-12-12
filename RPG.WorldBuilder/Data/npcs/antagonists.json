@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Raven",
+    "level": 15,
+    "role": 0,
+    "dialogueRefs": [5],
+    "stats": {
+      "strength": 14,
+      "dexterity": 15,
+      "intelligence": 12,
+      "defense": 12
+    }
+  },
+  {
+    "name": "Mysterious Cultist",
+    "level": 20,
+    "role": 0,
+    "dialogueRefs": [6],
+    "stats": {
+      "strength": 10,
+      "dexterity": 12,
+      "intelligence": 18,
+      "defense": 14
+    }
+  }
+]

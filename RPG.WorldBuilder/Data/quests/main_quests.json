@@ -1,0 +1,41 @@
+[
+    {
+      "id": 1,
+      "name": "The Missing Investigator",
+      "description": "Investigate the disappearance of Sarah's brother and his connection to the bandits.",
+      "type": 0,
+      "minLevel": 1,
+      "objectives": [
+        {
+          "description": "Speak with Sarah at the Raven's Rest",
+          "type": "Talk",
+          "target": "sarah",
+          "required": 1
+        },
+        {
+          "description": "Find the bandit camp in the forest",
+          "type": "Explore",
+          "target": "bandit_camp",
+          "required": 1
+        },
+        {
+          "description": "Investigate the strange symbol",
+          "type": "Item",
+          "target": "strange_symbol",
+          "required": 1
+        }
+      ],
+      "rewards": [
+        {
+          "type": "Gold",
+          "value": 100,
+          "description": "Reward for investigating the bandits"
+        },
+        {
+          "type": "Item",
+          "value": 1,
+          "description": "Guard Captain's Sword"
+        }
+      ]
+    }
+  ]

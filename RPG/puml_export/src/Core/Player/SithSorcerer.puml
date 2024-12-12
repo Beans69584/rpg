@@ -1,0 +1,8 @@
+@startuml
+class SithSorcerer {
+    + DarkPower : int <<get>> <<set>> = 100
+    + SithSorcerer()
+    # <<override>> FormatSpeech(message:string) : string
+}
+Sorcerer <|-- SithSorcerer
+@enduml

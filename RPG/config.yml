@@ -1,7 +1,6 @@
 extensions:
   - .cs
   - .csproj
-  - .lua
 
 ignored_dirs:
   - bin
@@ -16,7 +15,9 @@ ignored_dirs:
   - docs
 
 ignored_files: []
-source_dir: "."
+source_dirs:
+  - "."
+  - "../RPG.WorldBuilder"
 output_dir: "output"
 max_workers: 32
 text_output: "."

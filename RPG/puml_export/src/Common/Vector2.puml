@@ -1,0 +1,22 @@
+@startuml
+class Vector2 {
+    + X : float <<get>> <<set>>
+    + Y : float <<get>> <<set>>
+    + Vector2()
+    + Vector2(x:float, y:float)
+    + <<override>> Equals(obj:object?) : bool
+    + <<override>> GetHashCode() : int
+    + <<override>> ToString() : string
+    + {static} Parse(s:string?) : Vector2?
+}
+class Vector2JsonConverter {
+    + <<override>> Read(reader:Utf8JsonReader, typeToConvert:Type, options:JsonSerializerOptions) : Vector2
+    + <<override>> Write(writer:Utf8JsonWriter, value:Vector2, options:JsonSerializerOptions) : void
+    + CanConvertKey : bool <<get>>
+    + <<override>> ReadAsPropertyName(reader:Utf8JsonReader, typeToConvert:Type, options:JsonSerializerOptions) : Vector2
+    + <<override>> WriteAsPropertyName(writer:Utf8JsonWriter, value:Vector2, options:JsonSerializerOptions) : void
+}
+class "JsonConverter`1"<T> {
+}
+"JsonConverter`1" "<Vector2>" <|-- Vector2JsonConverter
+@enduml

@@ -1,0 +1,6 @@
+{
+  "check_bandit_camp": "if (HasItem('strange_symbol') && HasFlag('learned_about_metal')) { RevealLocation('bandit_camp'); }",
+  "check_ruins_access": "if (HasFlag('learned_cult_history')) { RevealLocation('ancient_ruins'); }",
+  "complete_investigation": "if (HasVisited('ancient_ruins') && HasItem('ancient_tome')) { CompleteQuest('investigate_ruins'); }",
+  "trigger_cultist_encounter": "if (HasFlag('learned_cult_history') && IsInLocation('ancient_ruins')) { SpawnNPC('mysterious_cultist'); }"
+}

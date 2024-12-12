@@ -18,6 +18,8 @@ docs/
 *.snk
 *.log
 *.txt
+*.pfx
+*.pub
 
 # Other files
 plantuml.jar

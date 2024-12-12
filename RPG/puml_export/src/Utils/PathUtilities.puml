@@ -1,0 +1,13 @@
+@startuml
+class PathUtilities <<static>> {
+    + {static} GetApplicationFolder() : string
+    + {static} GetAssemblyDirectory() : string
+    + {static} GetWorldsDirectory() : string
+    + {static} GetPrebuiltWorldPath(worldName:string) : string
+    + {static} GetBaseDirectory() : string
+    + {static} GetSettingsDirectory() : string
+    + {static} GetSavesDirectory() : string
+    + {static} GetBackupsDirectory() : string
+    + {static} GetAutosavesDirectory() : string
+}
+@enduml

@@ -1,0 +1,50 @@
+[
+    {
+      "name": "Captain Marcus",
+      "level": 10,
+      "role": 3,
+      "dialogueRefs": [1],
+      "stats": {
+        "strength": 14,
+        "dexterity": 12,
+        "intelligence": 10,
+        "defense": 12
+      }
+    },
+    {
+      "name": "Sarah the Innkeeper",
+      "level": 5,
+      "role": 2,
+      "dialogueRefs": [2],
+      "stats": {
+        "strength": 8,
+        "dexterity": 10,
+        "intelligence": 12,
+        "defense": 8
+      }
+    },
+    {
+      "name": "Erik the Blacksmith",
+      "level": 8,
+      "role": 5,
+      "dialogueRefs": [3],
+      "stats": {
+        "strength": 15,
+        "dexterity": 12,
+        "intelligence": 9,
+        "defense": 10
+      }
+    },
+    {
+      "name": "Elder Thomas",
+      "level": 12,
+      "role": 4,
+      "dialogueRefs": [4],
+      "stats": {
+        "strength": 6,
+        "dexterity": 8,
+        "intelligence": 15,
+        "defense": 6
+      }
+    }
+  ]

@@ -1,0 +1,38 @@
+{
+  "name": "Ravenkeep Town",
+  "description": "A sturdy town surrounded by stone walls, known for its watchful guards and friendly inhabitants.",
+  "position": "0,0",
+  "terrain": 0,
+  "locations": [
+    {
+      "name": "The Raven's Rest",
+      "description": "A welcoming tavern that serves as the heart of the town.",
+      "type": 5,
+      "position": "0,0",
+      "isDiscovered": true,
+      "buildings": [
+        {
+          "name": "Main Hall",
+          "description": "The common room is warm and inviting.",
+          "type": "Tavern",
+          "npcs": [1]
+        }
+      ]
+    },
+    {
+      "name": "Guard Post",
+      "description": "The town's guards keep watch from here.",
+      "type": 7,
+      "position": "2,0",
+      "isDiscovered": true,
+      "buildings": [
+        {
+          "name": "Guard House",
+          "description": "A well-maintained building where the town guard operates from.",
+          "type": "GuardPost",
+          "npcs": [0]
+        }
+      ]
+    }
+  ]
+}

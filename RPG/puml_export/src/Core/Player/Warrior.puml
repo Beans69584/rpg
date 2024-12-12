@@ -1,0 +1,9 @@
+@startuml
+class Warrior {
+    + CombatSkill : int <<get>> <<set>>
+    + <<virtual>> Attack(target:Person) : int
+    # <<override>> FormatSpeech(message:string) : string
+}
+Person <|-- Warrior
+Warrior --> "EquippedWeapon" Weapon
+@enduml

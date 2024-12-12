@@ -17,16 +17,11 @@ class GameState {
     + LoadWorld(worldPath:string, isNewGame:bool) : void
     + NavigateToLocation(location:Location) : void
 }
-class "List`1"<T> {
-}
-class "Dictionary`2"<T1,T2> {
-}
+
 ColoredText o-> "Color" ConsoleColor
-GameState o-> "GameLog<ColoredText>" "List`1"
 GameState --> "WindowManager" ConsoleWindowManager
-GameState o-> "Stats<string,int>" "Dictionary`2"
-GameState o-> "Inventory<string>" "List`1"
-GameState o-> "GameFlags<string,bool>" "Dictionary`2"
+
+
 GameState --> "CommandHandler" CommandHandler
 GameState --> "Localization" LocalizationManager
 GameState --> "World" WorldLoader

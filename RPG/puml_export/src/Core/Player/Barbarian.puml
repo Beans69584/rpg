@@ -1,0 +1,7 @@
+@startuml
+class Barbarian {
+    + BerserkLevel : int <<get>> <<set>> = 0
+    + <<override>> Attack(target:Person) : int
+}
+Warrior <|-- Barbarian
+@enduml

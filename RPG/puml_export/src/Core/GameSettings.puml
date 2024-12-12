@@ -1,0 +1,27 @@
+@startuml
+class ConsoleDisplayConfig {
+    + UseColors : bool <<get>> <<set>> = true
+    + UseUnicodeBorders : bool <<get>> <<set>> = true
+    + EnableCursorBlink : bool <<get>> <<set>> = true
+    + UseBold : bool <<get>> <<set>> = true
+    + RefreshRateMs : int <<get>> <<set>> = 16
+    + CursorBlinkRateMs : int <<get>> <<set>> = 530
+    + UseCurvedBorders : bool <<get>> <<set>> = true
+}
+class GameSettings {
+    - {static} <<readonly>> SettingsDirectory : string
+    - {static} <<readonly>> SettingsPath : string
+    - {static} _instance : GameSettings?
+    + Language : string <<get>> <<set>> = "en"
+    + WindowWidth : int <<get>> <<set>> = 80
+    + WindowHeight : int <<get>> <<set>> = 24
+    + FullScreen : bool <<get>> <<set>> = false
+    + Save() : void
+    - {static} Load() : GameSettings
+    + {static} CurrentLanguage : string <<get>> <<set>>
+    + UpdateLanguage(language:string) : void
+    <<internal>> {static} HasChanges() : bool
+}
+GameSettings o-> "Display" ConsoleDisplayConfig
+GameSettings --> "Instance" GameSettings
+@enduml

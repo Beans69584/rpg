@@ -1,0 +1,7 @@
+@startuml
+interface ICommand {
+    Name : string <<get>>
+    Description : string <<get>>
+    Execute(args:string, state:GameState) : void
+}
+@enduml

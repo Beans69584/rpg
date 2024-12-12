@@ -1,0 +1,15 @@
+@startuml
+class DialogueWindow {
+    + DialogueWindow(state:GameState)
+    + <<async>> ShowDialogueAsync(npc:Entity, dialogue:DialogueTree) : Task
+    - <<async>> HandleDialogueInputAsync(dialogue:DialogueTree) : Task
+    - UpdateLayout() : void
+    - ExecuteDialogueAction(action:DialogueAction) : void
+}
+
+DialogueWindow --> "_manager" ConsoleWindowManager
+
+DialogueWindow --> "_restoreRegions" Action
+DialogueWindow --> "_worldData" WorldData
+DialogueWindow --> "_state" GameState
+@enduml

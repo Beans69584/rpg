@@ -25,11 +25,10 @@ enum SaveType {
     Autosave,
     Quicksave,
 }
-class "Dictionary`2"<T1,T2> {
-}
+
 SaveInfo o-> "Metadata" SaveMetadata
-SaveMetadata --> "SaveTime" DateTime
+
 SaveMetadata --> "TotalPlayTime" TimeSpan
 SaveMetadata --> "SaveType" SaveType
-SaveMetadata o-> "CustomData<string,string>" "Dictionary`2"
+
 @enduml

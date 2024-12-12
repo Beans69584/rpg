@@ -13,15 +13,13 @@ class SaveData {
     + Description : string <<get>>
     + UpdatePlayTime() : void
 }
-class "Dictionary`2"<T1,T2> {
-}
-class "List`1"<T> {
-}
-SaveData --> "SaveTime" DateTime
-SaveData o-> "Stats<string,int>" "Dictionary`2"
-SaveData o-> "Inventory<string>" "List`1"
-SaveData o-> "GameFlags<string,bool>" "Dictionary`2"
+
+
+
+
+
+
 SaveData o-> "TotalPlayTime" TimeSpan
-SaveData o-> "LastPlayTime" DateTime
-SaveData --> "WorldCreatedAt" DateTime
+
+
 @enduml

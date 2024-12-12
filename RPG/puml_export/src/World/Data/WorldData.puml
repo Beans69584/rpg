@@ -1,0 +1,122 @@
+@startuml
+enum TerrainType {
+    Plains,
+    Forest,
+    Mountain,
+    Desert,
+    Swamp,
+    Coast,
+    Hills,
+    Canyon,
+    River,
+}
+enum LocationType {
+    Town,
+    Village,
+    Dungeon,
+    Cave,
+    Ruin,
+    Landmark,
+    Camp,
+    Outpost,
+    Temple,
+    Lake,
+    Peak,
+}
+class LocationTypeExtensions <<static>> {
+    + {static} ToFriendlyString(type:LocationType) : string
+}
+enum EncounterType {
+    Combat,
+    NPC,
+    Event,
+    Discovery,
+}
+class WorldRegion {
+    + NameId : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+    + ExplorationProgress : float <<get>> <<set>>
+}
+class Route {
+    + NameId : int <<get>> <<set>>
+    + Length : float <<get>> <<set>>
+    + DifficultyRating : float <<get>> <<set>>
+}
+class RouteSegment {
+    + DescriptionId : int <<get>> <<set>>
+    + DirectionsId : int <<get>> <<set>>
+    + EncounterRate : float <<get>> <<set>>
+}
+class Location {
+    + NameId : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+    + IsDiscovered : bool <<get>> <<set>>
+    + ImportanceRating : float <<get>> <<set>>
+}
+class Building {
+    + NameId : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+    + Type : string <<get>> <<set>> = ""
+}
+class Encounter {
+    + DescriptionId : int <<get>> <<set>>
+    + Probability : float <<get>> <<set>>
+}
+class Reward {
+    + Type : string <<get>> <<set>> = ""
+    + Value : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+}
+class Landmark {
+    + NameId : int <<get>> <<set>>
+    + DescriptionId : int <<get>> <<set>>
+    + Type : string <<get>> <<set>> = ""
+}
+class WorldData {
+    + GetString(id:int) : string
+}
+class ResourceTable {
+}
+
+
+WorldRegion --> "Terrain" TerrainType
+WorldRegion o-> "Position" Vector2
+
+
+
+
+
+
+
+
+Route --> "TerrainType" TerrainType
+
+
+Location --> "Type" LocationType
+
+
+
+
+
+
+Location --> "LocalTerrain" TerrainType
+Location o-> "Position" Vector2
+Location --> "CurrentBuilding" Building
+
+
+Encounter --> "Type" EncounterType
+
+
+Landmark o-> "Position" Vector2
+WorldData o-> "Header" Header
+WorldData o-> "Resources" ResourceTable
+
+
+
+
+
+
+
+
+
+@enduml

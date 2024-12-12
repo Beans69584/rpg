@@ -1,0 +1,46 @@
+@startuml
+class SaveData {
+    + PlayerName : string <<get>> <<set>> = "Hero"
+    + Level : int <<get>> <<set>> = 1
+    + HP : int <<get>> <<set>> = 100
+    + MaxHP : int <<get>> <<set>> = 100
+    + CurrentRegionId : string <<get>> <<set>> = ""
+    + WorldPath : string <<get>> <<set>> = ""
+    + Gold : int <<get>> <<set>> = 100
+    + CurrentExperience : int <<get>> <<set>>
+    + WorldSeed : string <<get>> <<set>> = ""
+    + WorldName : string <<get>> <<set>> = ""
+    + PlayerClass : string <<get>> <<set>> = "None"
+    + DisplayName : string <<get>>
+    + Description : string <<get>>
+    + CurrentRegionIndex : int <<get>> <<set>>
+    + BaseWorldName : string <<get>> <<set>> = "ravenkeep"
+    - {static} FormatPlayTime(time:TimeSpan) : string
+    + UpdatePlayTime() : void
+    + {static} CreateFromState(state:GameState) : SaveData
+}
+class WorldModifications {
+}
+
+
+class "HashSet`1"<T> {
+}
+
+
+
+
+SaveData o-> "TotalPlayTime" TimeSpan
+
+
+SaveData --> "World" WorldData
+SaveData o-> "DiscoveredLocations<string>" "HashSet`1"
+
+SaveData o-> "WorldChanges" WorldModifications
+
+WorldModifications o-> "DiscoveredLocations<string>" "HashSet`1"
+
+
+
+
+
+@enduml

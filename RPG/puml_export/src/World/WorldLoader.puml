@@ -1,0 +1,33 @@
+@startuml
+class WorldLoader {
+    + WorldLoader(worldPath:string)
+    + GetString(id:int) : string
+    - ValidateWorldData() : void
+    + GetWorldData() : WorldData
+    + GetStartingRegion() : WorldRegion?
+    + GetRegionByName(name:string) : WorldRegion?
+    + GetConnectedRegions(region:WorldRegion) : IEnumerable<WorldRegion>
+    + GetLocationByName(region:WorldRegion, name:string) : Location?
+    + GetLocationDescription(location:Location) : string
+    + LocationNameMatches(location:Location, name:string) : bool
+    + {static} GetLocationsInRegion(region:WorldRegion) : IEnumerable<Location>
+    + GetNPCsInRegion(region:WorldRegion) : IEnumerable<Entity>
+    + GetNPCsInLocation(location:Location) : List<Entity>
+    + GetNPCDialogue(npc:Entity) : string
+    + GetItemsInRegion(region:WorldRegion) : IEnumerable<Item>
+    + GetItemsInLocation(location:Location) : List<Item>
+    + GetRoute(from:WorldRegion, to:WorldRegion) : List<RoutePoint>
+    + GetRouteDescription(point:RoutePoint) : string
+    + GetRouteDirections(point:RoutePoint) : string
+    + GetRouteLandmarks(point:RoutePoint) : IEnumerable<Landmark>
+    + GetEntityName(entity:Entity) : string
+    + GetItemName(item:Item) : string
+    + GetItemDescription(item:Item) : string
+    + GetRegionName(region:WorldRegion) : string
+    + GetRegionDescription(region:WorldRegion) : string
+    + GetLocationName(location:Location) : string
+}
+
+WorldLoader --> "_worldData" WorldData
+
+@enduml

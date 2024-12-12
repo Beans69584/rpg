@@ -1,0 +1,22 @@
+@startuml
+class QuestManager {
+    + AcceptQuest(quest:Quest) : bool
+    + UpdateObjective(type:string, target:string, amount:int) : void
+    - CheckQuestCompletion(quest:ActiveQuest) : void
+    - GiveReward(reward:Reward) : void
+    + GetActiveQuests() : List<ActiveQuest>
+    + GetCompletedQuests() : List<Quest>
+}
+class ActiveQuest {
+    + ActiveQuest(quest:Quest)
+    + UpdateProgress(objective:QuestObjective, amount:int) : void
+    + IsComplete() : bool
+    + GetProgress(objective:QuestObjective) : int
+}
+
+QuestManager o-> "_state" GameState
+
+
+ActiveQuest --> "Quest" Quest
+
+@enduml

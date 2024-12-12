@@ -1,0 +1,30 @@
+@startuml
+class RegionWrapper {
+    + Name : string <<get>>
+    + Description : string <<get>>
+    + GetLocations() : IEnumerable<LocationWrapper>
+    + GetNPCs() : IEnumerable<Entity>
+    + GetItems() : IEnumerable<Item>
+}
+class LocationWrapper {
+    + Name : string <<get>>
+    + Description : string <<get>>
+    + Type : string <<get>>
+    + IsDiscovered : bool <<get>>
+    + GetNPCs() : IEnumerable<Entity>
+    + GetItems() : IEnumerable<Item>
+    + GetBuildings() : IEnumerable<Building>
+}
+class LuaTableExtensions <<static>> {
+    + {static} ToLuaTable(items:IEnumerable<RegionWrapper>, lua:NLua.Lua) : LuaTable?
+    + {static} ToLuaTable(items:IEnumerable<LocationWrapper>, lua:NLua.Lua) : LuaTable?
+}
+RegionWrapper o-> "_world" WorldLoader
+RegionWrapper o-> "Region" WorldRegion
+RegionWrapper --> "Terrain" TerrainType
+RegionWrapper --> "Position" Vector2
+LocationWrapper o-> "_world" WorldLoader
+LocationWrapper o-> "Location" Location
+LocationWrapper --> "Position" Vector2
+LocationWrapper --> "LocalTerrain" TerrainType
+@enduml

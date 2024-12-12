@@ -1,0 +1,13 @@
+@startuml
+class LuaCommand {
+    - <<readonly>> _name : string
+    - <<readonly>> _description : string
+    + <<override>> Name : string <<get>>
+    + <<override>> Description : string <<get>>
+    + Usage : string <<get>>
+    + Category : string <<get>>
+    + <<override>> Execute(args:string, state:GameState) : void
+}
+BaseCommand <|-- LuaCommand
+LuaCommand o-> "_executeFunction" LuaFunction
+@enduml

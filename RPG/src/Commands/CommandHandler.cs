@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 
 using RPG.Core;
+using RPG.Utils;
 
 namespace RPG.Commands
 {
@@ -40,6 +41,8 @@ namespace RPG.Commands
         {
             if (string.IsNullOrWhiteSpace(input) || _currentState == null) return;
 
+            Logger.Debug($"Processing input: {input}");
+
             string[] parts = input.Split(' ', 2);
             string commandName = parts[0].ToLower();
             string args = parts.Length > 1 ? parts[1] : string.Empty;
@@ -48,12 +51,18 @@ namespace RPG.Commands
             {
                 try
                 {
+                    Logger.Debug($"Executing command: {commandName} with args: {args}");
                     command.Execute(args, _currentState);
                 }
                 catch (Exception ex)
                 {
+                    Logger.Error(ex, $"Error executing command: {commandName}");
                     _currentState.GameLog.Add(new ColoredText($"[Error] {ex.Message}", ConsoleColor.Red));
                 }
+            }
+            else
+            {
+                Logger.Debug($"Command not found: {commandName}");
             }
         }
 
@@ -63,11 +72,13 @@ namespace RPG.Commands
         /// <param name="command">The command to register.</param>
         public void RegisterCommand(ICommand command)
         {
+            Logger.Debug($"Registering command: {command.Name}");
             _commands[command.Name.ToLower()] = command;
 
             // Register aliases
             foreach (string alias in command.Aliases)
             {
+                Logger.Debug($"Registering alias '{alias}' for command: {command.Name}");
                 _commands[alias.ToLower()] = command;
             }
         }
@@ -90,6 +101,7 @@ namespace RPG.Commands
         public bool ExecuteCommand(string input, GameState state)
         {
             _currentState = state;
+            Logger.Debug($"Executing command: {input}");
 
             string[] parts = input.Split(' ', 2);
             string commandName = parts[0].ToLower();
@@ -100,15 +112,19 @@ namespace RPG.Commands
                 try
                 {
                     command.Execute(args, state);
+                    Logger.Debug($"Command executed successfully: {commandName}");
                     return true;
                 }
                 catch (Exception ex)
                 {
+                    Logger.Error(ex, $"Error executing command: {commandName}");
                     state.GameLog.Add(new ColoredText($"[Error] {ex.Message}", ConsoleColor.Red));
                     return false;
                 }
             }
 
+            Logger.Debug($"Command not found: {commandName}");
+            _currentState.GameLog.Add(new ColoredText($"[Error] Command not found: {commandName}", ConsoleColor.Red));
             return false;
         }
 

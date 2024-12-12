@@ -1,0 +1,43 @@
+[
+    {
+      "id": 2,
+      "rootNodeId": 1,
+      "nodes": [
+        {
+          "id": 1,
+          "text": "Welcome to the Raven's Rest. Can I get you anything?",
+          "responses": [
+            {
+              "text": "The Guard Captain sent me about your brother.",
+              "nextNodeId": 2,
+              "requiredFlags": ["spoke_to_captain"]
+            },
+            {
+              "text": "Just looking around, thanks.",
+              "nextNodeId": 3
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "text": "My brother... he found something in the forest. He was acting strange before he disappeared. He left this symbol behind.",
+          "actions": [
+            {
+              "type": "GiveItem",
+              "target": "strange_symbol",
+              "value": "1"
+            },
+            {
+              "type": "SetFlag",
+              "target": "received_symbol",
+              "value": "true"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "text": "Let me know if you need anything."
+        }
+      ]
+    }
+  ]

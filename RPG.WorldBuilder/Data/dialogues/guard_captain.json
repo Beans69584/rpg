@@ -1,0 +1,48 @@
+[
+  {
+    "id": 1,
+    "rootNodeId": 1,
+    "nodes": [
+      {
+        "id": 1,
+        "text": "Welcome to Ravenkeep, traveler. We've been having trouble with bandits lately.",
+        "responses": [
+          {
+            "text": "Tell me about the bandits.",
+            "nextNodeId": 2
+          },
+          {
+            "text": "How can I help?",
+            "nextNodeId": 3
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "text": "They've been raiding our supply caravans, but something's odd. They're only taking specific items and leaving valuable goods behind.",
+        "responses": [
+          {
+            "text": "That is strange. I'd like to help investigate.",
+            "nextNodeId": 3
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "text": "If you're willing to help, speak with Sarah at the tavern. She lost her brother to these bandits, and he was investigating something before he disappeared.",
+        "actions": [
+          {
+            "type": "SetFlag",
+            "target": "spoke_to_captain",
+            "value": "true"
+          },
+          {
+            "type": "GiveQuest",
+            "target": "investigate_bandits",
+            "value": ""
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
     <data name="MainMenu_Title" xml:space="preserve">
-        <value>Demo RPG Game {0}</value>
+        <value>People Classes {0}</value>
     </data>
     <data name="MainMenu_Start" xml:space="preserve">
         <value>Start New Game</value>
@@ -19,19 +19,13 @@
         <value>Exit Game</value>
     </data>
     <data name="Welcome_Message" xml:space="preserve">
-        <value>Welcome to the Demo RPG Game!</value>
+        <value>Welcome!</value>
     </data>
     <data name="Help_Hint" xml:space="preserve">
         <value>Type 'help' for a list of commands.</value>
     </data>
     <data name="MainMenu_NavigationHint" xml:space="preserve">
         <value>Use arrow keys to navigate and Enter to select</value>
-    </data>
-    <data name="MainMenu_Copyright" xml:space="preserve">
-        <value>© {0} Demo RPG Game - All rights reserved</value>
-    </data>
-    <data name="MainMenu_CreatedFor" xml:space="preserve">
-        <value>Created for educational purposes</value>
     </data>
     <data name="Options_Title" xml:space="preserve">
         <value>Options</value>
@@ -156,6 +150,21 @@
     <data name="BlinkSpeed_VerySlow" xml:space="preserve">
         <value>Very Slow</value>
     </data>
+    <data name="CharacterCreation_Title" xml:space="preserve">
+        <value>Character Creation</value>
+    </data>
+    <data name="CharacterCreation_ClassSelect" xml:space="preserve">
+        <value>Select your class (Ctrl + Left/Right to change):</value>
+    </data>
+    <data name="CharacterCreation_AttributePoints" xml:space="preserve">
+        <value>Remaining Points: {0}</value>
+    </data>
+    <data name="CharacterCreation_Controls" xml:space="preserve">
+        <value>Use arrow keys to navigate and adjust attributes (5-20)</value>
+    </data>
+    <data name="CharacterCreation_ConfirmPrompt" xml:space="preserve">
+        <value>Press Enter to confirm or Escape to cancel</value>
+    </data>
     <data name="Load_Save_Auto" xml:space="preserve">
         <value>[Auto]</value>
     </data>
@@ -236,5 +245,83 @@
     </data>
     <data name="Load_PlayTime" xml:space="preserve">
         <value>Play time: {0}</value>
+    </data>
+    <data name="NewWorld_Title" xml:space="preserve">
+        <value>New World</value>
+    </data>
+    <data name="NewWorld_EnterDetails" xml:space="preserve">
+        <value>Enter world details</value>
+    </data>
+    <data name="NewWorld_Name" xml:space="preserve">
+        <value>World Name</value>
+    </data>
+    <data name="NewWorld_Seed" xml:space="preserve">
+        <value>Seed</value>
+    </data>
+    <data name="NewWorld_SeedOptional" xml:space="preserve">
+        <value>(Seed is optional, leave blank for random)</value>
+    </data>
+    <data name="NewWorld_Controls" xml:space="preserve">
+        <value>Press ENTER to create, ESC to cancel</value>
+    </data>
+    <data name="NewWorld_TabSwitch" xml:space="preserve">
+        <value>Press TAB to switch between fields</value>
+    </data>
+    <data name="NewWorld_InvalidName" xml:space="preserve">
+        <value>Please enter a valid world name</value>
+    </data>
+    <data name="ClassSelection_Title" xml:space="preserve">
+        <value>Choose Your Class</value>
+    </data>
+    <data name="ClassSelection_Choose" xml:space="preserve">
+        <value>Select your character class:</value>
+    </data>
+    <data name="ClassSelection_Controls" xml:space="preserve">
+        <value>Use Up/Down arrows to select, Enter to confirm, Esc to cancel</value>
+    </data>
+    <data name="NewSave_Title" xml:space="preserve">
+        <value>Create New Save</value>
+    </data>
+    <data name="NewSave_EnterName" xml:space="preserve">
+        <value>Enter a name for your save:</value>
+    </data>
+    <data name="NewSave_Name" xml:space="preserve">
+        <value>Save Name</value>
+    </data>
+    <data name="NewSave_Controls" xml:space="preserve">
+        <value>Press ENTER to create, ESC to cancel</value>
+    </data>
+    <data name="NewSave_InvalidName" xml:space="preserve">
+        <value>Please enter a valid save name</value>
+    </data>
+    <data name="DeleteSave_Title" xml:space="preserve">
+        <value>Delete Save</value>
+    </data>
+    <data name="DeleteSave_Confirm" xml:space="preserve">
+        <value>Are you sure you want to delete save '{0}'?</value>
+    </data>
+    <data name="DeleteSave_Warning" xml:space="preserve">
+        <value>This action cannot be undone!</value>
+    </data>
+    <data name="DeleteSave_Options_YesSelected" xml:space="preserve">
+        <value> [Yes]    No  </value>
+    </data>
+    <data name="DeleteSave_Options_NoSelected" xml:space="preserve">
+        <value>  Yes    [No] </value>
+    </data>
+    <data name="NewPlayer_Title" xml:space="preserve">
+        <value>Create Character</value>
+    </data>
+    <data name="NewPlayer_EnterName" xml:space="preserve">
+        <value>Enter your character name:</value>
+    </data>
+    <data name="NewPlayer_Name" xml:space="preserve">
+        <value>Character Name</value>
+    </data>
+    <data name="NewPlayer_Controls" xml:space="preserve">
+        <value>Press ENTER to continue, ESC to cancel</value>
+    </data>
+    <data name="NewPlayer_InvalidName" xml:space="preserve">
+        <value>Please enter a valid character name</value>
     </data>
 </root>
