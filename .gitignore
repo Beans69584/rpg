@@ -25,6 +25,8 @@ docs/
 *.sh
 *.ps1
 *.yml
+*.zip
+*.gz
 
 # Other files
 plantuml.jar

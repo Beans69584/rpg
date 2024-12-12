@@ -772,27 +772,18 @@ namespace RPG
                 }
             }
         }
-
         private static async Task ShowOptionsMenuAsync()
         {
             using ConsoleWindowManager manager = new();
             GameState state = new(manager);
             int currentOption = 1;
-            List<System.Globalization.CultureInfo> languages = [.. LocalisationManager.GetAvailableLanguages()];
-            int currentLanguageIndex = languages.FindIndex(c => c.Name == GameSettings.CurrentLanguage);
             GameSettings settings = GameSettings.Instance;
-            const int MAX_OPTIONS = 7;
+            const int MAX_OPTIONS = 6;
 
             // FPS options (will be converted to refresh rate ms)
             int[] fpsOptions = [30, 60, 120];
             int currentFpsIndex = Array.FindIndex(fpsOptions, fps => 1000 / fps == settings.Display.RefreshRateMs);
             if (currentFpsIndex == -1) currentFpsIndex = 1; // Default to 60 FPS if current setting isn't in list
-
-            state.Localization.LanguageChanged += (newLanguage) =>
-            {
-                manager.QueueRender();
-                settings.Save();
-            };
 
             void UpdateLayout()
             {
@@ -814,53 +805,45 @@ namespace RPG
                 {
                     List<ColoredText> options =
                     [
-                        "",
-                        $"   {state.Localization.GetString("Settings_General")}",
-                        "   ===============",
-                        "",
-                        currentOption == 1 ?
-                            $" > {state.Localization.GetString("Settings_Language_Label", languages[currentLanguageIndex].DisplayName)} [←/→]" :
-                            $"   {state.Localization.GetString("Settings_Language_Label", languages[currentLanguageIndex].DisplayName)}",
-                        "",
-                        "",
-                        $"   {state.Localization.GetString("Settings_Visual")}",
-                        "   ===============",
-                        "",
-                        currentOption == 2 ?
-                            $" > {state.Localization.GetString("Settings_Colors_Toggle", settings.Display.UseColors ? state.Localization.GetString("Settings_Disable") : state.Localization.GetString("Settings_Enable"))}" :
-                            $"   {state.Localization.GetString("Settings_Colors_Label", settings.Display.UseColors ? state.Localization.GetString("Settings_On") : state.Localization.GetString("Settings_Off"))}",
-                        "",
-                        currentOption == 3 ?
-                            $" > {state.Localization.GetString("Settings_BorderStyle_Label", GetBorderStyleDisplay(settings.Display, state))} [←/→]" :
-                            $"   {state.Localization.GetString("Settings_BorderStyle_Label", GetBorderStyleDisplay(settings.Display, state))}",
-                        "",
-                        "",
-                        $"   {state.Localization.GetString("Settings_Cursor")}",
-                        "   ===============",
-                        "",
-                        currentOption == 4 ?
-                            $" > {state.Localization.GetString("Settings_CursorBlink_Toggle", settings.Display.EnableCursorBlink ? state.Localization.GetString("Settings_Disable") : state.Localization.GetString("Settings_Enable"))}" :
-                            $"   {state.Localization.GetString("Settings_CursorBlink_Label", settings.Display.EnableCursorBlink ? state.Localization.GetString("Settings_On") : state.Localization.GetString("Settings_Off"))}",
-                        "",
-                        currentOption == 5 ?
-                            $" > {state.Localization.GetString("Settings_BlinkSpeed_Label", GetBlinkSpeedDisplay(settings.Display.CursorBlinkRateMs, state))} [←/→]" :
-                            $"   {state.Localization.GetString("Settings_BlinkSpeed_Label", GetBlinkSpeedDisplay(settings.Display.CursorBlinkRateMs, state))}",
-                        "",
-                        "",
-                        $"   {state.Localization.GetString("Settings_Performance")}",
-                        "   ===========",
-                        "",
-                        currentOption == 6 ?
-                            $" > {state.Localization.GetString("Settings_FrameRate_Label", fpsOptions[currentFpsIndex])} [←/→]" :
-                            $"   {state.Localization.GetString("Settings_FrameRate_Label", fpsOptions[currentFpsIndex])}",
-                        "",
-                        "",
-                        currentOption == 7 ?
-                            $" > [{state.Localization.GetString("Settings_BackToMainMenu")}]" :
-                            $"   {state.Localization.GetString("Settings_BackToMainMenu")}",
-                        "",
-                        "",
-                        state.Localization.GetString("Settings_NavigationHint")
+                    "",
+                $"   {state.Localization.GetString("Settings_Visual")}",
+                "   ===============",
+                "",
+                currentOption == 1 ?
+                    $" > {state.Localization.GetString("Settings_Colors_Toggle", settings.Display.UseColors ? state.Localization.GetString("Settings_Disable") : state.Localization.GetString("Settings_Enable"))}" :
+                    $"   {state.Localization.GetString("Settings_Colors_Label", settings.Display.UseColors ? state.Localization.GetString("Settings_On") : state.Localization.GetString("Settings_Off"))}",
+                "",
+                currentOption == 2 ?
+                    $" > {state.Localization.GetString("Settings_BorderStyle_Label", GetBorderStyleDisplay(settings.Display, state))} [←/→]" :
+                    $"   {state.Localization.GetString("Settings_BorderStyle_Label", GetBorderStyleDisplay(settings.Display, state))}",
+                "",
+                "",
+                $"   {state.Localization.GetString("Settings_Cursor")}",
+                "   ===============",
+                "",
+                currentOption == 3 ?
+                    $" > {state.Localization.GetString("Settings_CursorBlink_Toggle", settings.Display.EnableCursorBlink ? state.Localization.GetString("Settings_Disable") : state.Localization.GetString("Settings_Enable"))}" :
+                    $"   {state.Localization.GetString("Settings_CursorBlink_Label", settings.Display.EnableCursorBlink ? state.Localization.GetString("Settings_On") : state.Localization.GetString("Settings_Off"))}",
+                "",
+                currentOption == 4 ?
+                    $" > {state.Localization.GetString("Settings_BlinkSpeed_Label", GetBlinkSpeedDisplay(settings.Display.CursorBlinkRateMs, state))} [←/→]" :
+                    $"   {state.Localization.GetString("Settings_BlinkSpeed_Label", GetBlinkSpeedDisplay(settings.Display.CursorBlinkRateMs, state))}",
+                "",
+                "",
+                $"   {state.Localization.GetString("Settings_Performance")}",
+                "   ===========",
+                "",
+                currentOption == 5 ?
+                    $" > {state.Localization.GetString("Settings_FrameRate_Label", fpsOptions[currentFpsIndex])} [←/→]" :
+                    $"   {state.Localization.GetString("Settings_FrameRate_Label", fpsOptions[currentFpsIndex])}",
+                "",
+                "",
+                currentOption == 6 ?
+                    $" > [{state.Localization.GetString("Settings_BackToMainMenu")}]" :
+                    $"   {state.Localization.GetString("Settings_BackToMainMenu")}",
+                "",
+                "",
+                state.Localization.GetString("Settings_NavigationHint")
                     ];
 
                     manager.RenderWrappedText(region, options);
@@ -877,8 +860,8 @@ namespace RPG
                 else
                 {
                     return config.UseCurvedBorders
-                        ? state.Localization.GetString("BorderStyle_Curved")
-                        : state.Localization.GetString("BorderStyle_Classic");
+                    ? state.Localization.GetString("BorderStyle_Curved")
+                    : state.Localization.GetString("BorderStyle_Classic");
                 }
             }
 
@@ -916,15 +899,15 @@ namespace RPG
                     bool settingsChanged = true;
                     switch (currentOption)
                     {
-                        case 2: // Colours toggle
+                        case 1: // Colours toggle
                             settings.Display.UseColors = !settings.Display.UseColors;
                             manager.UpdateDisplaySettings(settings.Display);
                             break;
-                        case 4: // Cursor Blink toggle
+                        case 3: // Cursor Blink toggle
                             settings.Display.EnableCursorBlink = !settings.Display.EnableCursorBlink;
                             manager.UpdateDisplaySettings(settings.Display);
                             break;
-                        case 7: // Back
+                        case 6: // Back
                             settings.Save();
                             return;
                     }
@@ -939,32 +922,22 @@ namespace RPG
                     bool settingsChanged = true;
                     switch (currentOption)
                     {
-                        case 1: // Language cycling
-                            currentLanguageIndex = state.Input.IsKeyPressed(ConsoleKey.LeftArrow)
-                                ? (currentLanguageIndex - 1 + languages.Count) % languages.Count
-                                : (currentLanguageIndex + 1) % languages.Count;
-
-                            string newLanguage = languages[currentLanguageIndex].Name;
-                            settings.UpdateLanguage(newLanguage);  // Update the language in settings
-                            state.Localization.SetLanguage(newLanguage);  // Apply the language change
-                            break;
-
-                        case 3: // Border Style cycling
+                        case 2: // Border Style cycling
                             CycleBorderStyle(settings.Display, state.Input.IsKeyPressed(ConsoleKey.RightArrow));
                             manager.UpdateDisplaySettings(settings.Display);
                             break;
 
-                        case 5: // Blink Speed
+                        case 4: // Blink Speed
                             settings.Display.CursorBlinkRateMs = state.Input.IsKeyPressed(ConsoleKey.LeftArrow)
-                                ? Math.Max(200, settings.Display.CursorBlinkRateMs - 150)
-                                : Math.Min(1000, settings.Display.CursorBlinkRateMs + 150);
+                            ? Math.Max(200, settings.Display.CursorBlinkRateMs - 150)
+                            : Math.Min(1000, settings.Display.CursorBlinkRateMs + 150);
                             manager.UpdateDisplaySettings(settings.Display);
                             break;
 
-                        case 6: // Frame Rate
+                        case 5: // Frame Rate
                             currentFpsIndex = state.Input.IsKeyPressed(ConsoleKey.LeftArrow)
-                                ? (currentFpsIndex - 1 + fpsOptions.Length) % fpsOptions.Length
-                                : (currentFpsIndex + 1) % fpsOptions.Length;
+                            ? (currentFpsIndex - 1 + fpsOptions.Length) % fpsOptions.Length
+                            : (currentFpsIndex + 1) % fpsOptions.Length;
                             settings.Display.RefreshRateMs = 1000 / fpsOptions[currentFpsIndex];
                             manager.UpdateDisplaySettings(settings.Display);
                             break;

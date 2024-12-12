@@ -112,7 +112,7 @@
         <value>Blink Speed: {0}</value>
     </data>
     <data name="Settings_FrameRate_Label" xml:space="preserve">
-        <value>Frame Rate: {0} FPS</value>
+        <value>Frames per Second: {0} FPS</value>
     </data>
     <data name="Settings_NavigationHint" xml:space="preserve">
         <value>Arrow keys to navigate | Space/Enter to toggle | Esc to return</value>

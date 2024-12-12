@@ -9,7 +9,7 @@
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <AnalysisLevel>preview</AnalysisLevel>
     <AnalysisMode>All</AnalysisMode>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
