@@ -185,9 +185,20 @@ class FileProcessor:
         """Generate combined file content and return as string."""
         try:
             combined_content = []
-            for file_path in self.processed_files:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    combined_content.append(f"File: {file_path}\n{f.read()}\n\n")
+            for output_path in self.processed_files:
+                # Find the corresponding source file path
+                rel_path = output_path.relative_to(self.config.output_dir)
+                source_path = None
+                for source_dir in self.config.source_dirs:
+                    potential_source = source_dir / rel_path
+                    if potential_source.exists():
+                        source_path = potential_source
+                        break
+                
+                if source_path:
+                    with open(output_path, 'r', encoding='utf-8') as f:
+                        relative_path = source_path.relative_to(source_path.parent.parent)
+                        combined_content.append(f"File: {relative_path}\n{f.read()}\n\n")
             
             combined_text = ''.join(combined_content)
             

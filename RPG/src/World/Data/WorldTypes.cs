@@ -169,6 +169,7 @@ namespace RPG.World.Data
         public int Dexterity { get; set; }
         public int Intelligence { get; set; }
         public int Defense { get; set; }
+        public int Speed { get; set; }
     }
 
     public class ItemStats

@@ -17,3 +17,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Usage", "VSTHRD002:Avoid problematic synchronous waits", Justification = "<Pending>", Scope = "member", Target = "~M:RPG.Commands.Interaction.InteractCommand.Execute(System.String,RPG.Core.GameState)")]
 [assembly: SuppressMessage("Usage", "VSTHRD002:Avoid problematic synchronous waits", Justification = "<Pending>", Scope = "member", Target = "~M:RPG.Commands.Builtin.SaveCommand.Execute(System.String,RPG.Core.GameState)")]
 [assembly: SuppressMessage("Usage", "VSTHRD104:Offer async methods", Justification = "<Pending>", Scope = "member", Target = "~M:RPG.Commands.Builtin.SaveCommand.Execute(System.String,RPG.Core.GameState)")]
+[assembly: SuppressMessage("Usage", "VSTHRD002:Avoid problematic synchronous waits", Justification = "<Pending>", Scope = "member", Target = "~M:RPG.Commands.Combat.FightCommand.Execute(System.String,RPG.Core.GameState)")]

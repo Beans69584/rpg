@@ -161,6 +161,18 @@ namespace RPG.World.Data
         {
             return Resources.StringPool.FirstOrDefault(x => x.Value == id).Key ?? $"<unknown string {id}>";
         }
+
+        public int AddString(string value)
+        {
+            if (Resources.StringPool.ContainsKey(value))
+            {
+                return Resources.StringPool[value];
+            }
+
+            int id = Resources.StringPool.Count;
+            Resources.StringPool[value] = id;
+            return id;
+        }
     }
 
     public class ResourceTable

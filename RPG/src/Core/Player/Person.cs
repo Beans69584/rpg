@@ -21,6 +21,7 @@ namespace RPG.Core.Player
         public int Intelligence { get; set; }
         public int Wisdom { get; set; }
         public int Charisma { get; set; }
+        public int Speed { get; set; }
         public List<string> Inventory { get; set; } = [];
         public Dictionary<string, string> Equipment { get; set; } = [];
 
