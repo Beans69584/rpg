@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Strange Symbol",
+    "description": "A mysterious symbol carved into a piece of wood. It seems to pulse with dark energy.",
+    "stats": {
+      "value": 0,
+      "weight": 1,
+      "durability": 100,
+      "type": 3
+    }
+  },
+  {
+    "name": "Ancient Tome",
+    "description": "A book written in an unknown language, marked with similar symbols to those the bandits use.",
+    "stats": {
+      "value": 0,
+      "weight": 2,
+      "durability": 100,
+      "type": 3
+    }
+  }
+]

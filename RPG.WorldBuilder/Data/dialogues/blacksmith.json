@@ -1,0 +1,38 @@
+[
+    {
+      "id": 3,
+      "rootNodeId": 1,
+      "nodes": [
+        {
+          "id": 1,
+          "text": "Need something forged? Or maybe you're interested in that strange metal the bandits have been collecting?",
+          "responses": [
+            {
+              "text": "Tell me about this metal.",
+              "nextNodeId": 2,
+              "requiredFlags": ["spoke_to_captain"]
+            },
+            {
+              "text": "Just browsing.",
+              "nextNodeId": 3
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "text": "Never seen anything like it. Black as night but glows with a faint purple light when heated. The bandits have been gathering it from old ruins.",
+          "actions": [
+            {
+              "type": "SetFlag",
+              "target": "learned_about_metal",
+              "value": "true"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "text": "Let me know if you need any weapons or armor."
+        }
+      ]
+    }
+  ]

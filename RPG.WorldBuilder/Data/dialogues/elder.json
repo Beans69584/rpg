@@ -1,0 +1,45 @@
+[
+    {
+      "id": 4,
+      "rootNodeId": 1,
+      "nodes": [
+        {
+          "id": 1,
+          "text": "Ah, you're investigating the bandits? There's more to this than simple theft.",
+          "responses": [
+            {
+              "text": "What do you mean?",
+              "nextNodeId": 2,
+              "requiredFlags": ["received_symbol"]
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "text": "That symbol... I've seen it before, in the old texts. It's connected to an ancient cult that once inhabited these lands. They were sealed away in ruins deep in the forest.",
+          "responses": [
+            {
+              "text": "Tell me more about this cult.",
+              "nextNodeId": 3
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "text": "They sought to harness dark powers. The metal they used in their rituals still remains in the ruins. If someone is gathering it now...",
+          "actions": [
+            {
+              "type": "SetFlag",
+              "target": "learned_cult_history",
+              "value": "true"
+            },
+            {
+              "type": "GiveQuest",
+              "target": "investigate_ruins",
+              "value": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]

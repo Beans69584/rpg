@@ -1,0 +1,38 @@
+{
+  "name": "Darkwood Forest",
+  "description": "A dense forest where shadows seem to move of their own accord. Local hunters avoid certain parts of these woods.",
+  "position": "1,0",
+  "terrain": 1,
+  "locations": [
+    {
+      "name": "Bandit Camp",
+      "description": "A hidden encampment carefully concealed among the trees.",
+      "type": 6,
+      "position": "1,1",
+      "isDiscovered": false,
+      "buildings": [
+        {
+          "name": "Leader's Tent",
+          "description": "A large tent decorated with strange symbols.",
+          "type": "Camp",
+          "npcs": [4]
+        }
+      ]
+    },
+    {
+      "name": "Ancient Ruins",
+      "description": "Crumbling stone structures covered in mysterious runes.",
+      "type": 4,
+      "position": "2,2",
+      "isDiscovered": false,
+      "buildings": [
+        {
+          "name": "Underground Chamber",
+          "description": "A hidden chamber beneath the ruins where dark rituals take place.",
+          "type": "Dungeon",
+          "npcs": [5]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+[
+    {
+      "id": 2,
+      "name": "Ancient History",
+      "description": "Help Elder Thomas research the ancient cult that once inhabited these lands.",
+      "type": 1,
+      "minLevel": 3,
+      "objectives": [
+        {
+          "description": "Find old texts in the ruins",
+          "type": "Item",
+          "target": "ancient_tome",
+          "required": 1
+        },
+        {
+          "description": "Bring the texts to Elder Thomas",
+          "type": "Talk",
+          "target": "elder_thomas",
+          "required": 1
+        }
+      ],
+      "rewards": [
+        {
+          "type": "Gold",
+          "value": 50,
+          "description": "Research payment"
+        }
+      ]
+    }
+  ]

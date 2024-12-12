@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Guard Captain's Sword",
+    "description": "A well-maintained sword bearing the insignia of Ravenkeep's guard.",
+    "stats": {
+      "value": 100,
+      "weight": 3,
+      "durability": 100,
+      "type": 0
+    }
+  },
+  {
+    "name": "Cultist Dagger",
+    "description": "A curved dagger with strange runes etched into the blade.",
+    "stats": {
+      "value": 150,
+      "weight": 1,
+      "durability": 100,
+      "type": 0
+    }
+  }
+]

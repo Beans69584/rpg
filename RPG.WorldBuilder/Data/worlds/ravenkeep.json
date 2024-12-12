@@ -1,0 +1,10 @@
+{
+  "name": "The Shadow of Ravenkeep",
+  "description": "A quiet town faces an escalating threat as simple bandit raids reveal a darker conspiracy.",
+  "seed": "story-1",
+  "npcFiles": ["townspeople.json", "antagonists.json"],
+  "itemFiles": ["quest_items.json", "equipment.json"],
+  "regionFiles": ["town.json", "forest.json"],
+  "dialogueFiles": ["guard_captain.json", "sarah.json", "blacksmith.json", "elder.json"],
+  "questFiles": ["main_quests.json", "side_quests.json"]
+}
