@@ -1,151 +1,76 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-
-using RPG;
-using RPG.UI;
 using RPG.Core;
-using RPG.Commands;
 using RPG.Save;
+using RPG.UI;
+using RPG.Utils;
 
 namespace RPG.Commands.Builtin
 {
-    /// <summary>
-    /// Built-in command that saves the game.
-    /// </summary>
     public class SaveCommand : BaseCommand
     {
-        /// <summary>
-        /// Gets the name of the command.
-        /// </summary>
         public override string Name => "save";
-        /// <summary>
-        /// Gets the description of the command.
-        /// </summary>
         public override string Description => "Save the current game state";
-        /// <summary>
-        /// Gets a list of aliases for the command.
-        /// </summary>
         public override string[] Aliases => ["s"];
 
-        /// <summary>
-        /// Executes the command with the specified arguments and game state.
-        /// </summary>
-        /// <param name="args">The display name for the save (optional).</param>
-        /// <param name="state">The current game state.</param>
         public override void Execute(string args, GameState state)
         {
-            string displayName = string.IsNullOrWhiteSpace(args) ?
-                $"{state.PlayerName}'s Save" : args.Trim();
+            string? saveName = args;
 
-            string uuid = Guid.NewGuid().ToString("N");
-
-            // Store display name in metadata
-            state.CurrentSaveMetadata.CustomData["DisplayName"] = displayName;
-
-            if (SaveManager.SaveExists(uuid))
+            // If no save name provided, prompt for one
+            if (string.IsNullOrWhiteSpace(saveName))
             {
-                ConfirmOverwrite(uuid, displayName, state);
+                saveName = Program.ShowNewSaveDialogAsync(state.WindowManager, state).Result;
+                if (string.IsNullOrWhiteSpace(saveName))
+                {
+                    state.GameLog.Add("Save cancelled");
+                    return;
+                }
             }
-            else
+
+            try
             {
-                state.SaveGame(uuid);
-                state.GameLog.Add($"Game saved as '{displayName}'");
+                string saveId = state.CurrentSaveMetadata?.SaveId ?? GenerateSaveId(saveName);
+
+                // Create backup of existing save
+                if (SaveManager.SaveExists(saveId))
+                {
+                    SaveManager.CreateBackup(saveId);
+                }
+
+                // Update metadata
+                SaveMetadata metadata = new()
+                {
+                    SaveId = saveId,
+                    CreatedAt = state.CurrentSaveMetadata?.CreatedAt ?? DateTime.UtcNow,
+                    LastSavedAt = DateTime.UtcNow,
+                    CustomData = new Dictionary<string, string>
+                    {
+                        ["DisplayName"] = saveName,
+                        ["PlayerName"] = state.PlayerName,
+                        ["PlayerLevel"] = state.Level.ToString(),
+                        ["Location"] = state.World?.GetString(state.CurrentRegion?.NameId ?? 0) ?? "Unknown",
+                        ["SaveType"] = SaveType.Manual.ToString()
+                    }
+                };
+
+                state.CurrentSaveMetadata = metadata;
+
+                // Save the game
+                SaveManager.SaveGame(saveId, state);
+                state.GameLog.Add(new ColoredText($"Game saved successfully as '{saveName}'", ConsoleColor.Green));
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.Error(ex, "Failed to save game");
+                state.GameLog.Add(new ColoredText("Error: Failed to save game", ConsoleColor.Red));
             }
         }
 
-        private void ConfirmOverwrite(string uuid, string displayName, GameState state)
+        private static string GenerateSaveId(string saveName)
         {
-            bool selected = false;
-            ConsoleWindowManager manager = state.WindowManager;
-
-            // Store original regions to restore later
-            Dictionary<string, Region> originalRegions = [];
-            foreach (KeyValuePair<string, Region> regionKV in manager.GetRegions())
-            {
-                originalRegions[regionKV.Key] = regionKV.Value;
-                manager.UpdateRegion(regionKV.Key, r => r.IsVisible = false);
-            }
-
-            Region dialog = new()
-            {
-                Name = "Confirm Save",
-                BorderColor = ConsoleColor.Yellow,
-                TitleColor = ConsoleColor.Yellow,
-                RenderContent = (region) =>
-                {
-                    List<ColoredText> lines =
-                    [
-                        "",
-                        $"Save '{displayName}' already exists.",
-                        "Do you want to overwrite it?",
-                        "",
-                        selected ? "> [Yes]    No  <" : "  Yes   > [No] <",
-                        ""
-                    ];
-                    manager.RenderWrappedText(region, lines);
-                }
-            };
-
-            void UpdateLayout()
-            {
-                manager.UpdateRegion("Confirm", r =>
-                {
-                    r.X = Console.WindowWidth / 4;
-                    r.Y = Console.WindowHeight / 3;
-                    r.Width = Console.WindowWidth / 2;
-                    r.Height = 8;
-                });
-            }
-
-            manager.AddRegion("Confirm", dialog);
-            UpdateLayout();
-
-            while (true)
-            {
-                if (Console.KeyAvailable)
-                {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
-                    switch (key.Key)
-                    {
-                        case ConsoleKey.LeftArrow:
-                        case ConsoleKey.RightArrow:
-                            selected = !selected;
-                            manager.QueueRender();
-                            break;
-
-                        case ConsoleKey.Enter:
-                            if (selected)
-                            {
-                                state.SaveGame(uuid);
-                                state.GameLog.Add($"Game saved as '{displayName}'");
-                            }
-                            RestoreRegions();
-                            return;
-
-                        case ConsoleKey.Escape:
-                            RestoreRegions();
-                            return;
-                    }
-                }
-
-                if (manager.CheckResize())
-                {
-                    UpdateLayout();
-                }
-
-                Thread.Sleep(16);
-            }
-
-            void RestoreRegions()
-            {
-                manager.RemoveRegion("Confirm");
-                foreach (KeyValuePair<string, Region> regionKV in originalRegions)
-                {
-                    manager.UpdateRegion(regionKV.Key, r => r.IsVisible = true);
-                }
-                manager.QueueRender();
-            }
+            return $"{saveName.ToLower().Replace(" ", "_")}_{DateTime.Now:yyyyMMddHHmmss}";
         }
     }
 }

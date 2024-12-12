@@ -75,6 +75,7 @@ namespace RPG.World.Data
         public List<int> NPCs { get; set; } = [];
         public List<int> Items { get; set; } = [];
         public float ExplorationProgress { get; set; }
+        public List<string> Flags { get; set; } = [];
     }
 
     public class Route

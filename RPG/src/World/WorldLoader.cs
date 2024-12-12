@@ -40,6 +40,15 @@ namespace RPG.World
             ValidateWorldData();
         }
 
+        // Add new constructor for loading from WorldData
+        public WorldLoader(WorldData worldData)
+        {
+            _worldData = worldData;
+            _stringCache = _worldData.Resources.StringPool
+                .ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+            ValidateWorldData();
+        }
+
         public string GetString(int id)
         {
             return _stringCache.TryGetValue(id, out string? str) ? str : $"<unknown string {id}>";
@@ -61,8 +70,7 @@ namespace RPG.World
         public WorldRegion? GetStartingRegion()
         {
             return _worldData.Regions
-                .FirstOrDefault(r => r.Locations.Any(l =>
-                    l.Type is LocationType.Town or LocationType.Village));
+                .FirstOrDefault(r => GetString(r.NameId).Equals("Ravenkeep Town", StringComparison.OrdinalIgnoreCase));
         }
 
         public WorldRegion? GetRegionByName(string name)

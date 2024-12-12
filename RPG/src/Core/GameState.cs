@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Text.Json.Serialization;
 using RPG.UI;
-using RPG.Save;
-using RPG.Commands;
 using RPG.World;
 using RPG.World.Data;
 using RPG.Core.Player;
@@ -12,428 +10,99 @@ using RPG.Common;
 using RPG.Core.Managers;
 using RPG.Core.Systems;
 using RPG.Core.Player.Common;
+using RPG.Utils;
+using RPG.Commands;
+using RPG.Save;
 
 namespace RPG.Core
 {
-    /// <summary>
-    /// Represents a colored text entry in the game log.
-    /// </summary>
     public record struct ColoredText(string Text, ConsoleColor Color = ConsoleColor.Gray)
     {
-        /// <summary>
-        /// Implicitly converts a string to ColoredText with default color.
-        /// </summary>
-        /// <param name="text">The text to convert.</param>
         public static implicit operator ColoredText(string text)
         {
             return new(text);
         }
     }
 
-    /// <summary>
-    /// Manages the state of the game world.
-    /// </summary>
     public class GameState
     {
-        private readonly CharacterFactory characterFactory;
-
-        /// <summary>
-        /// Stores current GameLog to be displayed in the console.
-        /// </summary>
         public List<ColoredText> GameLog { get; } = [];
 
-        /// <summary>
-        /// Adds a message to the game log.
-        /// </summary>
-        /// <param name="message">The message to add. Can be string or ColoredText.</param>
-        public void AddLogMessage(ColoredText message)
-        {
-            GameLog.Add(message);
-        }
-
-        /// <summary>
-        /// Manages the console window and input/output.
-        /// </summary>
+        [JsonIgnore]
         public ConsoleWindowManager WindowManager { get; set; }
-        /// <summary>
-        /// The name of the player character.
-        /// </summary>
+
         public string PlayerName { get; set; } = "Hero";
-        /// <summary>
-        /// The level of the player character.
-        /// </summary>
         public int Level { get; set; } = 1;
-        /// <summary>
-        /// The current health points of the player character.
-        /// </summary>
         public int HP { get; set; } = 100;
-        /// <summary>
-        /// The maximum health points of the player character.
-        /// </summary>
         public int MaxHP { get; set; } = 100;
-        /// <summary>
-        /// The amount of gold the player character has.
-        /// </summary>
         public int Gold { get; set; } = 100;
-        /// <summary>
-        /// The stats of the player character.
-        /// </summary>
         public Dictionary<string, int> Stats { get; } = [];
-        /// <summary>
-        /// The inventory of the player character.
-        /// </summary>
         public List<string> Inventory { get; } = [];
-        /// <summary>
-        /// The game flags that are set during gameplay.
-        /// </summary>
         public Dictionary<string, bool> GameFlags { get; } = [];
-        /// <summary>
-        /// The command handler for processing player input.
-        /// </summary>
+
+        [JsonIgnore]
         public CommandHandler CommandHandler { get; }
-        /// <summary>
-        /// Whether the game is running or not.
-        /// </summary>
+
         public bool Running { get; set; } = true;
-        /// <summary>
-        /// The localization manager for the game.
-        /// </summary>
+
+        [JsonIgnore]
         public LocalizationManager Localization { get; }
-        /// <summary>
-        /// The world loader for the game.
-        /// </summary>
-        public WorldLoader? World { get; private set; }
-        /// <summary>
-        /// The current region the player is in.
-        /// </summary>
+
+        [JsonIgnore]
+        public WorldLoader? World { get; set; }
+
         public WorldRegion? CurrentRegion { get; set; }
-        /// <summary>
-        /// The current world path of the game.
-        /// </summary>
         public string CurrentWorldPath { get; private set; } = "";
-        /// <summary>
-        /// The current location the player is in.
-        /// </summary>
         public Location? CurrentLocation { get; set; }
-
-        /// <summary>
-        /// Path to the current world file
-        /// </summary>
         public string? WorldPath { get; set; }
-
-        /// <summary>
-        /// Discovered locations in the world
-        /// </summary>
         public HashSet<string> DiscoveredLocations { get; } = [];
-
-        /// <summary>
-        /// Region exploration progress
-        /// </summary>
         public Dictionary<int, float> RegionExploration { get; } = [];
-
-        /// <summary>
-        /// Total play time for this save
-        /// </summary>
         public TimeSpan TotalPlayTime { get; set; } = TimeSpan.Zero;
-
-        /// <summary>
-        /// Last play session start time
-        /// </summary>
-        private DateTime SessionStartTime { get; set; }
-
-        /// <summary>
-        /// Gets the current save metadata.
-        /// </summary>
-        public SaveMetadata CurrentSaveMetadata { get; private set; }
-
-        /// <summary>
-        /// The player's current position in the world
-        /// </summary>
         public Vector2 PlayerPosition { get; set; } = new();
+        public Person? CurrentPlayer { get; set; }
+        public int CurrentExperience { get; set; }
+        public Dictionary<string, int> Reputation { get; } = [];
+        public SaveMetadata? CurrentSaveMetadata { get; set; }
 
-        /// <summary>
-        /// The current player character instance
-        /// </summary>
-        public Person? CurrentPlayer { get; private set; }
+        [JsonIgnore]
+        public Input Input { get; }
 
-        /// <summary>
-        /// Event fired when the player class changes
-        /// </summary>
+        [JsonIgnore]
+        public QuestManager QuestManager { get; }
+
+        [JsonIgnore]
+        public ExperienceSystem ExperienceSystem { get; }
+
+        [JsonIgnore]
+        public bool InputSuspended { get; set; }
+
         public event Action<Person>? OnPlayerClassChanged;
 
-        /// <summary>
-        /// Manager for quest tracking
-        /// </summary>
-        public QuestManager QuestManager { get; }
-        public int CurrentExperience { get; set; }
-        public ExperienceSystem ExperienceSystem { get; }
-        public Dictionary<string, int> Reputation { get; } = [];
-        public bool InputSuspended { get; set; }
-        public void ModifyReputation(string faction, int amount)
+        [JsonConstructor]
+        public GameState()
         {
-            if (!Reputation.ContainsKey(faction))
-            {
-                Reputation[faction] = 0;
-            }
-            Reputation[faction] = Math.Clamp(Reputation[faction] + amount, -100, 100);
-
-            string message = amount > 0 ?
-                $"Reputation increased with {faction}" :
-                $"Reputation decreased with {faction}";
-            GameLog.Add(new ColoredText(message, amount > 0 ? ConsoleColor.Green : ConsoleColor.Red));
-        }
-
-        public int GetReputation(string faction)
-        {
-            return Reputation.GetValueOrDefault(faction, 0);
-        }
-
-        /// <summary>
-        /// Changes the player's class and updates relevant state
-        /// </summary>
-        public void TransformPlayerClass(Person newPlayerClass)
-        {
-            CurrentPlayer = newPlayerClass;
-            OnPlayerClassChanged?.Invoke(newPlayerClass);
-
-            CurrentSaveMetadata.CustomData["PlayerClass"] = newPlayerClass.GetType().Name;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GameState"/> class.
-        /// </summary>
-        /// <param name="manager">The console window manager to use.</param>
-        public GameState(ConsoleWindowManager manager)
-        {
-            WindowManager = manager;
-            characterFactory = new CharacterFactory(this);
+            CommandHandler = new CommandHandler();
+            Input = new Input();
+            Localization = new LocalizationManager() { CurrentCulture = System.Globalization.CultureInfo.CurrentCulture };
             QuestManager = new QuestManager(this);
             ExperienceSystem = new ExperienceSystem(this);
-            Localization = new LocalizationManager() { CurrentCulture = System.Globalization.CultureInfo.CurrentCulture };
+            WindowManager = null!;
+        }
+
+        public GameState(ConsoleWindowManager manager) : this()
+        {
+            WindowManager = manager;
             Localization.SetLanguage(GameSettings.CurrentLanguage);
-            CommandHandler = new CommandHandler();
-            SessionStartTime = DateTime.Now;
-
-            // Initialize save metadata
-            CurrentSaveMetadata = new SaveMetadata
-            {
-                Version = 1,
-                SaveTime = DateTime.UtcNow,
-                LastPlayedCharacter = PlayerName,
-                SaveType = SaveType.Manual,
-                CustomData = []
-            };
-
-            // Add player class data to metadata
-            CurrentSaveMetadata.CustomData["PlayerClass"] = "None";
 
             GameLog.Add(new ColoredText(Localization.GetString("Welcome_Message")));
             GameLog.Add(new ColoredText(Localization.GetString("Help_Hint")));
         }
 
-        public Input Input { get; } = new Input();
-
-        /// <summary>
-        /// Updates total play time and saves the game
-        /// </summary>
-        public void SaveGame(string slot)
+        public void AddLogMessage(ColoredText message)
         {
-            UpdatePlayTime();
-            SaveData saveData = SaveData.CreateFromState(this);
-
-            // Update metadata before saving
-            CurrentSaveMetadata.SaveTime = DateTime.UtcNow;
-            CurrentSaveMetadata.LastPlayedCharacter = PlayerName;
-            CurrentSaveMetadata.TotalPlayTime = TotalPlayTime;
-            CurrentSaveMetadata.CharacterLevel = Level;
-            CurrentSaveMetadata.WorldPath = WorldPath ?? "";
-
-            SaveManager.Save(saveData, slot);
-            GameLog.Add(new ColoredText($"Game saved to slot {slot}"));
+            GameLog.Add(message);
         }
 
-        /// <summary>
-        /// Updates the total play time
-        /// </summary>
-        private void UpdatePlayTime()
-        {
-            TimeSpan sessionTime = DateTime.UtcNow - SessionStartTime;
-            TotalPlayTime += sessionTime;
-            SessionStartTime = DateTime.UtcNow;
-        }
-
-        /// <summary>
-        /// Loads the game state from a save slot.
-        /// </summary>
-        /// <param name="slot">The save slot to load from.</param>
-        /// <returns>True if the game was loaded successfully, otherwise false.</returns>
-        public bool LoadGame(string slot)
-        {
-            (SaveMetadata? metadata, SaveData? saveData) = SaveManager.Load(slot);
-            if (metadata == null || saveData == null || saveData.World == null) return false;
-
-            try
-            {
-                // Load world data first
-                if (!string.IsNullOrEmpty(saveData.WorldPath))
-                {
-                    LoadWorld(saveData.WorldPath, false);
-                }
-
-                // Load player state
-                PlayerName = saveData.PlayerName;
-                Level = saveData.Level;
-                HP = saveData.HP;
-                MaxHP = saveData.MaxHP;
-                Gold = saveData.Gold;
-                Stats.Clear();
-                foreach (KeyValuePair<string, int> stat in saveData.Stats)
-                    Stats[stat.Key] = stat.Value;
-                Inventory.Clear();
-                Inventory.AddRange(saveData.Inventory);
-                GameFlags.Clear();
-                foreach (KeyValuePair<string, bool> flag in saveData.GameFlags)
-                    GameFlags[flag.Key] = flag.Value;
-                TotalPlayTime = saveData.TotalPlayTime;
-                SessionStartTime = DateTime.Now;
-
-                // Load world state
-                if (World != null && World.GetWorldData().Regions.Count > saveData.CurrentRegionIndex)
-                {
-                    CurrentRegion = World.GetWorldData().Regions[saveData.CurrentRegionIndex];
-                    DiscoveredLocations.Clear();
-                    DiscoveredLocations.UnionWith(saveData.DiscoveredLocations);
-                    RegionExploration.Clear();
-                    foreach (KeyValuePair<int, float> kvp in saveData.RegionExploration)
-                        RegionExploration[kvp.Key] = kvp.Value;
-                }
-                else
-                {
-                    GameLog.Add(new ColoredText("Warning: Could not restore previous location", ConsoleColor.Yellow));
-                    CurrentRegion = FindDefaultLocation();
-                }
-
-                if (metadata?.CustomData?.TryGetValue("PlayerClass", out string? className) == true)
-                {
-                    // Recreate player class instance based on saved type
-                    CreatePlayerFromClassName(className);
-                }
-
-                GameLog.Add(new ColoredText($"Game loaded from slot {slot}"));
-                return true;
-            }
-            catch (Exception ex)
-            {
-                GameLog.Add(new ColoredText($"Error loading save: {ex.Message}", ConsoleColor.Red));
-                return false;
-            }
-        }
-
-        private void CreatePlayerFromClassName(string className)
-        {
-            try
-            {
-                Dictionary<string, int> attributes = new()
-                {
-                    ["Strength"] = Stats.GetValueOrDefault("Strength", 10),
-                    ["Dexterity"] = Stats.GetValueOrDefault("Dexterity", 10),
-                    ["Constitution"] = Stats.GetValueOrDefault("Constitution", 10),
-                    ["Intelligence"] = Stats.GetValueOrDefault("Intelligence", 10),
-                    ["Wisdom"] = Stats.GetValueOrDefault("Wisdom", 10),
-                    ["Charisma"] = Stats.GetValueOrDefault("Charisma", 10)
-                };
-                Person newPlayer = characterFactory.CreateCharacter(className, PlayerName, attributes);
-                TransformPlayerClass(newPlayer);
-
-                if (newPlayer is Sorcerer sorcerer)
-                {
-                    sorcerer.OnTransformToSith += () =>
-                        GameLog.Add(new ColoredText("You have been corrupted by dark magic!", ConsoleColor.Red));
-                }
-            }
-            catch (ArgumentException ex)
-            {
-                GameLog.Add(new ColoredText($"Error creating character: {ex.Message}", ConsoleColor.Red));
-            }
-        }
-
-        private WorldRegion? FindDefaultLocation()
-        {
-            if (World == null) return null;
-
-            // Try to find locations in this priority order:
-            return World.GetRegionByName("Riverdale Village")  // Try main village first
-                ?? World.GetRegionByName("Village")           // Try generic village
-                ?? World.GetRegionByName("Town")              // Try town
-                ?? World.GetStartingRegion()                  // Try configured starting region
-                ?? World.GetWorldData().Regions.FirstOrDefault(); // Take first region as last resort
-        }
-
-        /// <summary>
-        /// Loads a new game world from a file.
-        /// </summary>
-        /// <param name="worldPath">The path to the world file.</param>
-        /// <param name="isNewGame">Whether this is a new game or not.</param>
-        public void LoadWorld(string worldPath, bool isNewGame = false)
-        {
-            WorldPath = worldPath;
-            World = new WorldLoader(worldPath);
-            CurrentWorldPath = worldPath;
-
-            if (isNewGame)
-            {
-                // Initialize new game state
-                CurrentRegion = FindDefaultLocation();
-                SessionStartTime = DateTime.Now;
-                TotalPlayTime = TimeSpan.Zero;
-            }
-
-            if (CurrentRegion != null)
-            {
-                GameLog.Add(new ColoredText($"You are in: {World.GetString(CurrentRegion?.NameId ?? 0)}"));
-                DescribeCurrentRegion();
-            }
-        }
-
-        private void DescribeCurrentRegion()
-        {
-            if (World == null || CurrentRegion == null) return;
-
-            GameLog.Add(new ColoredText(""));
-            GameLog.Add(new ColoredText(World.GetString(CurrentRegion.DescriptionId)));
-
-            // List locations in region
-            if (CurrentRegion.Locations.Any())
-            {
-                GameLog.Add(new ColoredText(""));
-                GameLog.Add(new ColoredText("Locations in this area:"));
-                foreach (Location location in CurrentRegion.Locations)
-                {
-                    GameLog.Add(new ColoredText($"  - {World.GetString(location.NameId)}"));
-                }
-            }
-
-            // List NPCs in region or current location
-            List<int> npcs = CurrentLocation != null ?
-                      CurrentLocation.NPCs :
-                      CurrentRegion.NPCs;
-
-            if (npcs.Any())
-            {
-                GameLog.Add(new ColoredText(""));
-                GameLog.Add(new ColoredText("You see:"));
-                foreach (int npcIndex in npcs)
-                {
-                    Entity npc = World.GetWorldData().NPCs[npcIndex];
-                    GameLog.Add(new ColoredText($"  - {World.GetString(npc.NameId)}"));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Navigates the player to a new location.
-        /// </summary>
-        /// <param name="location">The location to navigate to.</param>
         public void NavigateToLocation(Location location)
         {
             CurrentLocation = location;
@@ -446,7 +115,6 @@ namespace RPG.Core
         {
             if (World == null || CurrentLocation == null) return;
 
-            // List NPCs in location
             if (CurrentLocation.NPCs.Any())
             {
                 GameLog.Add(new ColoredText(""));
@@ -458,7 +126,6 @@ namespace RPG.Core
                 }
             }
 
-            // List items in location
             if (CurrentLocation.Items.Any())
             {
                 GameLog.Add(new ColoredText(""));
@@ -481,6 +148,43 @@ namespace RPG.Core
         public bool GetFlag(string flag)
         {
             return _flags.TryGetValue(flag, out bool value) && value;
+        }
+
+        public void ModifyReputation(string faction, int amount)
+        {
+            if (!Reputation.ContainsKey(faction))
+            {
+                Reputation[faction] = 0;
+            }
+            Reputation[faction] = Math.Clamp(Reputation[faction] + amount, -100, 100);
+
+            string message = amount > 0 ?
+                $"Reputation increased with {faction}" :
+                $"Reputation decreased with {faction}";
+            GameLog.Add(new ColoredText(message, amount > 0 ? ConsoleColor.Green : ConsoleColor.Red));
+        }
+
+        public int GetReputation(string faction)
+        {
+            return Reputation.GetValueOrDefault(faction, 0);
+        }
+
+        public void AutoSave()
+        {
+            try
+            {
+                SaveManager.AutoSave(this);
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.Error(ex, "Failed to create autosave");
+            }
+        }
+
+        public void TransformPlayerClass(Person newPlayerClass)
+        {
+            CurrentPlayer = newPlayerClass;
+            OnPlayerClassChanged?.Invoke(newPlayerClass);
         }
     }
 }

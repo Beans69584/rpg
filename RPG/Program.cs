@@ -9,7 +9,6 @@ using System.IO;
 using Serilog;
 
 using RPG.UI;
-using RPG.Save;
 using RPG.Core;
 using RPG.Utils;
 using RPG.World;
@@ -22,6 +21,7 @@ using RPG.Core.Player.Common;
 using RPG.Core.Managers;
 using RPG.UI.Windows;
 using System.Reflection;
+using RPG.Save;
 
 namespace RPG
 {
@@ -224,17 +224,6 @@ namespace RPG
                         },
                     ];
 
-                    List<SaveInfo> saves = SaveManager.GetSaveFiles();
-                    if (saves.Any())
-                    {
-                        menuItems.Add("");
-                        menuItems.Add("Available Saves:");
-                        foreach ((string slot, SaveData save) in saves)
-                        {
-                            menuItems.Add($"  {slot}: {save.DisplayName}");
-                        }
-                    }
-
                     manager.RenderWrappedText(region, menuItems);
                 }
             };
@@ -285,92 +274,74 @@ namespace RPG
             }
         }
 
-        private static async Task StartGameAsync(string? loadSlot = null)
+        private static async Task StartGameAsync(string? saveId = null)
         {
             GameState state;
-            using (ConsoleWindowManager selectionManager = new())
+
+            if (saveId != null)
             {
-                state = new(selectionManager);
+                // Loading existing save
+                using ConsoleWindowManager loadManager = new();
+                state = SaveManager.LoadGame(saveId, loadManager) ?? new GameState(loadManager);
 
-                if (loadSlot == null)
+                if (state.World == null)
                 {
-                    // Get player name first
-                    string? playerName = await ShowPlayerNameDialogAsync(selectionManager, state);
-                    if (playerName == null) return;
-                    state.PlayerName = playerName;
-
-                    // Get save slot name
-                    string? saveName = await ShowNewSaveDialogAsync(selectionManager, state);
-                    if (saveName == null) return;
-
-                    // Create character using CharacterCreationWindow
-                    CharacterCreationWindow creationWindow = new(state);
-                    Person? character = await creationWindow.ShowAsync();
-                    if (character == null) return;
-
-                    state.TransformPlayerClass(character);
-                    WorldData worldData = GenerateWorld();
-
-                    if (worldData.Regions.Count == 0)
-                    {
-                        Logger.Instance.Error("World generation failed - no regions created");
-                        state.GameLog.Add("Error: World generation failed");
-                        await Task.Delay(2000);
-                        return;
-                    }
-
-                    // Create saves directory structure
-                    string savesDir = PathUtilities.GetSavesDirectory();
-                    Directory.CreateDirectory(savesDir);
-                    Directory.CreateDirectory(PathUtilities.GetBackupsDirectory());
-                    Directory.CreateDirectory(PathUtilities.GetAutosavesDirectory());
-
-                    // Save world data
-                    string worldPath = Path.Combine(savesDir, "world.dat");
-                    using (FileStream fs = File.Create(worldPath))
-                    using (GZipStream gzip = new(fs, CompressionMode.Compress))
-                    {
-                        JsonSerializerOptions options = new()
-                        {
-                            WriteIndented = true,
-                            Converters = { new Vector2JsonConverter() }
-                        };
-
-                        await JsonSerializer.SerializeAsync(gzip, worldData, options);
-                    }
-
-                    // Initialize game state with new world
-                    state.WorldPath = worldPath;
-                    state.LoadWorld(worldPath, true);
-
-                    if (state.World == null || state.CurrentRegion == null)
-                    {
-                        Logger.Instance.Error("Failed to initialize new world");
-                        state.GameLog.Add("Error: Failed to create new world");
-                        await Task.Delay(2000);
-                        return;
-                    }
-                }
-                else if (!state.LoadGame(loadSlot))
-                {
-                    Logger.Instance.Error("Failed to load game from slot: {Slot}", loadSlot);
-                    state.GameLog.Add($"Failed to load save: {loadSlot}");
+                    // Handle failed load
+                    state.GameLog.Add(new ColoredText("Error: Failed to load save file", ConsoleColor.Red));
                     await Task.Delay(2000);
                     return;
                 }
             }
+            else
+            {
+                // New game setup
+                using ConsoleWindowManager selectionManager = new();
+                state = new GameState(selectionManager);
 
-            // Create new window manager for the game
+                // Get player name
+                string? playerName = await ShowPlayerNameDialogAsync(selectionManager, state);
+                if (string.IsNullOrEmpty(playerName))
+                {
+                    return;
+                }
+                state.PlayerName = playerName;
+
+                // Create character
+                CharacterCreationWindow charCreation = new(state);
+                Person? character = await charCreation.ShowAsync();
+                if (character == null)
+                {
+                    return;
+                }
+                state.CurrentPlayer = character;
+
+                // Load initial world data
+                try
+                {
+                    WorldData worldData = GenerateWorld();
+                    state.World = new WorldLoader(worldData);
+                    state.CurrentRegion = state.World.GetStartingRegion();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Instance.Error(ex, "Failed to load world data");
+                    state.GameLog.Add("Error: Failed to load world data");
+                    await Task.Delay(2000);
+                    return;
+                }
+            }
             using ConsoleWindowManager gameManager = new();
             state.WindowManager = gameManager;
 
-            if (state.World == null || state.CurrentRegion == null)
+            if (state.World == null)
             {
                 Logger.Instance.Error("World or current region is null after load");
                 state.GameLog.Add("Error: Failed to load world data");
                 await Task.Delay(2000);
                 return;
             }
+
+            state.CurrentRegion ??= state.World.GetStartingRegion();
 
             SetupCommands(state);
 
@@ -629,7 +600,7 @@ namespace RPG
             }
         }
 
-        private static async Task<string?> ShowNewSaveDialogAsync(ConsoleWindowManager manager, GameState state)
+        public static async Task<string?> ShowNewSaveDialogAsync(ConsoleWindowManager manager, GameState state)
         {
             StringBuilder saveName = new();
             bool isValid = false;
@@ -1029,9 +1000,9 @@ namespace RPG
                         List<ColoredText> lines =
                         [
                             "",
-                            state.Localization.GetString("Load_NoSaves"),
-                            "",
-                            "Press any key to return..."
+                    state.Localization.GetString("Load_NoSaves"),
+                    "",
+                    "Press any key to return..."
                         ];
                         manager.RenderWrappedText(region, lines);
                     }
@@ -1078,9 +1049,9 @@ namespace RPG
                     List<ColoredText> menuItems =
                     [
                         "",
-                        state.Localization.GetString("Load_Instructions"),
-                        state.Localization.GetString("Load_DeleteInstructions"),
-                        ""
+                state.Localization.GetString("Load_Instructions"),
+                state.Localization.GetString("Load_DeleteInstructions"),
+                ""
                     ];
 
                     int pageStart = currentPage * itemsPerPage;
@@ -1088,16 +1059,17 @@ namespace RPG
 
                     for (int i = 0; i < pageSaves.Count; i++)
                     {
-                        SaveInfo saveInfo = pageSaves[i];
+                        SaveInfo save = pageSaves[i];
                         int index = pageStart + i;
-                        string saveType = saveInfo.Metadata.SaveType == SaveType.Autosave ? "[Auto]" : "[Manual]";
-                        string saveDate = saveInfo.Metadata.SaveTime.ToString("yyyy-MM-dd HH:mm");
+                        string saveType = save.Type == SaveType.Autosave ? "[Auto]" : "[Manual]";
+                        string saveDate = save.LastModified.ToString("yyyy-MM-dd HH:mm");
 
                         menuItems.Add(index == selectedIndex ?
-                            $"> [{saveInfo.Slot}] {saveType} {saveDate}" :
-                            $"  {saveInfo.Slot}: {saveType} {saveDate}");
-                        menuItems.Add($"     {saveInfo.Metadata.LastPlayedCharacter} - Level {saveInfo.Metadata.CharacterLevel}");
-                        menuItems.Add($"     {state.Localization.GetString("Load_PlayTime", FormatPlayTime(saveInfo.Metadata.TotalPlayTime, state))}");
+                            new ColoredText($"> [{save.DisplayName}] {saveType} {saveDate}", ConsoleColor.Cyan) :
+                            new ColoredText($"  {save.DisplayName} {saveType} {saveDate}", ConsoleColor.Gray));
+
+                        menuItems.Add(new ColoredText($"     {save.PlayerName} - Level {save.PlayerLevel}", ConsoleColor.DarkCyan));
+                        menuItems.Add(new ColoredText($"     Location: {save.Location}", ConsoleColor.DarkCyan));
                         menuItems.Add("");
                     }
 
@@ -1162,7 +1134,7 @@ namespace RPG
                 }
                 else if (state.Input.IsKeyPressed(ConsoleKey.Delete))
                 {
-                    string slotToDelete = saves[selectedIndex].Slot;
+                    string slotToDelete = saves[selectedIndex].Id;
                     if (await ConfirmDeleteAsync(slotToDelete, manager, state))
                     {
                         SaveManager.DeleteSave(slotToDelete);
@@ -1223,7 +1195,16 @@ namespace RPG
                 }
                 else if (state.Input.IsKeyPressed(ConsoleKey.Enter))
                 {
-                    (string slot, SaveData _) = saves[selectedIndex];
+                    string slot = saves[selectedIndex].Id;
+                    GameState? loadedState = await Task.Run(() => SaveManager.LoadGame(slot, manager));
+
+                    if (loadedState == null)
+                    {
+                        state.GameLog.Add(new ColoredText("Failed to load save file. Check logs for details.", ConsoleColor.Red));
+                        await Task.Delay(2000); // Give user time to read error
+                        continue;
+                    }
+
                     await manager.DisposeAsync();
                     await StartGameAsync(slot);
                     return;
@@ -1241,26 +1222,6 @@ namespace RPG
                 await Task.Delay(16);
             }
         }
-
-        private static string FormatPlayTime(TimeSpan time, GameState state)
-        {
-#pragma warning disable IDE0046 // Convert to conditional expression
-            if (time.TotalDays >= 1)
-            {
-                return state.Localization.GetString("PlayTime_Days",
-                    (int)time.TotalDays, time.Hours, time.Minutes);
-            }
-            else
-            {
-                return time.TotalHours >= 1
-                    ? state.Localization.GetString("PlayTime_Hours",
-                                (int)time.TotalHours, time.Minutes)
-                    : state.Localization.GetString("PlayTime_Minutes",
-                            time.Minutes, time.Seconds);
-            }
-#pragma warning restore IDE0046 // Convert to conditional expression
-        }
-
         private static async Task<bool> ConfirmDeleteAsync(string slot, ConsoleWindowManager manager, GameState state)
         {
             bool selected = false;

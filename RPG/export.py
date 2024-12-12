@@ -13,7 +13,7 @@ class FileProcessorConfig:
     extensions: Set[str]
     ignored_dirs: Set[str]
     ignored_files: Set[str]
-    source_dir: Path
+    source_dirs: List[Path]  # Changed from source_dir to source_dirs
     output_dir: Path
     text_output: Path
     mirror_dir_structure: bool = False
@@ -49,11 +49,16 @@ class FileProcessor:
         try:
             with open(config_path, 'r') as f:
                 config_data = yaml.safe_load(f)
+                # Convert single source_dir to list if needed
+                source_dirs = config_data.get('source_dirs', [config_data.get('source_dir', '.')])
+                if isinstance(source_dirs, str):
+                    source_dirs = [source_dirs]
+                
                 return FileProcessorConfig(
                     extensions=set(config_data.get('extensions', [])),
                     ignored_dirs=set(config_data.get('ignored_dirs', [])),
                     ignored_files=set(config_data.get('ignored_files', [])),
-                    source_dir=Path(config_data.get('source_dir', '.')),
+                    source_dirs=[Path(d) for d in source_dirs],
                     output_dir=Path(config_data.get('output_dir', 'output')),
                     text_output=Path(config_data.get('text_output', '.')),
                     mirror_dir_structure=config_data.get('mirror_dir_structure', False),
@@ -82,7 +87,7 @@ class FileProcessor:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
                 return {
-                    'path': str(file_path.relative_to(self.config.source_dir)),
+                    'path': str(file_path.relative_to(self.config.source_dirs[0])),
                     'content': content
                 }
         except Exception as e:
@@ -127,15 +132,16 @@ class FileProcessor:
                 shutil.rmtree(self.config.output_dir)
             self.config.output_dir.mkdir(parents=True)
 
-            # Collect all files to process
+            # Collect all files to process from all source directories
             files_to_process = []
-            for root, dirs, files in os.walk(self.config.source_dir):
-                dirs[:] = [d for d in dirs if d not in self.config.ignored_dirs]
-                
-                for file in files:
-                    file_path = Path(root) / file
-                    if self.should_process_file(file_path):
-                        files_to_process.append(file_path)
+            for source_dir in self.config.source_dirs:
+                for root, dirs, files in os.walk(source_dir):
+                    dirs[:] = [d for d in dirs if d not in self.config.ignored_dirs]
+                    
+                    for file in files:
+                        file_path = Path(root) / file
+                        if self.should_process_file(file_path):
+                            files_to_process.append(file_path)
 
             # Process files in parallel
             with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
@@ -158,7 +164,9 @@ class FileProcessor:
     def generate_tree_output(self) -> str:
         """Generate directory tree structure and return as string."""
         try:
-            tree_content = self._generate_tree(self.config.source_dir)
+            tree_content = []
+            for source_dir in self.config.source_dirs:
+                tree_content.extend(self._generate_tree(source_dir))
             tree_text = '\n'.join(tree_content)
             
             self.config.text_output.mkdir(parents=True, exist_ok=True)
@@ -200,9 +208,12 @@ class FileProcessor:
         if path.name in self.config.ignored_dirs:
             return []
 
-        try:
-            path.relative_to(self.config.text_output)
-        except ValueError:
+        # Check if path is in any of the source directories
+        in_source_dir = any(
+            try_relative_to(path, source_dir)
+            for source_dir in self.config.source_dirs
+        )
+        if not in_source_dir:
             return []
 
         contents = []
@@ -240,6 +251,14 @@ class FileProcessor:
             return []
         
         return contents
+
+def try_relative_to(path: Path, base: Path) -> bool:
+    """Helper function to safely check if path is relative to base."""
+    try:
+        path.relative_to(base)
+        return True
+    except ValueError:
+        return False
 
 def process_files(config_path: str = 'config.yml') -> ProcessingResults:
     """Main function to process files and return results."""
