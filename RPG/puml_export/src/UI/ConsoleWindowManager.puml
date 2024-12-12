@@ -7,7 +7,12 @@ class Region {
     + Padding : int <<get>> <<set>> = 1
     + ZIndex : int <<get>> <<set>> = 0
     + Name : string? <<get>> <<set>>
+    + BorderColor : ConsoleColor <<get>> <<set>>
+    + TitleColor : ConsoleColor <<get>> <<set>>
     + IsVisible : bool <<get>> <<set>> = true
+    + RenderContent : Action<Region>? <<get>> <<set>>
+    + Bounds : Rectangle <<get>>
+    + ContentBounds : Rectangle <<get>>
 }
 struct Rectangle {
     + X : int <<get>>
@@ -17,14 +22,27 @@ struct Rectangle {
     + Intersects(other:Rectangle) : bool
 }
 class ConsoleWindowManager {
+    - <<readonly>> regions : Dictionary<string, Region>
+    - <<readonly>> renderLock : Lock
+    - buffer : ConsoleBuffer
     - isDisposed : bool
+    - <<readonly>> cancellationSource : CancellationTokenSource
+    - <<readonly>> renderTask : Task
     - currentInputText : string = ""
+    - currentInputColor : ConsoleColor
     - isDirty : bool = true
     - cursorVisible : bool = true
+    - lastCursorBlink : DateTime
     - lastConsoleWidth : int
     - lastConsoleHeight : int
+    - lastResize : DateTime
     - <<const>> RESIZE_DEBOUNCE_MS : int = 100
     - isResizing : bool = false
+    - {static} <<readonly>> AsciiBoxChars : Dictionary<string, char>
+    - {static} <<readonly>> UnicodeBoxChars : Dictionary<string, char>
+    - {static} <<readonly>> CurvedBoxChars : Dictionary<string, char>
+    - BoxChars : Dictionary<string, char>
+    - displayConfig : ConsoleDisplayConfig
     + ConsoleWindowManager()
     + AddRegion(name:string, region:Region) : void
     + UpdateRegion(name:string, updateAction:Action<Region>) : void
@@ -37,6 +55,7 @@ class ConsoleWindowManager {
     + {static} IsDoubleWidth(c:char) : bool
     + RenderWrappedText(region:Region, lines:IEnumerable<ColoredText>) : void
     - {static} WrapText(text:string, width:int) : IEnumerable<string>
+    - <<readonly>> disposeLock : Lock
     + <<async>> DisposeAsync() : ValueTask
     - <<async>> DisposeAsyncCoreAsync() : ValueTask
     - StopRendering() : void
@@ -47,14 +66,12 @@ class ConsoleWindowManager {
     - RenderInput(inputRegion:Region) : void
     + UpdateInputText(text:string, color:ConsoleColor) : void
     + UpdateDisplaySettings(newConfig:ConsoleDisplayConfig) : void
-    + RenderMap(region:Region, world:WorldData, currentRegion:WorldRegion) : void
-    + RenderRegionMap(region:Region, currentRegion:WorldRegion) : void
-    - {static} GetLocationSymbol(location:Location) : char
-    - {static} GetLocationColor(location:Location) : ConsoleColor
     + GetRegions() : Dictionary<string, Region>
     + RemoveRegion(name:string) : void
 }
 class ConsoleBuffer {
+    - chars : char[]
+    - colors : ConsoleColor[]
     - contentWidth : int
     - contentHeight : int
     + Width : int <<get>>
@@ -69,25 +86,5 @@ class ConsoleBuffer {
     + Flush() : void
     + GetChar(x:int, y:int) : char
 }
-
-Region o-> "BorderColor" ConsoleColor
-Region o-> "TitleColor" ConsoleColor
-Region --> "RenderContent<Region>" "Action`1"
-Region --> "Bounds" Rectangle
-Region --> "ContentBounds" Rectangle
 IDisposable <|-- ConsoleWindowManager
-
-ConsoleWindowManager o-> "renderLock" Lock
-ConsoleWindowManager --> "buffer" ConsoleBuffer
-ConsoleWindowManager o-> "cancellationSource" CancellationTokenSource
-ConsoleWindowManager --> "renderTask" Task
-ConsoleWindowManager o-> "currentInputColor" ConsoleColor
-
-
-
-
-
-
-ConsoleWindowManager --> "displayConfig" ConsoleDisplayConfig
-ConsoleWindowManager o-> "disposeLock" Lock
 @enduml

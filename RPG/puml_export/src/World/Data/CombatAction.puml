@@ -1,0 +1,14 @@
+@startuml
+enum CombatActionType {
+    Attack,
+    Defend,
+    UseItem,
+    Flee,
+}
+class CombatAction {
+    + Type : CombatActionType <<get>> <<set>>
+    + <<required>> Source : CombatEntity <<get>> <<set>>
+    + <<required>> Target : CombatEntity <<get>> <<set>>
+    + ItemId : string? <<get>> <<set>>
+}
+@enduml

@@ -6,12 +6,36 @@ using RPG.World.Data;
 
 namespace RPG.Commands.Character
 {
+    /// <summary>
+    /// Represents a command that displays the player's active quests and their progress.
+    /// </summary>
     public class QuestsCommand : BaseCommand
     {
+        /// <summary>
+        /// Gets the name of the command.
+        /// </summary>
+        /// <value>Returns "quests" as the command name.</value>
         public override string Name => "quests";
+
+        /// <summary>
+        /// Gets the description of the command's functionality.
+        /// </summary>
+        /// <value>Returns a brief description explaining the command's purpose.</value>
         public override string Description => "View your active quests";
+
+        /// <summary>
+        /// Gets the alternative names that can be used to invoke this command.
+        /// </summary>
+        /// <value>Returns an array of command aliases.</value>
         public override string[] Aliases => [];
 
+        /// <summary>
+        /// Executes the quests command, displaying all active quests and their objectives.
+        /// If no quests are active, informs the player of this. For each active quest,
+        /// shows its name, description, and objectives with completion progress.
+        /// </summary>
+        /// <param name="args">The command arguments (unused in this implementation).</param>
+        /// <param name="state">The current game state containing quest and world information.</param>
         public override void Execute(string args, GameState state)
         {
             List<ActiveQuest> quests = state.QuestManager.GetActiveQuests();

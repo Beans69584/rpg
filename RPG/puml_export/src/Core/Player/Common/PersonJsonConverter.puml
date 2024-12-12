@@ -1,0 +1,8 @@
+@startuml
+class PersonJsonConverter {
+    + <<override>> CanConvert(typeToConvert:Type) : bool
+    + <<override>> Read(reader:Utf8JsonReader, typeToConvert:Type, options:JsonSerializerOptions) : Person?
+    + <<override>> Write(writer:Utf8JsonWriter, value:Person, options:JsonSerializerOptions) : void
+}
+"JsonConverter`1" "<Person>" <|-- PersonJsonConverter
+@enduml

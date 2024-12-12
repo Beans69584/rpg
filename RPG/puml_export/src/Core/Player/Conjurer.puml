@@ -1,8 +1,7 @@
 @startuml
 class Conjurer {
+    + SummonedAnimals : List<Animal> <<get>> <<set>>
     + SummonAnimal(type:AnimalType) : void
 }
-
 Magician <|-- Conjurer
-
 @enduml

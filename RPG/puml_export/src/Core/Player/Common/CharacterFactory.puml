@@ -1,0 +1,6 @@
+@startuml
+class CharacterFactory {
+    - <<readonly>> gameState : GameState
+    + CreateCharacter(characterClass:string, name:string, attributes:Dictionary<string, int>) : Person
+}
+@enduml

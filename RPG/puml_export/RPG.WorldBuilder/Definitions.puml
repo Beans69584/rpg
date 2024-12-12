@@ -1,0 +1,124 @@
+@startuml
+class WorldDefinition {
+    + Name : string <<get>> <<set>> = ""
+    + Description : string <<get>> <<set>> = ""
+    + Seed : string <<get>> <<set>> = ""
+    + Version : string <<get>> <<set>> = "1.0"
+    + RecommendedLevel : string <<get>> <<set>> = ""
+    + EstimatedPlaytime : string <<get>> <<set>> = ""
+    + NPCFiles : List<string> <<get>> <<set>>
+    + ItemFiles : List<string> <<get>> <<set>>
+    + RegionFiles : List<string> <<get>> <<set>>
+    + DialogueFiles : List<string> <<get>> <<set>>
+    + QuestFiles : List<string> <<get>> <<set>>
+    + StartingLocation : StartingLocation <<get>> <<set>>
+    + StartingQuests : List<string> <<get>> <<set>>
+    + StartingInventory : StartingInventory <<get>> <<set>>
+    + QuestChains : List<QuestChain> <<get>> <<set>>
+    + LevelScaling : LevelScaling <<get>> <<set>>
+    + GameFlags : GameFlags <<get>> <<set>>
+}
+class StartingLocation {
+    + Region : string <<get>> <<set>> = ""
+    + Position : string <<get>> <<set>> = ""
+}
+class StartingInventory {
+    + Gold : int <<get>> <<set>>
+    + Items : List<StartingItem> <<get>> <<set>>
+}
+class StartingItem {
+    + Name : string <<get>> <<set>> = ""
+    + Quantity : int <<get>> <<set>>
+}
+class QuestChain {
+    + Name : string <<get>> <<set>> = ""
+    + Quests : List<string> <<get>> <<set>>
+}
+class LevelScaling {
+    + MinLevel : int <<get>> <<set>>
+    + MaxLevel : int <<get>> <<set>>
+    + Regions : Dictionary<string, RegionScaling> <<get>> <<set>>
+}
+class RegionScaling {
+    + MinLevel : int <<get>> <<set>>
+    + MaxLevel : int <<get>> <<set>>
+}
+class GameFlags {
+    + Required : List<string> <<get>> <<set>>
+}
+class RegionDefinition {
+    + Name : string <<get>> <<set>> = ""
+    + Description : string <<get>> <<set>> = ""
+    + Position : Vector2 <<get>> <<set>>
+    + Terrain : TerrainType <<get>> <<set>>
+    + Locations : List<LocationDefinition> <<get>> <<set>>
+}
+class LocationDefinition {
+    + Name : string <<get>> <<set>> = ""
+    + Description : string <<get>> <<set>> = ""
+    + Type : LocationType <<get>> <<set>>
+    + Position : Vector2 <<get>> <<set>>
+    + IsDiscovered : bool <<get>> <<set>>
+    + Buildings : List<BuildingDefinition> <<get>> <<set>>
+}
+class BuildingDefinition {
+    + Name : string <<get>> <<set>> = ""
+    + Description : string <<get>> <<set>> = ""
+    + Type : string <<get>> <<set>> = ""
+    + NPCs : List<int> <<get>> <<set>>
+}
+class NPCDefinition {
+    + Name : string <<get>> <<set>> = ""
+    + Level : int <<get>> <<set>>
+    + Role : NPCRole <<get>> <<set>>
+    + DialogueRefs : List<int> <<get>> <<set>>
+    + Stats : EntityStats <<get>> <<set>>
+}
+class ItemDefinition {
+    + Name : string <<get>> <<set>> = ""
+    + Description : string <<get>> <<set>> = ""
+    + Stats : ItemStats <<get>> <<set>>
+}
+class DialogueDefinition {
+    + Id : int <<get>> <<set>>
+    + RootNodeId : int <<get>> <<set>>
+    + Nodes : List<DialogueNodeDefinition> <<get>> <<set>>
+}
+class DialogueNodeDefinition {
+    + Id : int <<get>> <<set>>
+    + Text : string <<get>> <<set>> = ""
+    + Responses : List<DialogueResponseDefinition> <<get>> <<set>>
+    + Actions : List<DialogueActionDefinition>? <<get>> <<set>>
+}
+class DialogueResponseDefinition {
+    + Text : string <<get>> <<set>> = ""
+    + NextNodeId : int <<get>> <<set>>
+    + RequiredFlags : List<string>? <<get>> <<set>>
+    + Actions : List<DialogueActionDefinition>? <<get>> <<set>>
+}
+class DialogueActionDefinition {
+    + Type : string <<get>> <<set>> = ""
+    + Target : string <<get>> <<set>> = ""
+    + Value : string <<get>> <<set>> = ""
+}
+class QuestDefinition {
+    + Id : int <<get>> <<set>>
+    + Name : string <<get>> <<set>> = ""
+    + Description : string <<get>> <<set>> = ""
+    + Type : QuestType <<get>> <<set>>
+    + MinLevel : int <<get>> <<set>>
+    + Objectives : List<QuestObjectiveDefinition> <<get>> <<set>>
+    + Rewards : List<QuestRewardDefinition> <<get>> <<set>>
+}
+class QuestObjectiveDefinition {
+    + Description : string <<get>> <<set>> = ""
+    + Type : string <<get>> <<set>> = ""
+    + Target : string <<get>> <<set>> = ""
+    + Required : int <<get>> <<set>>
+}
+class QuestRewardDefinition {
+    + Type : string <<get>> <<set>> = ""
+    + Value : int <<get>> <<set>>
+    + Description : string <<get>> <<set>> = ""
+}
+@enduml

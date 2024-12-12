@@ -4,12 +4,42 @@ using RPG.World.Data;
 
 namespace RPG.Commands.Interaction
 {
+    /// <summary>
+    /// Command that allows players to examine their surroundings or specific objects in the game world.
+    /// </summary>
     public class LookCommand : BaseCommand
     {
+        /// <summary>
+        /// Gets the name of the command.
+        /// </summary>
+        /// <value>Returns "look" as the command name.</value>
         public override string Name => "look";
+
+        /// <summary>
+        /// Gets a description of the command's functionality.
+        /// </summary>
+        /// <value>Returns a description explaining the command's purpose.</value>
         public override string Description => "Examine your surroundings or a specific object";
+
+        /// <summary>
+        /// Gets an array of alternative names for the command.
+        /// </summary>
+        /// <value>Returns an empty array as this command has no aliases.</value>
         public override string[] Aliases => [];
 
+        /// <summary>
+        /// Executes the look command, displaying information about the current surroundings or a specific object.
+        /// </summary>
+        /// <param name="args">The target to examine. If empty, shows the current location's details.</param>
+        /// <param name="state">The current game state containing world and player information.</param>
+        /// <remarks>
+        /// Without arguments, the command will show information about:
+        /// - The current building if the player is inside one
+        /// - The current location if the player is outside
+        /// - The current region if the player is viewing the world map
+        /// 
+        /// With arguments, it attempts to examine a specific building in the current location.
+        /// </remarks>
         public override void Execute(string args, GameState state)
         {
             if (string.IsNullOrWhiteSpace(args))

@@ -1,0 +1,12 @@
+@startuml
+class CombatEntity {
+    + Name : string <<get>>
+    + Stats : EntityStats <<get>>
+    + CurrentHP : int <<get>> <<set>>
+    + MaxHP : int <<get>>
+    + IsDefending : bool <<get>> <<set>>
+    + IsPlayer : bool <<get>>
+    + CombatEntity(entity:Entity, worldData:WorldData)
+    + CombatEntity(person:Person)
+}
+@enduml

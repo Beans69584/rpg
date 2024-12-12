@@ -16,7 +16,5 @@ class Vector2JsonConverter {
     + <<override>> ReadAsPropertyName(reader:Utf8JsonReader, typeToConvert:Type, options:JsonSerializerOptions) : Vector2
     + <<override>> WriteAsPropertyName(writer:Utf8JsonWriter, value:Vector2, options:JsonSerializerOptions) : void
 }
-class "JsonConverter`1"<T> {
-}
 "JsonConverter`1" "<Vector2>" <|-- Vector2JsonConverter
 @enduml

@@ -7,6 +7,9 @@ using RPG.Core.Player.Common;
 
 namespace RPG.UI.Windows
 {
+    /// <summary>
+    /// Represents a window for creating a new character.
+    /// </summary>
     public class CharacterCreationWindow
     {
         private readonly GameState state;
@@ -33,6 +36,10 @@ namespace RPG.UI.Windows
             ["conjurer"] = ConsoleColor.DarkCyan
         };
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="CharacterCreationWindow"/> class.
+        /// </summary>
+        /// <param name="state">The current game state.</param>
         public CharacterCreationWindow(GameState state)
         {
             this.state = state;
@@ -48,6 +55,10 @@ namespace RPG.UI.Windows
             };
         }
 
+        /// <summary>
+        /// Displays the character creation window and returns the created character.
+        /// </summary>
+        /// <returns>The created character, or null if the player cancels.</returns>
         public async Task<Person?> ShowAsync()
         {
             using ConsoleWindowManager manager = state.WindowManager;
@@ -132,14 +143,12 @@ namespace RPG.UI.Windows
                         attributePoints > 0 ? ConsoleColor.DarkGreen : ConsoleColor.DarkYellow));
                     content.Add(new ColoredText($"{boxChars["vertical"]}{horizontalLine}{boxChars["vertical"]}", ConsoleColor.Gray));
 
-                    // Render attributes with improved visual bars
                     for (int i = 0; i < attributeNames.Length; i++)
                     {
                         string attribute = attributeNames[i];
                         int value = attributes[attribute];
                         bool isSelected = i == selectedAttribute;
 
-                        // Create a more visually appealing stat bar
                         int barWidth = 20; // Fixed width for consistency
                         int filledBlocks = (int)((value - 5) * (barWidth / 15.0)); // Scale 5-20 to 0-barWidth
                         string bar = new string('■', filledBlocks) + new string('□', barWidth - filledBlocks);

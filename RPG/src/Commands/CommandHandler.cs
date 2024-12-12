@@ -26,7 +26,7 @@ namespace RPG.Commands
         }
 
         /// <summary>
-        /// Initializes a new instance of the CommandHandler class.
+        /// Initialises a new instance of the CommandHandler class.
         /// </summary>
         public CommandHandler()
         {

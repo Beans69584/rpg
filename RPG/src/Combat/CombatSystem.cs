@@ -8,6 +8,10 @@ using System.Linq;
 
 namespace RPG.Combat
 {
+    /// <summary>
+    /// Manages turn-based combat encounters between the player and enemy entities.
+    /// Handles combat initialisation, turn order, action processing, and combat resolution.
+    /// </summary>
     public class CombatSystem(GameState state)
     {
         private readonly GameState _state = state;
@@ -16,10 +20,21 @@ namespace RPG.Combat
         private readonly Queue<CombatAction> _actionQueue = new();
         private bool _isCombatActive;
 
+        /// <summary>
+        /// Initiates a combat encounter between the player and a group of enemies.
+        /// </summary>
+        /// <param name="enemies">The list of enemy entities to battle against.</param>
+        /// <returns>
+        /// A task that represents the asynchronous combat operation.
+        /// The task completes when the combat encounter ends through victory, defeat, or fleeing.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when attempting to start combat without a player character being set.
+        /// </exception>
         public async Task StartCombatAsync(List<Entity> enemies)
         {
             _isCombatActive = true;
-            InitializeCombat(enemies);
+            InitialiseCombat(enemies);
 
             while (_isCombatActive)
             {
@@ -35,7 +50,7 @@ namespace RPG.Combat
             }
         }
 
-        private void InitializeCombat(List<Entity> enemies)
+        private void InitialiseCombat(List<Entity> enemies)
         {
             // Clear previous combat state
             _playerTeam.Clear();

@@ -1,6 +1,9 @@
 @startuml
 class CommandHandler {
+    - <<readonly>> _commands : Dictionary<string, ICommand>
+    - _inputHandler : Action<string>
     - _currentState : GameState?
+    + InputHandler : Action<string> <<get>> <<set>>
     + CommandHandler()
     - DefaultInputHandler(input:string) : void
     + RegisterCommand(command:ICommand) : void
@@ -8,10 +11,4 @@ class CommandHandler {
     + ExecuteCommand(input:string, state:GameState) : bool
     + GetCommands() : IEnumerable<ICommand>
 }
-
-class "Action`1"<T> {
-}
-
-CommandHandler --> "_inputHandler<string>" "Action`1"
-CommandHandler --> "InputHandler<string>" "Action`1"
 @enduml

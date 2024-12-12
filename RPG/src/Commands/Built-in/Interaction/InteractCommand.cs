@@ -1,16 +1,47 @@
 using System;
+using System.Linq;
 using RPG.Core;
 using RPG.UI.Windows;
 using RPG.World.Data;
 
 namespace RPG.Commands.Interaction
 {
+    /// <summary>
+    /// Represents a command that handles interaction between the player and NPCs or objects in the game world.
+    /// </summary>
     public class InteractCommand : BaseCommand
     {
+        /// <summary>
+        /// Gets the name of the command used to invoke the interaction.
+        /// </summary>
+        /// <value>The string "interact".</value>
         public override string Name => "interact";
+
+        /// <summary>
+        /// Gets a brief description of the command's functionality.
+        /// </summary>
+        /// <value>A string explaining the command's purpose.</value>
         public override string Description => "Interact with an NPC or object";
+
+        /// <summary>
+        /// Gets an array of alternative names that can be used to invoke this command.
+        /// </summary>
+        /// <value>An array of strings containing "talk" and "use".</value>
         public override string[] Aliases => ["talk", "use"];
 
+        /// <summary>
+        /// Executes the interaction command, allowing the player to converse with NPCs or interact with objects.
+        /// </summary>
+        /// <param name="args">The name of the NPC or object to interact with.</param>
+        /// <param name="state">The current game state containing world and player information.</param>
+        /// <remarks>
+        /// The method performs the following actions:
+        /// - Validates that the player is in a building
+        /// - Locates the specified NPC within the current building
+        /// - Displays NPC information if found
+        /// - Initiates a dialogue if the NPC has an available dialogue tree
+        /// If the NPC cannot be found, lists all available NPCs in the current location.
+        /// </remarks>
         public override void Execute(string args, GameState state)
         {
             if (string.IsNullOrWhiteSpace(args))

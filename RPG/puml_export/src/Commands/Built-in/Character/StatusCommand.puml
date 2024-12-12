@@ -1,0 +1,9 @@
+@startuml
+class StatusCommand {
+    + <<override>> Name : string <<get>>
+    + <<override>> Description : string <<get>>
+    + <<override>> Aliases : string[] <<get>>
+    + <<override>> Execute(args:string, state:GameState) : void
+}
+BaseCommand <|-- StatusCommand
+@enduml

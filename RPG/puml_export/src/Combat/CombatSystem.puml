@@ -1,0 +1,28 @@
+@startuml
+class CombatSystem {
+    - <<readonly>> _state : GameState
+    - <<readonly>> _playerTeam : List<CombatEntity>
+    - <<readonly>> _enemyTeam : List<CombatEntity>
+    - <<readonly>> _actionQueue : Queue<CombatAction>
+    - _isCombatActive : bool
+    + <<async>> StartCombatAsync(enemies:List<Entity>) : Task
+    - InitialiseCombat(enemies:List<Entity>) : void
+    - <<async>> ProcessCombatRoundAsync() : Task
+    - CalculateTurnOrder() : List<CombatEntity>
+    - <<async>> HandlePlayerTurnAsync(player:CombatEntity) : Task
+    - HandlePlayerAttack(player:CombatEntity) : bool
+    - HandlePlayerDefend(player:CombatEntity) : bool
+    - <<async>> HandlePlayerItemUseAsync(player:CombatEntity) : Task<bool>
+    - HandlePlayerFlee(player:CombatEntity) : bool
+    - <<async>> HandleEnemyTurnAsync(enemy:CombatEntity) : Task
+    - ProcessActionAsync(action:CombatAction) : Task
+    - ProcessAttack(action:CombatAction) : void
+    - ProcessDefend(action:CombatAction) : void
+    - HandleEntityDeath(entity:CombatEntity) : void
+    - CheckCombatEnd() : bool
+    - EndCombat() : void
+    - DisplayCombatStatus() : void
+    - CalculateDamage(attacker:CombatEntity, defender:CombatEntity) : int
+    - CalculateFleeChance(entity:CombatEntity) : int
+}
+@enduml

@@ -1,5 +1,8 @@
 @startuml
 class QuestManager {
+    - <<readonly>> _state : GameState
+    - <<readonly>> _activeQuests : Dictionary<int, ActiveQuest>
+    - <<readonly>> _completedQuests : Dictionary<int, Quest>
     + AcceptQuest(quest:Quest) : bool
     + UpdateObjective(type:string, target:string, amount:int) : void
     - CheckQuestCompletion(quest:ActiveQuest) : void
@@ -8,15 +11,11 @@ class QuestManager {
     + GetCompletedQuests() : List<Quest>
 }
 class ActiveQuest {
+    + Quest : Quest <<get>>
+    - <<readonly>> _progress : Dictionary<QuestObjective, int>
     + ActiveQuest(quest:Quest)
     + UpdateProgress(objective:QuestObjective, amount:int) : void
     + IsComplete() : bool
     + GetProgress(objective:QuestObjective) : int
 }
-
-QuestManager o-> "_state" GameState
-
-
-ActiveQuest --> "Quest" Quest
-
 @enduml

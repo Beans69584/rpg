@@ -1,0 +1,13 @@
+@startuml
+class Input {
+    - <<readonly>> _currentKeys : HashSet<ConsoleKey>
+    - <<readonly>> _previousKeys : HashSet<ConsoleKey>
+    - <<readonly>> _currentChars : HashSet<char>
+    - <<readonly>> _keyEvents : List<ConsoleKeyInfo>
+    + Update() : void
+    + IsKeyPressed(key:ConsoleKey) : bool
+    + IsKeyHeld(key:ConsoleKey) : bool
+    + GetPressedChars() : IEnumerable<char>
+    + GetKeyEvents() : IEnumerable<ConsoleKeyInfo>
+}
+@enduml

@@ -1,0 +1,22 @@
+@startuml
+class WorldBuilder {
+    - <<readonly>> _logger : ILogger
+    - <<readonly>> stringPool : Dictionary<string, int>
+    - nextStringId : int = 0
+    - <<readonly>> worldDataPath : string
+    - <<readonly>> jsonOptions : JsonSerializerOptions
+    + WorldBuilder(worldDataPath:string, logger:ILogger?)
+    - AddString(str:string) : int
+    + <<async>> BuildWorldAsync(worldName:string) : Task<WorldData>
+    - <<async>> BuildNPCsAsync(npcFiles:List<string>) : Task<List<Entity>>
+    - <<async>> BuildItemsAsync(itemFiles:List<string>) : Task<List<Item>>
+    - <<async>> BuildRegionsAsync(regionFiles:List<string>) : Task<List<WorldRegion>>
+    - ConvertDialogueDefinition(def:DialogueDefinition) : DialogueTree
+    - ConvertQuestDefinition(def:QuestDefinition) : Quest
+    - ConvertNPCDefinition(def:NPCDefinition) : Entity
+    - ConvertItemDefinition(def:ItemDefinition) : Item
+    - ConvertRegionDefinition(def:RegionDefinition) : WorldRegion
+    - <<async>> LoadJsonAsync(path:string) : Task<T?>
+    - <<async>> BuildResourceTableAsync(worldDef:WorldDefinition) : Task<ResourceTable>
+}
+@enduml

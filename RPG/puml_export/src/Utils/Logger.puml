@@ -3,6 +3,7 @@ class Logger <<static>> {
     - {static} _instance : ILogger?
     - <<const>> DefaultFileSizeLimitBytes : int
     - <<const>> DefaultRetainedFileCount : int = 3
+    + {static} Instance : ILogger <<get>>
     - {static} CreateLogger() : ILogger
     + {static} Shutdown() : void
     + {static} Debug(message:string, propertyValues:object[]) : void
@@ -13,5 +14,4 @@ class Logger <<static>> {
     + {static} Fatal(ex:Exception, message:string, propertyValues:object[]) : void
     + {static} ForceFlush() : void
 }
-Logger --> "Instance" ILogger
 @enduml

@@ -47,7 +47,7 @@ namespace RPG.Core
     /// Game settings for the RPG game.
     /// </summary>
     /// <remarks>
-    /// Initializes a new instance of the <see cref="GameSettings"/> class.
+    /// Initialises a new instance of the <see cref="GameSettings"/> class.
     /// </remarks>
     [method: JsonConstructor]
     public class GameSettings()
@@ -140,7 +140,7 @@ namespace RPG.Core
             return new GameSettings();
         }
 
-        // Compatibility property for existing code
+
         /// <summary>
         /// Gets or sets the current language for the game.
         /// </summary>
@@ -157,7 +157,7 @@ namespace RPG.Core
             }
         }
 
-        // Add a method to update the language directly
+
         /// <summary>
         /// Updates the language for the game settings.
         /// </summary>
